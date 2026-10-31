@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import os
 from typing import Optional
 
@@ -71,6 +72,18 @@ async def product_search(
   first_five_products = {"products": products[:5]}
   print(first_five_products)
   return first_five_products
+
+
+async def image_search(image_content: str):
+  image_base_64 = base64.b64encode(image_content).decode("utf-8")
+
+  results = await client.products.search(base64image=image_base_64)
+  print("RESULTS:", results)
+  cleaned_results = [
+    {"title": item.title, "description": item.description, "offers": item.offers}
+    for item in results.items
+]
+  return cleaned_results
 
 
 

@@ -1,5 +1,5 @@
 import json
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, File, UploadFile
 from fastapi.security import OAuth2PasswordBearer
 
 from utils.jwt_encode_decode import get_current_user
@@ -26,3 +26,7 @@ async def chat_with_agent(body: Send_Penny_Message_Dto, token: str = Depends(oau
 @router.get("/sse-stream")
 async def sse_stream(request: Request):
   return await stream_sse(request)
+
+@router.post("/image-search")
+async def image_product_search_test(file: UploadFile = File(...)):
+  return await agent_interface_service.image_product_search_test(file)
