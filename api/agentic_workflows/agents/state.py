@@ -21,7 +21,7 @@ from ..enums.user_intent import User_Intent
 from ..llm import llm
 from ..memory.context_window import trimmed_messages
 from ..outputs.coordinator_output import Coordinator_Classifier_Output
-from ..outputs.product_search_request_parser import Product_Search_Request_Parser
+from ..outputs.product_search_request_parser import Product_Search_Request_Parser, Product_Image_Search_Request_Parser
 from ..outputs.order_items_parser import OrderItemsParser
 from ..templates.user_intent_classifier import (
     template as user_intent_classifier_template,
@@ -33,8 +33,9 @@ from ..templates.order_items_aggregator_template import template as order_items_
 from ..templates.create_order_template import template as create_order_template
 from ..templates.auto_payment_capture_template import template as auto_payment_capture_template
 from ..templates.manual_capture_order_template import template as manual_capture_order_template
+from ..templates.product_image_search_request_template import template as product_image_search_request_template
 
-from ..tools.channel3_tools import product_search
+from ..tools.channel3_tools import product_search, image_search
 from ..tools.paypal_tools import create_order, vault_payment_token_exists, auto_create_order_and_capture_payment, capture_order
 from ..tools.system_order_tools import settle_order
 
@@ -83,6 +84,7 @@ class State(TypedDict):
   currency: str | None = None
   paypal_vault_payment_token_exists: bool = False
   auto_payment_capture_status: str | None = None
+  image_content: str | None = None
 
 
 class ConfigSchema(TypedDict):
@@ -134,7 +136,6 @@ def search_product_request_agent(state: State):
   this agent is responsible for searching products on the web based on user queries, along with filters.
   """
   last_human_message = state["messages"][-1].content
-  user_id = state["user_id"]
   parser = JsonOutputParser(pydantic_object=Product_Search_Request_Parser)
   prompt = PromptTemplate(
     template=product_search_request_template,
@@ -159,8 +160,6 @@ async def search_product_response_agent(state: State):
   """
   this agent is responsible for giving a response based on the query initiated by the search_product_request_agent
   """
-  last_human_message = state["messages"][-1].content
-  user_id = state["user_id"]
   dummy_ai_message = AIMessage(
     content="",
     tool_calls = [
@@ -192,27 +191,36 @@ async def search_product_response_agent(state: State):
   return {"messages": [llm_response]}
 
 
-def search_product_with_image_agent(state: State):
+def search_product_with_image_request_agent(state: State):
   """
-  this agent is responsible for searching products on the web based on user image url.
+  this agent is responsible for capturing image product content to be searched on Channel3.
   """
-  pass
+  last_human_message = state["messages"][-1].content
+  image_content = state["image_content"]
+  parser = JsonOutputParser(pydantic_object=Product_Image_Search_Request_Parser)
+  prompt = PromptTemplate(
+    template=product_image_search_request_template,
+    partial_variables={"format_instructions": parser.get_format_instructions}
+  )
+  formatted_prompt = prompt.format(
+    image_content=image_content,
+    query=last_human_message
+  )
+  llm_response = llm.invoke(formatted_prompt)
+  json_parsed_response = parser.parse(llm_response.content)
+
+  logging.info(
+    f"Agentic Workflow: State Graph: computed search product image request agent response {json_parsed_response}"
+  )
+
+  return {
+    "image_content": image_content,
+    "min_price": json_parsed_response["min_price"],
+    "max_price": json_parsed_response["max_price"],
+    "gender": json_parsed_response["gender"],
+  }
 
 
-def product_url_lookup_agent(state: State):
-  """
-  this agent is responsible for looking up products on the web based on the product url from a brand or website.
-  """
-  pass
-
-
-def e_commerce_web_product_search_agent(state: State):
-  """
-  this agent is responsible for searching products on specific e-commerce websites.
-
-  example: can i find a red shoe on amazon?
-  """
-  pass
 
 
 def order_items_aggregate_agent(state: State):
@@ -477,11 +485,7 @@ state_workflow.add_node("system_enquiry_agent", system_enquiry_agent)
 state_workflow.add_node("search_product_request_agent", search_product_request_agent)
 state_workflow.add_node("search_product_response_agent", search_product_response_agent)
 state_workflow.add_node(
-  "search_product_with_image_agent", search_product_with_image_agent
-)
-state_workflow.add_node("product_url_lookup_agent", product_url_lookup_agent)
-state_workflow.add_node(
-  "e_commerce_web_product_search_agent", e_commerce_web_product_search_agent
+  "search_product_with_image_request_agent", search_product_with_image_request_agent
 )
 state_workflow.add_node(
   "order_items_aggregate_agent", order_items_aggregate_agent
@@ -497,16 +501,14 @@ state_workflow.add_node("manual_capture_order_agent", manual_capture_order_agent
 
 def coordinator_agent_condition(state: State):
   coordinating_intent = state["intent"]
-  if coordinating_intent == User_Intent.SYSTEM_ENQUIRY:
+  image_content = state["image_content"]
+  print("coordinator state image:", image_content)
+  if image_content is not None:
+    return "search_product_with_image_request_agent"
+  elif coordinating_intent == User_Intent.SYSTEM_ENQUIRY:
     return "system_enquiry_agent"
   elif coordinating_intent == User_Intent.PRODUCT_SEARCH:
     return "search_product_request_agent"
-  elif coordinating_intent == User_Intent.PRODUCT_IMAGE_SEARCH:
-    return "search_product_with_image_agent"
-  elif coordinating_intent == User_Intent.PRODUCT_URL_LOOKUP:
-    return "product_url_lookup_agent"
-  elif coordinating_intent == User_Intent.E_COMMERCE_PRODUCT_SEARCH:
-    return "e_commerce_web_product_search_agent"
   elif coordinating_intent == User_Intent.ORDER_PAYMENT_CAPTURE:
     return "manual_capture_order_agent"
   else:
@@ -542,9 +544,7 @@ state_workflow.add_conditional_edges("coordinator_agent", coordinator_agent_cond
 state_workflow.add_edge("system_enquiry_agent", END)
 state_workflow.add_edge("search_product_request_agent", "search_product_response_agent")
 state_workflow.add_edge("search_product_response_agent", END)
-state_workflow.add_edge("search_product_with_image_agent", END)
-state_workflow.add_edge("product_url_lookup_agent", END)
-state_workflow.add_edge("e_commerce_web_product_search_agent", END)
+state_workflow.add_edge("search_product_with_image_request_agent", END)
 # state_workflow.add_edge("order_items_aggregate_agent", "order_create_agent")
 # state_workflow.add_edge("order_create_agent", END)
 state_workflow.add_edge("order_items_aggregate_agent", "auto_payment_decision_agent")
@@ -555,7 +555,7 @@ state_workflow.add_edge("manual_capture_order_agent", END)
 
 
 
-async def state_run(human_msg: str, user_thread_id: str):
+async def state_run(human_msg: str, user_thread_id: str, image_content: str = None):
   try:
     # ignoring runtime warnings
     warnings.filterwarnings("ignore")
@@ -594,7 +594,8 @@ async def state_run(human_msg: str, user_thread_id: str):
 
       # otherwise, start a new turn
       state_messages = await graph.ainvoke(
-        {"messages": [human_msg], "user_id": user_thread_id}, user_configuration
+        {"messages": [human_msg], "user_id": user_thread_id, "image_content": image_content}, 
+        user_configuration
       )
 
     return state_messages
