@@ -77,7 +77,21 @@ async def product_search(
 async def image_search(image_content: str):
   image_base_64 = base64.b64encode(image_content).decode("utf-8")
 
-  results = await client.products.search(base64image=image_base_64)
+  # filters don't really work with the image search
+  search_filters = {
+    "price": {
+      "min_price": 00,
+      "max_price": 70,
+    },
+    "gender": "female"
+  }
+
+  # results = await client.products.search(base64image=image_base_64)
+  results = await client.products.search(
+    base64image=image_base_64,
+    filters=search_filters
+  )
+
   print("RESULTS:", results)
   cleaned_results = [
     {"title": item.title, "description": item.description, "offers": item.offers}
