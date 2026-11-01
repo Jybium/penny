@@ -22,7 +22,7 @@ async def create_user(
     existing_user = db.query(User).filter(User.email == email).first()
     if existing_user:
       raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists"
+        status_code=status.HTTP_400_BAD_REQUEST, detail="User with this email already exists"
       )
 
     new_user = User(
@@ -37,10 +37,8 @@ async def create_user(
     db.commit()
     return new_user
   except HTTPException as e:
-    raise HTTPException(
-      detail="Error creating user",
-      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-    )
+    logging.error(f"Error creating user: {e}")
+    raise e
 
 
 async def get_user_by_email(email: str, db: Session = Depends(get_db)):

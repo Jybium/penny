@@ -1,7 +1,11 @@
 from fastapi import File, UploadFile, HTTPException, status
 from agentic_workflows.ai_layer import ai
+from agentic_workflows.agents.checkpoint_operations import CheckPointer
 from agentic_workflows.tools.channel3_tools import image_search, image_search_test
 from utils.sse_management import publish_sse
+
+
+checkpointer = CheckPointer()
 
 
 async def chat_with_agent(human_msg: str, user_thread_id: str, image_content: str = None):
@@ -15,6 +19,13 @@ async def chat_with_agent(human_msg: str, user_thread_id: str, image_content: st
   except Exception:
     pass
   return {"user_id": user_thread_id, "message": human_msg, "penny": ai_response}
+
+
+async def adelete_thread_checkpoints(user_thread_id: str):
+  await checkpointer.adelete_thread_checkpoints(user_thread_id)
+  return {
+    "message": "checkpoints deleted successfully"
+  }
 
 
 async def image_product_search_test(file: UploadFile = File(...)):

@@ -9,6 +9,7 @@ from database_config import get_db
 from sqlalchemy.orm import Session
 from fastapi.responses import StreamingResponse
 from utils.sse_management import stream_sse
+from .dtos.chat_response_dto import Chat_Response_Dto
 
 router = APIRouter(prefix="/agent", tags=["Agent Interface"])
 
@@ -28,7 +29,11 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 #   )
 
 
-@router.post("/chat")
+@router.post("/chat", 
+  response_model=Chat_Response_Dto, 
+  summary="Chat with the Penny agent",
+  description="Send a text query, an image, or both. At least one is required.",
+)
 async def chat_with_agent(
   # file: UploadFile = File(...),
   file: UploadFile | None = File(None),
@@ -42,6 +47,9 @@ async def chat_with_agent(
 
   if file is not None:
     image_content = await file.read() 
+
+  if not query and image_content is None:
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Send a message or an image")
   
   user_info = await get_current_user(token, db)
   
@@ -53,6 +61,15 @@ async def chat_with_agent(
 @router.get("/sse-stream")
 async def sse_stream(request: Request):
   return await stream_sse(request)
+
+
+@router.delete("/checkpoints", summary="Delete all checkpoints for the current user")
+async def adelete_thread_checkpoints(
+  token: str = Depends(oauth2_scheme), 
+  db: Session = Depends(get_db)
+):
+  user_info = await get_current_user(token, db)
+  return await agent_interface_service.adelete_thread_checkpoints(user_thread_id=user_info.id)
 
 # @router.post("/image-search")
 # async def image_product_search_test(file: UploadFile = File(...)):
