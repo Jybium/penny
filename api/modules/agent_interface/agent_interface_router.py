@@ -54,6 +54,6 @@ async def chat_with_agent(
 async def sse_stream(request: Request):
   return await stream_sse(request)
 
-@router.post("/image-search")
-async def image_product_search_test(file: UploadFile = File(...)):
-  return await agent_interface_service.image_product_search_test(file)
+# @router.post("/image-search")
+# async def image_product_search_test(file: UploadFile = File(...)):
+#   return await agent_interface_service.image_product_search_test(file)
