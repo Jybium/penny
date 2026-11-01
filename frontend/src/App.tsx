@@ -13,6 +13,7 @@ import PaymentPage from "./pages/PaymentPage"
 import SuccessPage from "./pages/SuccessPage"
 import CancelPage from "./pages/CancelPage"
 import AutonomyPage from "./pages/AutonomyPage"
+import OrdersModal from "./OrdersModal"
 
 export type View =
   | "landing"
@@ -179,11 +180,13 @@ function Header({
   goTo,
   onCustomize,
   onOpenDemo,
+  onOpenOrders,
   user,
 }: {
   goTo: (view: View) => void
   onCustomize: () => void
   onOpenDemo: () => void
+  onOpenOrders: () => void
   user: AuthUser | null
 }) {
   return (
@@ -217,6 +220,14 @@ function Header({
           type="button"
         >
           <Icon name="shield" size={14} /> Autonomy
+        </button>
+        <button
+          className="customize-button"
+          onClick={onOpenOrders}
+          title="View Your Orders"
+          type="button"
+        >
+          <Icon name="bag" size={14} /> Orders
         </button>
         <button
           aria-label="Customize shopping preferences"
@@ -720,6 +731,7 @@ export default function App() {
   const view = viewFromPath(location.pathname)
   const [preferencesOpen, setPreferencesOpen] = useState(false)
   const [demoOpen, setDemoOpen] = useState(false)
+  const [ordersOpen, setOrdersOpen] = useState(false)
   const [demoPresetQuery, setDemoPresetQuery] = useState("")
   const [authMode, setAuthMode] = useState<AuthMode>("signup")
   const [authOpen, setAuthOpen] = useState(false)
@@ -757,6 +769,19 @@ export default function App() {
     document.title = pageTitle
     window.scrollTo({ top: 0, behavior: "smooth" })
   }, [pageTitle])
+
+  // Subscribe to real-time agent SSE stream for live order telemetry
+  useEffect(() => {
+    if (!token) return
+    const unsubscribe = api.subscribeSSE((data) => {
+      if (data.order_id) {
+        notify(`Order update: ${data.order_id}`, "info")
+      }
+    })
+    return () => {
+      unsubscribe()
+    }
+  }, [token])
 
   function goTo(next: View) {
     const paths: Record<View, string> = {
@@ -829,6 +854,7 @@ export default function App() {
           goTo={goTo}
           onCustomize={() => setPreferencesOpen(true)}
           onOpenDemo={() => setDemoOpen(true)}
+          onOpenOrders={() => setOrdersOpen(true)}
           user={user}
         />
       )}
@@ -886,6 +912,13 @@ export default function App() {
           goTo("chat")
         }}
         open={demoOpen}
+      />
+
+      <OrdersModal
+        isOpen={ordersOpen}
+        onClose={() => setOrdersOpen(false)}
+        onNotify={notify}
+        token={token}
       />
 
       <GuardrailModal

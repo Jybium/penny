@@ -118,7 +118,6 @@ export default function PaymentPage({
   onNavigate,
   onNotify,
 }: Props) {
-  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [vaultToken, setVaultToken] = useState<VaultTokenResponse | null>(null);
   const [checkingVault, setCheckingVault] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -183,13 +182,6 @@ export default function PaymentPage({
     };
   }, [token, onNotify]);
 
-  function handleCopy(url: string, key: string) {
-    navigator.clipboard.writeText(url);
-    setCopiedUrl(key);
-    onNotify("Redirect link copied to clipboard.");
-    window.setTimeout(() => setCopiedUrl(null), 2000);
-  }
-
   function handlePayPalClick() {
     if (order.paypalApprovalUrl) {
       window.open(order.paypalApprovalUrl, "_blank", "noopener,noreferrer");
@@ -217,9 +209,6 @@ export default function PaymentPage({
       setIsProcessing(false);
     }
   }
-
-  const successRedirectUrl = `${window.location.origin}/order/success?order_id=${encodeURIComponent(order.orderId || "")}`;
-  const cancelRedirectUrl = `${window.location.origin}/checkout/cancel`;
 
   return (
     <main className="payment-page page-enter">
@@ -354,53 +343,6 @@ export default function PaymentPage({
               Penny Sandbox Environment &bull; No actual credit card will be
               charged.
             </p>
-
-            <div className="redirect-panel">
-              <div className="redirect-head">
-                <div>
-                  <h3>Sandbox Webhook &amp; Return Handlers</h3>
-                </div>
-                <span>SANDBOX</span>
-              </div>
-              <p>
-                When PayPal completes authorization, it redirects the browser to
-                the return URL configured in Penny:
-              </p>
-
-              <div className="url-row">
-                <span className="url-status success">
-                  <Icon name="check" size={11} /> Return
-                </span>
-                <code>{successRedirectUrl}</code>
-                <button
-                  aria-label="Copy return URL"
-                  onClick={() => handleCopy(successRedirectUrl, "success")}
-                  title="Copy return URL"
-                >
-                  <Icon
-                    name={copiedUrl === "success" ? "check" : "copy"}
-                    size={13}
-                  />
-                </button>
-              </div>
-
-              <div className="url-row">
-                <span className="url-status cancel">
-                  <Icon name="x" size={11} /> Cancel
-                </span>
-                <code>{cancelRedirectUrl}</code>
-                <button
-                  aria-label="Copy cancel URL"
-                  onClick={() => handleCopy(cancelRedirectUrl, "cancel")}
-                  title="Copy cancel URL"
-                >
-                  <Icon
-                    name={copiedUrl === "cancel" ? "check" : "copy"}
-                    size={13}
-                  />
-                </button>
-              </div>
-            </div>
           </div>
         </section>
 

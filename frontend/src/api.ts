@@ -200,20 +200,28 @@ export const api = {
   },
 
   async getOrders(token: string): Promise<ApiOrder[]> {
-    const data = await request<ApiOrder[] | { items: ApiOrder[] }>("/orders/own", {}, token)
+    const data = await request<any>("/orders/own", {}, token)
     if (Array.isArray(data)) return data
-    if (data && typeof data === "object" && "items" in data && Array.isArray(data.items)) {
-      return data.items
+    if (data && typeof data === "object") {
+      if (Array.isArray(data.items)) return data.items
+      if (Array.isArray(data.results)) return data.results
     }
     return []
   },
 
-  getOrder(orderId: string, token: string) {
-    return request<ApiOrder>(
+  async getOrder(orderId: string, token: string): Promise<ApiOrder> {
+    const data = await request<any>(
       `/orders/own/${encodeURIComponent(orderId)}`,
       {},
       token,
     )
+    if (data && typeof data === "object" && data.order) {
+      return {
+        ...data.order,
+        order_items: data.order_items || data.order.order_items || [],
+      }
+    }
+    return data as ApiOrder
   },
 
   subscribeSSE(

@@ -22,6 +22,18 @@ export default function SuccessPage({ token, onNavigate }: Props) {
     if (!token) return;
     let active = true;
     setLoading(true);
+
+    if (orderId && !orderId.startsWith("ORD-")) {
+      api
+        .getOrder(orderId, token)
+        .then((ord) => {
+          if (active && ord) {
+            setOrders((prev) => [ord, ...prev.filter((o) => o.id !== ord.id)]);
+          }
+        })
+        .catch(() => undefined);
+    }
+
     api
       .getOrders(token)
       .then((data) => {
@@ -34,7 +46,7 @@ export default function SuccessPage({ token, onNavigate }: Props) {
     return () => {
       active = false;
     };
-  }, [token]);
+  }, [token, orderId]);
 
   const matchedOrder = orders.find(
     (o) => o.id === orderId || o.paypal_order_id === orderId,
