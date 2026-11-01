@@ -73,7 +73,7 @@ button:disabled { cursor: wait; opacity: .72; }
 .agent-rules span { display: flex; flex-direction: column; gap: 3px; }
 .agent-rules strong { color: #34413c; font-size: 11px; }
 .agent-rules small { color: #89918d; font-size: 9px; }
-.autonomy-preview { margin-top: auto; padding: 18px; border: 1px solid #e6cc84; border-radius: 10px; background: rgba(255,240,189,.55); }
+.autonomy-preview { margin-top: 20px; padding: 18px;   padding-top: 5px; border: 1px solid #e6cc84; border-radius: 10px; background: rgba(255,240,189,.55); }
 .soon-badge { padding: 4px 6px; border-radius: 4px; color: var(--penny-honey-deep); background: var(--penny-honey-soft); font: 500 8px "DM Mono"; letter-spacing: .09em; }
 .autonomy-preview h3 { margin: 14px 0 7px; font-size: 13px; }
 .autonomy-preview p { margin: 0 0 13px; color: #77817c; font-size: 10px; line-height: 1.55; }

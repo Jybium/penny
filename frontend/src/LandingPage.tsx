@@ -1,9 +1,20 @@
-import type { ReactNode } from "react"
+import { useState, type ReactNode, type FormEvent } from "react"
+
+export type AuthUserSummary = {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+}
 
 type Props = {
-  onEnter: () => void
+  user: AuthUserSummary | null
+  mode: "shop-with-me" | "buy-for-me"
+  onModeChange: (mode: "shop-with-me" | "buy-for-me") => void
+  onEnter: (query?: string) => void
   onSignIn: () => void
   onSignUp: () => void
+  onOpenDemo: () => void
 }
 
 function Mark({ children }: { children: ReactNode }) {
@@ -55,41 +66,68 @@ const Person = () => (
 )
 const Lock = () => (
   <Mark>
-    <rect x="5" y="10" width="14" height="10" rx="2" />
+    <rect height="10" rx="2" width="14" x="5" y="10" />
     <path d="M8 10V7a4 4 0 0 1 8 0v3" />
   </Mark>
 )
 const Card = () => (
   <Mark>
-    <rect x="3" y="5" width="18" height="14" rx="2" />
+    <rect height="14" rx="2" width="18" x="3" y="5" />
     <path d="M3 10h18" />
   </Mark>
 )
 
+const SAMPLE_PROMPTS = [
+  "Find me wireless noise cancelling headphones under $150",
+  "Ergonomic mechanical keyboard for typing",
+  "Adjustable standing desk converter",
+]
+
 export default function LandingPage({
+  user,
+  mode,
+  onModeChange,
   onEnter,
   onSignIn,
   onSignUp,
+  onOpenDemo,
 }: Props) {
+  const [heroSearch, setHeroSearch] = useState("")
+
+  function handleSearchSubmit(e: FormEvent) {
+    e.preventDefault()
+    onEnter(heroSearch.trim() || undefined)
+  }
+
   return (
     <main className="landing-page">
-      <nav className="landing-nav">
-        <button className="landing-brand">
-          <span>
-            <Sparkles />
-          </span>
-          Penny
-        </button>
-        <div className="landing-links">
+      {/* Sub-navigation bar for in-page anchors */}
+      <nav className="landing-nav" style={{ height: 50, borderBottom: "1px solid #e2e6de" }}>
+        <div className="landing-links" style={{ gap: 24, fontSize: 11 }}>
           <a href="#how">How it works</a>
           <a href="#control">Your control</a>
           <a href="#autonomy">Autonomous payments</a>
-        </div>
-        <div className="landing-account-actions">
-          <button onClick={onSignIn}>Sign in</button>
-          <button className="landing-nav-cta" onClick={onSignUp}>
-            Get started <Arrow />
+          <button
+            onClick={onOpenDemo}
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--penny-green)",
+              fontWeight: 700,
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            System Demo <Sparkles />
           </button>
+        </div>
+        <div style={{ justifySelf: "end", fontSize: 10, color: "#6e7e76" }}>
+          Current Mode:{" "}
+          <strong style={{ color: mode === "buy-for-me" ? "var(--penny-green)" : "#3a4d43" }}>
+            {mode === "buy-for-me" ? "Buy for me (Autonomous)" : "Shop with me (Manual)"}
+          </strong>
         </div>
       </nav>
 
@@ -108,19 +146,34 @@ export default function LandingPage({
             the tradeoffs, and brings you one clear decision—ready to approve.
           </p>
           <div className="landing-actions">
-            <button onClick={onEnter}>
-              Start a purchase <Arrow />
+            <button onClick={() => onEnter(heroSearch.trim() || undefined)}>
+              {user ? "Continue to Chat" : "Start a purchase"} <Arrow />
             </button>
-            <a href="#how">See how it works</a>
+            <button
+              onClick={onOpenDemo}
+              style={{
+                background: "none",
+                border: "1px solid #d0d7d0",
+                borderRadius: 8,
+                padding: "10px 16px",
+                color: "#304339",
+                fontWeight: 600,
+                fontSize: 11,
+                cursor: "pointer",
+              }}
+            >
+              How Penny Works Demo
+            </button>
           </div>
           <div className="landing-proof">
             <div>
-              <span>AM</span>
+              <span>{user ? user.firstName[0] : "AM"}</span>
               <span>JL</span>
               <span>SK</span>
             </div>
             <p>
-              <strong>Designed for control</strong>You choose how checkout works
+              <strong>Designed for control</strong>
+              You choose between manual review and autonomous vault settlement
             </p>
           </div>
         </div>
@@ -133,9 +186,11 @@ export default function LandingPage({
               </span>
               <div>
                 <strong>Your commerce agent</strong>
-                <small>Researching across the web</small>
+                <small>Multimodal Search &bull; LangGraph &bull; PayPal Ready</small>
               </div>
-              <i>LIVE</i>
+              <i style={{ font: "700 8px 'DM Mono'", background: "#def0e5", color: "#175837", padding: "2px 6px", borderRadius: 4 }}>
+                ONLINE
+              </i>
             </header>
             <div className="landing-demo-body">
               <div className="demo-welcome">
@@ -144,34 +199,95 @@ export default function LandingPage({
                 </span>
                 <strong>What should Penny find?</strong>
                 <p>
-                  Describe what you need or attach a file to search from an
-                  image, document, or reference.
+                  Describe what you need or pick a sample product search below.
                 </p>
               </div>
-              <div className="demo-file-search">
-                <span>+</span>
-                <p>
-                  <strong>Attach a file</strong>
-                  Optional · Penny sends it with your search
-                </p>
-              </div>
-              <button onClick={onEnter}>
-                Start a search <Arrow />
-              </button>
+
+              {/* Interactive Search Input on Landing Hero */}
+              <form onSubmit={handleSearchSubmit} style={{ display: "grid", gap: 8, margin: "10px 0" }}>
+                <input
+                  aria-label="Describe what you want to buy"
+                  onChange={(e) => setHeroSearch(e.target.value)}
+                  placeholder="e.g. Wireless noise cancelling headphones under $150..."
+                  style={{
+                    width: "100%",
+                    padding: "10px 14px",
+                    borderRadius: 8,
+                    border: "1px solid #d2ded5",
+                    fontSize: 11,
+                    outline: "none",
+                    background: "#ffffff",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
+                  }}
+                  type="text"
+                  value={heroSearch}
+                />
+
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {SAMPLE_PROMPTS.map((prompt) => (
+                    <button
+                      key={prompt}
+                      onClick={() => onEnter(prompt)}
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: 4,
+                        border: "1px solid #dbe2dc",
+                        background: "#f4f7f5",
+                        fontSize: 9,
+                        color: "#465c51",
+                        cursor: "pointer",
+                        textAlign: "left",
+                      }}
+                      type="button"
+                    >
+                      &ldquo;{prompt}&rdquo;
+                    </button>
+                  ))}
+                </div>
+
+                <button style={{ marginTop: 4 }} type="submit">
+                  Search with Penny <Arrow />
+                </button>
+              </form>
             </div>
           </div>
-          <div className="float-card guardrail">
+
+          {/* Interactive Floating Mode Cards Synced with Mode State */}
+          <button
+            className={`float-card guardrail ${mode === "shop-with-me" ? "is-selected" : ""}`}
+            onClick={() => onModeChange("shop-with-me")}
+            style={{
+              cursor: "pointer",
+              textAlign: "left",
+              border: mode === "shop-with-me" ? "2px solid var(--penny-green)" : "1px solid #dce0d9",
+              background: mode === "shop-with-me" ? "#fffcf5" : "#ffffff",
+            }}
+            type="button"
+          >
             <Shield />
             <span>
-              <strong>Shop with me</strong>You complete PayPal checkout
+              <strong>Shop with me {mode === "shop-with-me" ? "✓ (ACTIVE)" : ""}</strong>
+              You complete PayPal checkout
             </span>
-          </div>
-          <div className="float-card savings">
+          </button>
+
+          <button
+            className={`float-card savings ${mode === "buy-for-me" ? "is-selected" : ""}`}
+            onClick={() => onModeChange("buy-for-me")}
+            style={{
+              cursor: "pointer",
+              textAlign: "left",
+              border: mode === "buy-for-me" ? "2px solid var(--penny-green)" : "1px solid #dce0d9",
+              background: mode === "buy-for-me" ? "#fffcf5" : "#ffffff",
+            }}
+            type="button"
+          >
             <Check />
             <span>
-              <strong>Buy for me</strong>Penny completes checkout
+              <strong>Buy for me {mode === "buy-for-me" ? "✓ (ACTIVE)" : ""}</strong>
+              Penny completes checkout autonomously
             </span>
-          </div>
+          </button>
         </div>
       </section>
 
@@ -213,8 +329,8 @@ export default function LandingPage({
             </i>
             <h3>Say what you need</h3>
             <p>
-              Describe your goal, budget, timing, and preferences naturally. No
-              filters or endless tabs.
+              Describe your goal, budget, timing, or upload a product picture.
+              No complex search filters or 20 tabs open.
             </p>
           </article>
           <article>
@@ -224,8 +340,8 @@ export default function LandingPage({
             </i>
             <h3>Your agent does the work</h3>
             <p>
-              It searches retailers, checks policies, weighs tradeoffs, and
-              explains why its pick fits.
+              It queries verified merchant catalogs, compares specs, and
+              returns live product cards with stock status and prices.
             </p>
           </article>
           <article>
@@ -235,8 +351,8 @@ export default function LandingPage({
             </i>
             <h3>You make the call</h3>
             <p>
-              Review one clear recommendation, request changes, or approve
-              payment securely with PayPal.
+              Review curated recommendations, approve checkout with PayPal,
+              or let Penny capture automatically in Buy for me mode.
             </p>
           </article>
         </div>
@@ -257,43 +373,52 @@ export default function LandingPage({
           </span>
           <ul>
             <li>
-              <Lock /> Approval before payment
+              <Lock /> Non-custodial — zero stored card credentials
             </li>
             <li>
-              <Shield /> Clear reasoning and tradeoffs
+              <Shield /> Full transparency on reasoning and merchant pricing
             </li>
             <li>
-              <Card /> PayPal details stay with PayPal
+              <Card /> PayPal Sandbox protection on all test transactions
             </li>
           </ul>
         </div>
+
+        {/* Live Synchronized Control Panel */}
         <div className="control-panel">
           <header>
             <span>
               <Shield /> Penny mode
             </span>
-            <i>ACTIVE</i>
+            <i>ACTIVE: {mode === "buy-for-me" ? "BUY FOR ME" : "SHOP WITH ME"}</i>
           </header>
-          <div>
+          <div
+            onClick={() => onModeChange("shop-with-me")}
+            style={{
+              cursor: "pointer",
+              background: mode === "shop-with-me" ? "#eef6f1" : "transparent",
+              transition: "background 0.15s ease",
+            }}
+          >
             <span>
-              <strong>Penny mode</strong>
-              <small>Choose who completes checkout</small>
+              <strong>Shop with me (Default)</strong>
+              <small>Penny creates the order; you review and complete PayPal checkout.</small>
             </span>
-            <em>Shop with me</em>
+            <b>{mode === "shop-with-me" ? "SELECTED" : "CLICK TO SELECT"}</b>
           </div>
-          <div>
+          <div
+            onClick={() => onModeChange("buy-for-me")}
+            style={{
+              cursor: "pointer",
+              background: mode === "buy-for-me" ? "#eef6f1" : "transparent",
+              transition: "background 0.15s ease",
+            }}
+          >
             <span>
-              <strong>Shop with me</strong>
-              <small>You complete PayPal checkout</small>
+              <strong>Buy for me (Autonomous)</strong>
+              <small>Penny settles orders automatically with your saved PayPal Vault token.</small>
             </span>
-            <b>SELECTED</b>
-          </div>
-          <div>
-            <span>
-              <strong>Buy for me</strong>
-              <small>Penny completes checkout</small>
-            </span>
-            <em>Available</em>
+            <b>{mode === "buy-for-me" ? "SELECTED" : "CLICK TO SELECT"}</b>
           </div>
         </div>
       </section>
@@ -307,20 +432,34 @@ export default function LandingPage({
             You choose who checks out.
           </h2>
           <p>
-            Use Shop with me when you want to log in and complete PayPal
-            checkout yourself. Switch to Buy for me when you want Penny to
-            handle checkout with your saved PayPal payment method.
+            Use <strong>Shop with me</strong> when you want to review and authorize
+            each checkout manually. Switch to <strong>Buy for me</strong> when you want Penny to
+            handle checkout seamlessly using your tokenized PayPal Vault.
           </p>
           <div className="penny-modes">
-            <div>
+            <div
+              onClick={() => onModeChange("shop-with-me")}
+              style={{
+                cursor: "pointer",
+                border: mode === "shop-with-me" ? "2px solid var(--penny-green)" : "1px solid #dce2dc",
+                background: mode === "shop-with-me" ? "#ffffff" : "#fbfdfc",
+              }}
+            >
               <span>01</span>
-              <strong>Shop with me</strong>
+              <strong>Shop with me {mode === "shop-with-me" && "✓"}</strong>
               <small>You manually complete checkout on the PayPal screen.</small>
             </div>
-            <div>
+            <div
+              onClick={() => onModeChange("buy-for-me")}
+              style={{
+                cursor: "pointer",
+                border: mode === "buy-for-me" ? "2px solid var(--penny-green)" : "1px solid #dce2dc",
+                background: mode === "buy-for-me" ? "#ffffff" : "#fbfdfc",
+              }}
+            >
               <span>02</span>
-              <strong>Buy for me</strong>
-              <small>Penny completes checkout with your saved PayPal.</small>
+              <strong>Buy for me {mode === "buy-for-me" && "✓"}</strong>
+              <small>Penny completes checkout with your saved PayPal Vault.</small>
             </div>
           </div>
           <ul>
@@ -328,87 +467,29 @@ export default function LandingPage({
               <Check />
               <span>
                 <strong>One clear choice</strong>
-                Switch who completes checkout before you purchase
+                Switch who completes checkout at any time
               </span>
             </li>
             <li>
               <Check />
               <span>
                 <strong>PayPal stays in control</strong>
-                Your payment method remains stored with PayPal
+                Your payment details remain securely managed by PayPal
               </span>
             </li>
             <li>
               <Check />
               <span>
-                <strong>See completed orders</strong>
-                Penny retrieves your order history from your account
+                <strong>Live Order Tracking &amp; History</strong>
+                Penny streams real-time updates via SSE and records completed orders
               </span>
             </li>
           </ul>
-          <button onClick={onSignUp}>
-            Set up autonomous payments <Arrow />
+          <button onClick={() => (user ? onEnter() : onSignUp())}>
+            {user ? "Open Autonomous Settings" : "Set up autonomous payments"} <Arrow />
           </button>
         </div>
-        <div className="autonomy-dashboard">
-          <header>
-            <div>
-              <span className="automation-pulse" />
-              <span>
-                <strong>Buy for me</strong>
-                <small>Penny handles checkout</small>
-              </span>
-            </div>
-            <b>ACTIVE</b>
-          </header>
-          <div className="automation-limit mode-status">
-            <span>
-              <small>CURRENT MODE</small>
-              <strong>Buy for me</strong>
-              <em>Autonomous checkout</em>
-            </span>
-            <Check />
-          </div>
-          <div className="automation-rules">
-            <div>
-              <Shield />
-              <span>
-                <strong>PayPal payment method</strong>
-                <small>Stored securely with PayPal</small>
-              </span>
-              <b>READY</b>
-            </div>
-            <div>
-              <Card />
-              <span>
-                <strong>Checkout handler</strong>
-                <small>Penny completes the PayPal checkout</small>
-              </span>
-              <em>AI</em>
-            </div>
-          </div>
-          <footer>
-            <span className="automation-check">
-              <Check />
-            </span>
-            <span>
-              <strong>Buy for me is ready</strong>
-              <small>You can switch modes before checkout</small>
-            </span>
-          </footer>
-        </div>
       </section>
-
-      <footer className="landing-footer">
-        <button className="landing-brand">
-          <span>
-            <Sparkles />
-          </span>
-          Penny
-        </button>
-        <p>Thoughtful commerce, powered by agents.</p>
-        <small>© 2025 Penny</small>
-      </footer>
     </main>
   )
 }

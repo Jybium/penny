@@ -1,20 +1,23 @@
-import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react"
-import { useLocation, useNavigate } from "react-router"
-import LandingPage from "./LandingPage"
-import GuardrailModal from "./GuardrailModal"
-import DemoModal from "./DemoModal"
-import AuthModal, {
-  AuthMode,
-  AuthPayload,
-  AuthUser,
-} from "./AuthModal"
-import { api, ChatResponse } from "./api"
-import PaymentPage from "./pages/PaymentPage"
-import SuccessPage from "./pages/SuccessPage"
-import CancelPage from "./pages/CancelPage"
-import AutonomyPage from "./pages/AutonomyPage"
-import OrdersModal from "./OrdersModal"
-import { formatPennyMessage } from "./utils/formatMarkdown"
+import {
+  FormEvent,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useLocation, useNavigate } from "react-router";
+import LandingPage from "./LandingPage";
+import GuardrailModal from "./GuardrailModal";
+import DemoModal from "./DemoModal";
+import AuthModal, { AuthMode, AuthPayload, AuthUser } from "./AuthModal";
+import { api, ChatResponse } from "./api";
+import PaymentPage from "./pages/PaymentPage";
+import SuccessPage from "./pages/SuccessPage";
+import CancelPage from "./pages/CancelPage";
+import AutonomyPage from "./pages/AutonomyPage";
+import OrdersModal from "./OrdersModal";
+import { formatPennyMessage } from "./utils/formatMarkdown";
 
 export type View =
   | "landing"
@@ -23,7 +26,7 @@ export type View =
   | "payment"
   | "success"
   | "cancel"
-  | "autonomy"
+  | "autonomy";
 
 type IconName =
   | "arrow"
@@ -44,25 +47,25 @@ type IconName =
   | "shield"
   | "sparkles"
   | "user"
-  | "x"
+  | "x";
 
 type Guardrails = {
-  mode: "shop-with-me" | "buy-for-me"
-}
+  mode: "shop-with-me" | "buy-for-me";
+};
 
 type ToastItem = {
-  id: number
-  message: string
-  tone: "success" | "info" | "error"
-}
+  id: number;
+  message: string;
+  tone: "success" | "info" | "error";
+};
 
 type ChatMessage = {
-  id: string
-  role: "user" | "penny"
-  content: string
-  imageUrl?: string
-  fileName?: string
-}
+  id: string;
+  role: "user" | "penny";
+  content: string;
+  imageUrl?: string;
+  fileName?: string;
+};
 
 function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
   const paths: Record<IconName, ReactNode> = {
@@ -139,7 +142,7 @@ function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
       </>
     ),
     x: <path d="m6 6 12 12M18 6 6 18" />,
-  }
+  };
 
   return (
     <svg
@@ -158,41 +161,51 @@ function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
         {paths[name]}
       </g>
     </svg>
-  )
+  );
 }
 
 function viewFromPath(pathname: string): View {
-  if (pathname === "/chat") return "chat"
-  if (pathname === "/review") return "review"
-  if (pathname === "/checkout") return "payment"
-  if (pathname === "/order/success") return "success"
-  if (pathname === "/checkout/cancel") return "cancel"
-  if (pathname === "/autonomy") return "autonomy"
-  return "landing"
+  if (pathname === "/chat") return "chat";
+  if (pathname === "/review") return "review";
+  if (pathname === "/checkout") return "payment";
+  if (pathname === "/order/success") return "success";
+  if (pathname === "/checkout/cancel") return "cancel";
+  if (pathname === "/autonomy") return "autonomy";
+  return "landing";
 }
 
 const suggestions = [
   "Find me wireless noise cancelling headphones under $150",
   "Help me compare top running shoes for marathons",
   "I need an ergonomic mechanical keyboard for typing",
-]
+];
 
 function Header({
   goTo,
   onCustomize,
   onOpenDemo,
   onOpenOrders,
+  onSignIn,
+  onSignUp,
+  onSignOut,
   user,
+  view,
 }: {
-  goTo: (view: View) => void
-  onCustomize: () => void
-  onOpenDemo: () => void
-  onOpenOrders: () => void
-  user: AuthUser | null
+  goTo: (view: View) => void;
+  onCustomize: () => void;
+  onOpenDemo: () => void;
+  onOpenOrders: () => void;
+  onSignIn: () => void;
+  onSignUp: () => void;
+  onSignOut: () => void;
+  user: AuthUser | null;
+  view: View;
 }) {
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+
   return (
     <header className="app-header">
-      <button className="wordmark" onClick={() => goTo("chat")}>
+      <button className="wordmark" onClick={() => goTo(user ? "chat" : "landing")}>
         <span className="wordmark-icon">
           <Icon name="sparkles" size={16} />
         </span>
@@ -213,44 +226,140 @@ function Header({
       </div>
 
       <div className="header-actions">
-        <button
-          className="customize-button"
-          onClick={() => goTo("autonomy")}
-          style={{ background: "#f1f8f3", borderColor: "#c2ded0", color: "#2d5e46" }}
-          title="Manage PayPal Vault & Autonomous Payments"
-          type="button"
-        >
-          <Icon name="shield" size={14} /> Autonomy
-        </button>
-        <button
-          className="customize-button"
-          onClick={onOpenOrders}
-          title="View Your Orders"
-          type="button"
-        >
-          <Icon name="bag" size={14} /> Orders
-        </button>
-        <button
-          aria-label="Customize shopping preferences"
-          className="customize-button"
-          onClick={onCustomize}
-          type="button"
-        >
-          <Icon name="settings" size={15} /> Preferences
-        </button>
-        <button
-          aria-label={user ? `${user.firstName}'s account` : "Account"}
-          className="profile-button"
-          title={user?.email}
-          type="button"
-        >
-          {user
-            ? `${user.firstName[0] || ""}${user.lastName[0] || ""}`.toUpperCase()
-            : "AM"}
-        </button>
+        {user ? (
+          <>
+            {view === "landing" && (
+              <button
+                className="customize-button"
+                onClick={() => goTo("chat")}
+                style={{
+                  background: "var(--penny-green)",
+                  color: "#ffffff",
+                  borderColor: "var(--penny-green)",
+                  fontWeight: 700,
+                }}
+                title="Go to Penny Conversation"
+                type="button"
+              >
+                Go to Chat &rarr;
+              </button>
+            )}
+
+            <button
+              className="customize-button"
+              onClick={() => goTo("autonomy")}
+              style={{
+                background: "#f1f8f3",
+                borderColor: "#c2ded0",
+                color: "#2d5e46",
+              }}
+              title="Manage PayPal Vault & Autonomous Payments"
+              type="button"
+            >
+              <Icon name="shield" size={14} /> Autonomy
+            </button>
+            <button
+              className="customize-button"
+              onClick={onOpenOrders}
+              title="View Your Orders"
+              type="button"
+            >
+              <Icon name="bag" size={14} /> Orders
+            </button>
+            <button
+              aria-label="Customize shopping preferences"
+              className="customize-button"
+              onClick={onCustomize}
+              type="button"
+            >
+              <Icon name="settings" size={15} /> Preferences
+            </button>
+
+            <div style={{ position: "relative" }}>
+              <button
+                aria-label={user ? `${user.firstName}'s account` : "Account"}
+                className="profile-button"
+                onClick={() => setProfileMenuOpen((prev) => !prev)}
+                title={user?.email ? `${user.email} (click to view)` : "Account"}
+                type="button"
+              >
+                {user
+                  ? `${user.firstName[0] || ""}${user.lastName[0] || ""}`.toUpperCase()
+                  : "AM"}
+              </button>
+
+              {profileMenuOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    right: 0,
+                    marginTop: 8,
+                    background: "#ffffff",
+                    border: "1px solid #d4ddd5",
+                    borderRadius: 8,
+                    padding: "8px 0",
+                    boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
+                    minWidth: 160,
+                    zIndex: 100,
+                  }}
+                >
+                  <div style={{ padding: "6px 14px", borderBottom: "1px solid #edf2ee" }}>
+                    <div style={{ fontSize: 11, fontWeight: "bold", color: "#192b21" }}>
+                      {user.firstName} {user.lastName}
+                    </div>
+                    <div style={{ fontSize: 9, color: "#76867d" }}>{user.email}</div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setProfileMenuOpen(false);
+                      onSignOut();
+                    }}
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      padding: "8px 14px",
+                      background: "none",
+                      border: "none",
+                      fontSize: 11,
+                      color: "#b03a2e",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            <button
+              className="customize-button"
+              onClick={onSignIn}
+              style={{ background: "#ffffff" }}
+              type="button"
+            >
+              Sign in
+            </button>
+            <button
+              className="customize-button"
+              onClick={onSignUp}
+              style={{
+                background: "var(--penny-green)",
+                color: "#ffffff",
+                borderColor: "var(--penny-green)",
+                fontWeight: 700,
+              }}
+              type="button"
+            >
+              Get started &rarr;
+            </button>
+          </>
+        )}
       </div>
     </header>
-  )
+  );
 }
 
 function ChatView({
@@ -262,18 +371,18 @@ function ChatView({
   token,
   presetQuery,
 }: {
-  goTo: (view: View) => void
-  guardrails: Guardrails
-  onCustomize: () => void
-  onOpenDemo: () => void
-  onNotify: (message: string, tone?: ToastItem["tone"]) => void
-  token: string
-  presetQuery?: string
+  goTo: (view: View) => void;
+  guardrails: Guardrails;
+  onCustomize: () => void;
+  onOpenDemo: () => void;
+  onNotify: (message: string, tone?: ToastItem["tone"]) => void;
+  token: string;
+  presetQuery?: string;
 }) {
-  const [text, setText] = useState(presetQuery || "")
-  const [file, setFile] = useState<File | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [text, setText] = useState(presetQuery || "");
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
@@ -282,26 +391,30 @@ function ChatView({
       content:
         "What are you looking for today?\nShare your budget, must-haves, or attach a product photo. I’ll search real merchant catalogs, compare options, and prepare your order.",
     },
-  ])
-  const [sending, setSending] = useState(false)
+  ]);
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     if (presetQuery) {
-      setText(presetQuery)
+      setText(presetQuery);
     }
-  }, [presetQuery])
+  }, [presetQuery]);
 
   // Subscribe to GET /agent/sse-stream to populate chat with streamed messages & order events
   useEffect(() => {
     const unsubscribe = api.subscribeSSE(
       (data) => {
         // 1. If incoming message / penny response is streamed
-        const pennyText = data.penny || data.content || data.text
+        const pennyText = data.penny || data.content || data.text;
         if (pennyText && typeof pennyText === "string") {
           setChatMessages((prev) => {
-            const last = prev[prev.length - 1]
-            if (last && last.role === "penny" && last.content.trim() === pennyText.trim()) {
-              return prev
+            const last = prev[prev.length - 1];
+            if (
+              last &&
+              last.role === "penny" &&
+              last.content.trim() === pennyText.trim()
+            ) {
+              return prev;
             }
             return [
               ...prev,
@@ -310,16 +423,17 @@ function ChatView({
                 role: "penny",
                 content: pennyText,
               },
-            ]
-          })
-          setSending(false)
+            ];
+          });
+          setSending(false);
         }
 
         // 2. If background order is published via SSE
         if (data.order_id) {
-          const orderNotice = `📦 **Order Created: #${data.order_id}**\n\nPenny has compiled and created your order specification. You can review items, approve payment, or settle autonomously.`
+          const orderNotice = `📦 **Order Created: #${data.order_id}**\n\nPenny has compiled and created your order specification. You can review items, approve payment, or settle autonomously.`;
           setChatMessages((prev) => {
-            if (prev.some((m) => m.content.includes(data.order_id!))) return prev
+            if (prev.some((m) => m.content.includes(data.order_id!)))
+              return prev;
             return [
               ...prev,
               {
@@ -327,61 +441,62 @@ function ChatView({
                 role: "penny",
                 content: orderNotice,
               },
-            ]
-          })
-          onNotify(`Live stream: Order ${data.order_id} generated!`, "info")
+            ];
+          });
+          onNotify(`Live stream: Order ${data.order_id} generated!`, "info");
         }
       },
       () => {
         // SSE disconnected / reconnecting
       },
-    )
+    );
 
     return () => {
-      unsubscribe()
-    }
-  }, [onNotify])
+      unsubscribe();
+    };
+  }, [onNotify]);
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const selected = event.target.files?.[0] || null
-    if (!selected) return
+    const selected = event.target.files?.[0] || null;
+    if (!selected) return;
 
     if (!["image/jpeg", "image/png", "image/webp"].includes(selected.type)) {
-      onNotify("Please select an image file (JPEG, PNG, or WEBP).", "error")
-      return
+      onNotify("Please select an image file (JPEG, PNG, or WEBP).", "error");
+      return;
     }
 
-    setFile(selected)
-    setPreviewUrl(URL.createObjectURL(selected))
-    onNotify(`Attached "${selected.name}" for visual search.`, "info")
+    setFile(selected);
+    setPreviewUrl(URL.createObjectURL(selected));
+    onNotify(`Attached "${selected.name}" for visual search.`, "info");
   }
 
   function handleRemoveFile() {
-    setFile(null)
+    setFile(null);
     if (previewUrl) {
-      URL.revokeObjectURL(previewUrl)
-      setPreviewUrl(null)
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
     }
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = "";
     }
   }
 
   async function sendMessage(event: FormEvent) {
-    event.preventDefault()
-    if (!text.trim() && !file) return
+    event.preventDefault();
+    if (!text.trim() && !file) return;
 
     if (!token) {
-      onNotify("Please sign in or register to chat with Penny.", "error")
-      return
+      onNotify("Please sign in or register to chat with Penny.", "error");
+      return;
     }
 
-    const userQuery = text.trim() || (file ? "Find products matching this photo" : "")
-    const currentFile = file
-    const currentPreview = previewUrl
+    const userQuery =
+      text.trim() || (file ? "Find products matching this photo" : "");
+    const currentFile = file;
+    const currentPreview = previewUrl;
 
     // Append user message immediately
-    const userMsgId = `user-${Date.now()}`
+    const userMsgId = `user-${Date.now()}`;
     setChatMessages((prev) => [
       ...prev,
       {
@@ -391,25 +506,29 @@ function ChatView({
         imageUrl: currentPreview || undefined,
         fileName: currentFile?.name,
       },
-    ])
+    ]);
 
-    setText("")
-    setFile(null)
-    setPreviewUrl(null)
-    if (fileInputRef.current) fileInputRef.current.value = ""
-    setSending(true)
+    setText("");
+    setFile(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    setSending(true);
 
     try {
-      const response = await api.chat(userQuery, token, currentFile)
+      const response = await api.chat(userQuery, token, currentFile);
       const pennyText =
         typeof response === "string"
           ? response
-          : (response?.penny || "I’ve updated your recommendation.")
+          : response?.penny || "I’ve updated your recommendation.";
 
       setChatMessages((prev) => {
-        const last = prev[prev.length - 1]
-        if (last && last.role === "penny" && last.content.trim() === pennyText.trim()) {
-          return prev
+        const last = prev[prev.length - 1];
+        if (
+          last &&
+          last.role === "penny" &&
+          last.content.trim() === pennyText.trim()
+        ) {
+          return prev;
         }
         return [
           ...prev,
@@ -418,11 +537,13 @@ function ChatView({
             role: "penny",
             content: pennyText,
           },
-        ]
-      })
+        ];
+      });
 
       // Check if response contains a PayPal payment link
-      const paypalMatch = pennyText.match(/https?:\/\/[^\s)]*sandbox\.paypal\.com[^\s)]*/i)
+      const paypalMatch = pennyText.match(
+        /https?:\/\/[^\s)]*sandbox\.paypal\.com[^\s)]*/i,
+      );
       if (paypalMatch) {
         const pending = {
           paypalApprovalUrl: paypalMatch[0],
@@ -436,9 +557,12 @@ function ChatView({
             },
           ],
           mode: guardrails.mode,
-        }
-        sessionStorage.setItem("penny_pending_order", JSON.stringify(pending))
-        onNotify("PayPal order generated! You can now proceed to checkout.", "info")
+        };
+        sessionStorage.setItem("penny_pending_order", JSON.stringify(pending));
+        onNotify(
+          "PayPal order generated! You can now proceed to checkout.",
+          "info",
+        );
       }
     } catch (reason) {
       onNotify(
@@ -446,9 +570,9 @@ function ChatView({
           ? reason.message
           : "Penny couldn’t send your message.",
         "error",
-      )
+      );
     } finally {
-      setSending(false)
+      setSending(false);
     }
   }
 
@@ -487,12 +611,15 @@ function ChatView({
           <Icon name="settings" size={14} /> Change Penny mode
         </button>
 
-        <button className="edit-guardrails" onClick={onOpenDemo} style={{ marginTop: 8 }}>
+        <button
+          className="edit-guardrails"
+          onClick={onOpenDemo}
+          style={{ marginTop: 8 }}
+        >
           <Icon name="sparkles" size={14} /> How Penny Works Demo
         </button>
 
         <div className="autonomy-preview">
-          <span className="soon-badge available-badge">AVAILABLE</span>
           <h3>Autonomous payments</h3>
           <p>
             With Buy for me mode, Penny uses your saved PayPal token to capture
@@ -512,7 +639,9 @@ function ChatView({
             </span>
             <div>
               <strong>Commerce agent</strong>
-              <small>Multimodal Search &bull; LangGraph &bull; PayPal Ready</small>
+              <small>
+                Multimodal Search &bull; LangGraph &bull; PayPal Ready
+              </small>
             </div>
           </div>
           <span className="live-dot">Online</span>
@@ -532,15 +661,17 @@ function ChatView({
           </div>
 
           {chatMessages.map((msg) => {
-            const isUser = msg.role === "user"
+            const isUser = msg.role === "user";
             const hasPayPalLink =
               !isUser &&
               (msg.content.includes("sandbox.paypal.com") ||
-                msg.content.toLowerCase().includes("paypal"))
+                msg.content.toLowerCase().includes("paypal"));
 
             return (
               <div
-                className={isUser ? "message user-message" : "agent-message-row"}
+                className={
+                  isUser ? "message user-message" : "agent-message-row"
+                }
                 key={msg.id}
               >
                 {!isUser && (
@@ -563,7 +694,11 @@ function ChatView({
                       <img
                         alt="Uploaded for search"
                         src={msg.imageUrl}
-                        style={{ display: "block", width: "100%", height: "auto" }}
+                        style={{
+                          display: "block",
+                          width: "100%",
+                          height: "auto",
+                        }}
                       />
                       {msg.fileName && (
                         <div
@@ -581,17 +716,30 @@ function ChatView({
                   )}
 
                   {isUser ? (
-                    <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{msg.content}</p>
+                    <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>
+                      {msg.content}
+                    </p>
                   ) : (
                     formatPennyMessage(msg.content)
                   )}
 
                   {hasPayPalLink && (
-                    <div style={{ marginTop: 12, borderTop: "1px solid #dcdfd8", paddingTop: 10 }}>
+                    <div
+                      style={{
+                        marginTop: 12,
+                        borderTop: "1px solid #dcdfd8",
+                        paddingTop: 10,
+                      }}
+                    >
                       <button
                         className="primary-action"
                         onClick={() => goTo("payment")}
-                        style={{ padding: "8px 12px", width: "auto", display: "inline-flex", gap: 8 }}
+                        style={{
+                          padding: "8px 12px",
+                          width: "auto",
+                          display: "inline-flex",
+                          gap: 8,
+                        }}
                       >
                         Proceed to Checkout <Icon name="arrow" size={14} />
                       </button>
@@ -599,7 +747,7 @@ function ChatView({
                   )}
                 </div>
               </div>
-            )
+            );
           })}
 
           {sending && (
@@ -677,14 +825,10 @@ function ChatView({
         </form>
       </section>
     </main>
-  )
+  );
 }
 
-function ReviewView({
-  goTo,
-}: {
-  goTo: (view: View) => void
-}) {
+function ReviewView({ goTo }: { goTo: (view: View) => void }) {
   return (
     <main className="review-page page-enter">
       <button className="back-button" onClick={() => goTo("chat")}>
@@ -695,13 +839,18 @@ function ReviewView({
         <div>
           <p className="overline">AGENT RECOMMENDATION</p>
           <h1>Curated Decision Set</h1>
-          <p>Penny analyzed specs, real-time pricing, and user reviews to select this option.</p>
+          <p>
+            Penny analyzed specs, real-time pricing, and user reviews to select
+            this option.
+          </p>
         </div>
         <div className="confidence">
           <span>96%</span>
           <div>
             <strong>High confidence match</strong>
-            <small>Matches budget, active noise cancellation, and rating threshold</small>
+            <small>
+              Matches budget, active noise cancellation, and rating threshold
+            </small>
           </div>
         </div>
       </div>
@@ -726,15 +875,18 @@ function ReviewView({
             <div className="decision-info">
               <span className="brand-name">AUDIO PRO</span>
               <h2>Noise-Cancelling Over-Ear Headphones</h2>
-              <p className="product-meta">Model NC-800 &bull; 40hr Battery &bull; Multipoint Bluetooth</p>
+              <p className="product-meta">
+                Model NC-800 &bull; 40hr Battery &bull; Multipoint Bluetooth
+              </p>
               <div className="rating">
                 ★ 4.8 <span>(1,420 verified buyer reviews)</span>
               </div>
               <div className="reason-box">
                 <strong>Why Penny selected this:</strong>
                 <p>
-                  Offers top-tier active noise cancellation in the sub-$150 price tier.
-                  Lightweight headband, fast USB-C charging, and compatible with all major devices.
+                  Offers top-tier active noise cancellation in the sub-$150
+                  price tier. Lightweight headband, fast USB-C charging, and
+                  compatible with all major devices.
                 </p>
               </div>
               <div className="merchant-line">
@@ -789,66 +941,66 @@ function ReviewView({
         </aside>
       </div>
     </main>
-  )
+  );
 }
 
 export default function App() {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const view = viewFromPath(location.pathname)
-  const [preferencesOpen, setPreferencesOpen] = useState(false)
-  const [demoOpen, setDemoOpen] = useState(false)
-  const [ordersOpen, setOrdersOpen] = useState(false)
-  const [demoPresetQuery, setDemoPresetQuery] = useState("")
-  const [authMode, setAuthMode] = useState<AuthMode>("signup")
-  const [authOpen, setAuthOpen] = useState(false)
+  const location = useLocation();
+  const navigate = useNavigate();
+  const view = viewFromPath(location.pathname);
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
+  const [demoOpen, setDemoOpen] = useState(false);
+  const [ordersOpen, setOrdersOpen] = useState(false);
+  const [demoPresetQuery, setDemoPresetQuery] = useState("");
+  const [authMode, setAuthMode] = useState<AuthMode>("signup");
+  const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(() => {
-    const saved = sessionStorage.getItem("penny_user")
-    if (!saved) return null
+    const saved = sessionStorage.getItem("penny_user");
+    if (!saved) return null;
     try {
-      return JSON.parse(saved) as AuthUser
+      return JSON.parse(saved) as AuthUser;
     } catch {
-      return null
+      return null;
     }
-  })
+  });
   const [token, setToken] = useState(
     () => sessionStorage.getItem("penny_access_token") || "",
-  )
-  const [toasts, setToasts] = useState<ToastItem[]>([])
+  );
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [guardrails, setGuardrails] = useState<Guardrails>(() => ({
     mode:
       sessionStorage.getItem("penny_mode") === "buy-for-me"
         ? "buy-for-me"
         : "shop-with-me",
-  }))
+  }));
 
   const pageTitle = useMemo(() => {
-    if (view === "landing") return "Penny — Agentic commerce"
-    if (view === "success") return "Payment approved — Penny"
-    if (view === "cancel") return "Payment cancelled — Penny"
-    if (view === "payment") return "Checkout & Payment — Penny"
-    if (view === "autonomy") return "Autonomous Commerce — Penny"
-    if (view === "review") return "Decision Review — Penny"
-    return "Penny commerce agent"
-  }, [view])
+    if (view === "landing") return "Penny — Agentic commerce";
+    if (view === "success") return "Payment approved — Penny";
+    if (view === "cancel") return "Payment cancelled — Penny";
+    if (view === "payment") return "Checkout & Payment — Penny";
+    if (view === "autonomy") return "Autonomous Commerce — Penny";
+    if (view === "review") return "Decision Review — Penny";
+    return "Penny commerce agent";
+  }, [view]);
 
   useEffect(() => {
-    document.title = pageTitle
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }, [pageTitle])
+    document.title = pageTitle;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [pageTitle]);
 
   // Subscribe to real-time agent SSE stream for live order telemetry
   useEffect(() => {
-    if (!token) return
+    if (!token) return;
     const unsubscribe = api.subscribeSSE((data) => {
       if (data.order_id) {
-        notify(`Order update: ${data.order_id}`, "info")
+        notify(`Order update: ${data.order_id}`, "info");
       }
-    })
+    });
     return () => {
-      unsubscribe()
-    }
-  }, [token])
+      unsubscribe();
+    };
+  }, [token]);
 
   function goTo(next: View) {
     const paths: Record<View, string> = {
@@ -859,26 +1011,48 @@ export default function App() {
       success: "/order/success",
       cancel: "/checkout/cancel",
       autonomy: "/autonomy",
-    }
-    navigate(paths[next])
+    };
+    navigate(paths[next]);
   }
 
   function openAuth(mode: AuthMode) {
-    setAuthMode(mode)
-    setAuthOpen(true)
+    setAuthMode(mode);
+    setAuthOpen(true);
   }
 
-  function enterAgent() {
-    if (user) goTo("chat")
-    else openAuth("signup")
+  function enterAgent(query?: string) {
+    if (query) {
+      setDemoPresetQuery(query);
+    }
+    if (user) goTo("chat");
+    else openAuth("signup");
+  }
+
+  function handleSignOut() {
+    sessionStorage.removeItem("penny_access_token");
+    sessionStorage.removeItem("penny_user");
+    sessionStorage.removeItem("penny_vault_setup_token_id");
+    setToken("");
+    setUser(null);
+    notify("You have signed out.", "info");
+    goTo("landing");
+  }
+
+  function handleModeChange(nextMode: "shop-with-me" | "buy-for-me") {
+    setGuardrails({ mode: nextMode });
+    sessionStorage.setItem("penny_mode", nextMode);
+    notify(
+      `${nextMode === "shop-with-me" ? "Shop with me" : "Buy for me"} mode active.`,
+      "info",
+    );
   }
 
   function notify(message: string, tone: ToastItem["tone"] = "success") {
-    const id = Date.now()
-    setToasts((current) => [...current, { id, message, tone }])
+    const id = Date.now();
+    setToasts((current) => [...current, { id, message, tone }]);
     window.setTimeout(() => {
-      setToasts((current) => current.filter((toast) => toast.id !== id))
-    }, 3500)
+      setToasts((current) => current.filter((toast) => toast.id !== id));
+    }, 3500);
   }
 
   async function authenticate(mode: AuthMode, payload: AuthPayload) {
@@ -889,10 +1063,10 @@ export default function App() {
         email: payload.email,
         password: payload.password,
         gender: payload.gender || "female",
-      })
+      });
     }
 
-    const response = await api.login(payload.email, payload.password)
+    const response = await api.login(payload.email, payload.password);
     const nextUser: AuthUser = {
       id: response.user.id,
       firstName: response.user.first_name,
@@ -900,37 +1074,45 @@ export default function App() {
       email: response.user.email,
       gender: response.user.gender,
       role: response.user.role,
-    }
-    sessionStorage.setItem("penny_access_token", response.access_token)
-    sessionStorage.setItem("penny_user", JSON.stringify(nextUser))
-    setToken(response.access_token)
-    setUser(nextUser)
-    setAuthOpen(false)
+    };
+    sessionStorage.setItem("penny_access_token", response.access_token);
+    sessionStorage.setItem("penny_user", JSON.stringify(nextUser));
+    setToken(response.access_token);
+    setUser(nextUser);
+    setAuthOpen(false);
     notify(
       mode === "signup"
         ? `Welcome to Penny, ${nextUser.firstName}.`
         : `Welcome back, ${nextUser.firstName}.`,
-    )
-    goTo("chat")
+    );
+    goTo("chat");
   }
 
   return (
     <div className="app">
-      {view !== "landing" && view !== "success" && view !== "cancel" && (
+      {view !== "success" && view !== "cancel" && (
         <Header
           goTo={goTo}
           onCustomize={() => setPreferencesOpen(true)}
           onOpenDemo={() => setDemoOpen(true)}
           onOpenOrders={() => setOrdersOpen(true)}
+          onSignIn={() => openAuth("signin")}
+          onSignUp={() => openAuth("signup")}
+          onSignOut={handleSignOut}
           user={user}
+          view={view}
         />
       )}
 
       {view === "landing" && (
         <LandingPage
+          mode={guardrails.mode}
           onEnter={enterAgent}
+          onModeChange={handleModeChange}
+          onOpenDemo={() => setDemoOpen(true)}
           onSignIn={() => openAuth("signin")}
           onSignUp={() => openAuth("signup")}
+          user={user}
         />
       )}
 
@@ -949,34 +1131,22 @@ export default function App() {
       {view === "review" && <ReviewView goTo={goTo} />}
 
       {view === "payment" && (
-        <PaymentPage
-          onNavigate={goTo}
-          onNotify={notify}
-          token={token}
-        />
+        <PaymentPage onNavigate={goTo} onNotify={notify} token={token} />
       )}
 
-      {view === "success" && (
-        <SuccessPage onNavigate={goTo} token={token} />
-      )}
+      {view === "success" && <SuccessPage onNavigate={goTo} token={token} />}
 
-      {view === "cancel" && (
-        <CancelPage onNavigate={goTo} />
-      )}
+      {view === "cancel" && <CancelPage onNavigate={goTo} />}
 
       {view === "autonomy" && (
-        <AutonomyPage
-          onNavigate={goTo}
-          onNotify={notify}
-          token={token}
-        />
+        <AutonomyPage onNavigate={goTo} onNotify={notify} token={token} />
       )}
 
       <DemoModal
         onClose={() => setDemoOpen(false)}
         onTryQuery={(q) => {
-          setDemoPresetQuery(q)
-          goTo("chat")
+          setDemoPresetQuery(q);
+          goTo("chat");
         }}
         open={demoOpen}
       />
@@ -991,16 +1161,14 @@ export default function App() {
       <GuardrailModal
         onClose={() => setPreferencesOpen(false)}
         onSave={(settings) => {
-          setGuardrails(settings)
-          sessionStorage.setItem("penny_mode", settings.mode)
-          setPreferencesOpen(false)
+          setGuardrails(settings);
+          sessionStorage.setItem("penny_mode", settings.mode);
+          setPreferencesOpen(false);
           notify(
             `${
-              settings.mode === "shop-with-me"
-                ? "Shop with me"
-                : "Buy for me"
+              settings.mode === "shop-with-me" ? "Shop with me" : "Buy for me"
             } mode saved.`,
-          )
+          );
         }}
         open={preferencesOpen}
         settings={guardrails}
@@ -1014,11 +1182,7 @@ export default function App() {
         open={authOpen}
       />
 
-      <div
-        aria-atomic="true"
-        aria-live="polite"
-        className="toast-region"
-      >
+      <div aria-atomic="true" aria-live="polite" className="toast-region">
         {toasts.map((toast) => (
           <div className={`toast toast-${toast.tone}`} key={toast.id}>
             <span>
@@ -1048,5 +1212,5 @@ export default function App() {
         ))}
       </div>
     </div>
-  )
+  );
 }
