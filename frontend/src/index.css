@@ -45,8 +45,27 @@ button:disabled { cursor: wait; opacity: .72; }
 .page-enter { animation: pageIn .35s ease both; }
 @keyframes pageIn { from { opacity: 0; transform: translateY(6px); } }
 
-.chat-layout { width: min(1320px, 100%); min-height: calc(100vh - 72px); margin: 0 auto; display: grid; grid-template-columns: 360px 1fr; }
-.context-rail { padding: 62px 44px; border-right: 1px solid #e4d7b4; display: flex; flex-direction: column; background: #faf3df; }
+.chat-layout {
+  width: min(1320px, 100%);
+  min-height: calc(100vh - 72px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+}
+.context-rail {
+  padding: 48px 36px;
+  border-right: 1px solid #e4d7b4;
+  display: flex;
+  flex-direction: column;
+  background: #faf3df;
+  position: sticky;
+  top: 72px;
+  align-self: start;
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d8cba3 transparent;
+}
 .context-top h2 { max-width: 270px; margin: 0 0 18px; font: 500 30px/1.16 "Manrope"; letter-spacing: -.045em; }
 .context-top > p:last-child { margin: 0; color: #68736e; font-size: 12px; line-height: 1.75; }
 .agent-rules { margin-top: 48px; }
@@ -60,7 +79,19 @@ button:disabled { cursor: wait; opacity: .72; }
 .autonomy-preview p { margin: 0 0 13px; color: #77817c; font-size: 10px; line-height: 1.55; }
 .autonomy-preview button { padding: 0; border: 0; display: flex; align-items: center; gap: 6px; color: #3f6555; background: none; font-size: 10px; font-weight: 700; }
 .conversation { min-width: 0; display: flex; flex-direction: column; background: #fbfbf8; }
-.conversation-head { height: 72px; padding: 0 42px; border-bottom: 1px solid #e4e6e0; display: flex; align-items: center; justify-content: space-between; }
+.conversation-head {
+  height: 72px;
+  padding: 0 42px;
+  border-bottom: 1px solid #e4e6e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 72px;
+  z-index: 10;
+  background: rgba(251, 251, 248, 0.94);
+  backdrop-filter: blur(12px);
+}
 .conversation-head > div { display: flex; align-items: center; gap: 11px; }
 .agent-avatar, .mini-avatar { border-radius: 50%; display: grid; place-items: center; color: #fff; background: var(--penny-green); }
 .agent-avatar { width: 34px; height: 34px; }
@@ -250,7 +281,14 @@ button:disabled { cursor: wait; opacity: .72; }
 @media (max-width: 680px) {
   .secure-label { display: none; }
   .chat-layout { display: block; }
-  .context-rail { padding: 38px 24px; border-right: 0; border-bottom: 1px solid #dfe1da; }
+  .context-rail {
+    padding: 38px 24px;
+    border-right: 0;
+    border-bottom: 1px solid #dfe1da;
+    position: static;
+    height: auto;
+    overflow-y: visible;
+  }
   .agent-rules { display: none; }
   .autonomy-preview { margin-top: 24px; }
   .conversation-head { padding: 0 24px; }
@@ -806,9 +844,31 @@ button:disabled { cursor: wait; opacity: .72; }
    SLEEK MODERN PRODUCT CARDS & MEDIA IN CHAT
    ========================================================================== */
 .penny-products-container {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
   margin: 14px 0 16px;
+  max-height: 480px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 6px 4px 2px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5ce #f0f4f1;
+}
+
+.penny-products-container::-webkit-scrollbar {
+  width: 6px;
+}
+.penny-products-container::-webkit-scrollbar-track {
+  background: #f0f4f1;
+  border-radius: 999px;
+}
+.penny-products-container::-webkit-scrollbar-thumb {
+  background: #cbd5ce;
+  border-radius: 999px;
+}
+.penny-products-container::-webkit-scrollbar-thumb:hover {
+  background: #9fb0a5;
 }
 
 .penny-product-card {
@@ -822,6 +882,7 @@ button:disabled { cursor: wait; opacity: .72; }
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .penny-product-card:hover {
