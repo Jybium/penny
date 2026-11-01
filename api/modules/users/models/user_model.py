@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, List, Optional
 if TYPE_CHECKING:
   from modules.orders.models.order_model import Order
   from modules.vault_tokens.models.vault_token_model import Vault_Token
+  from modules.messages.models.chat_room_model import Chat_Room
 
 class User(Base):
   __tablename__ = "users"
@@ -38,7 +39,7 @@ class User(Base):
   # relationships
   orders: Mapped[List["Order"]] = relationship("Order", back_populates="user", cascade="all, delete-orphan")
   vault_token: Mapped[Optional["Vault_Token"]] = relationship("Vault_Token", back_populates="user", cascade="all, delete-orphan")
-
+  chat_room: Mapped[Optional["Chat_Room"]] = relationship("Chat_Room", back_populates="user", cascade="all, delete-orphan")
 
 
 

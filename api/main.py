@@ -35,6 +35,7 @@ add_pagination(app)
 origins = [
     "http://localhost:3000",
     "http://localhost:3001",
+    "https://penny-ui.vercel.app"
 ]
 
 app.add_middleware(
