@@ -18,3 +18,12 @@ async def get_latest_messages(
 ):
   user_info = await get_current_user(token, db)
   return chat_message_service.get_latest_messages(user_id=user_info.id, db=db)
+
+
+@router.delete("/own", summary="Delete all messages for the current user")
+async def delete_messages(
+  token: str = Depends(oauth2_scheme),
+  db: Session = Depends(get_db)
+):
+  user_info = await get_current_user(token, db)
+  return await chat_message_service.delete_messages(user_id=user_info.id, db=db)
