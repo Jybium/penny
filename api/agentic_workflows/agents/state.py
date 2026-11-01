@@ -151,9 +151,9 @@ def search_product_request_agent(state: State):
   formatted_prompt = prompt.format(query=last_human_message)
   llm_response = llm.invoke(formatted_prompt)
   json_parsed_response = parser.parse(llm_response.content)
-  logging.info(
-    f"Agentic Workflow: State Graph: computed search product request agent response {json_parsed_response}"
-  )
+  # logging.info(
+  #   f"Agentic Workflow: State Graph: computed search product request agent response {json_parsed_response}"
+  # )
   return {
     "product_description": json_parsed_response["product_description"],
     "min_price": json_parsed_response["min_price"],
@@ -192,9 +192,9 @@ async def search_product_response_agent(state: State):
     product_search_results=product_search_results
   )
   llm_response = llm.invoke(formatted_prompt)
-  logging.info(
-    f"Agentic Workflow: State Graph: computed search product response agent response {llm_response.content}"
-  )
+  # logging.info(
+  #   f"Agentic Workflow: State Graph: computed search product response agent response {llm_response.content}"
+  # )
   return {"messages": [llm_response]}
 
 
@@ -216,9 +216,9 @@ def search_product_with_image_request_agent(state: State):
   llm_response = llm.invoke(formatted_prompt)
   json_parsed_response = parser.parse(llm_response.content)
 
-  logging.info(
-    f"Agentic Workflow: State Graph: computed search product image request agent response {json_parsed_response}"
-  )
+  # logging.info(
+  #   f"Agentic Workflow: State Graph: computed search product image request agent response {json_parsed_response}"
+  # )
 
   return {
     "image_content": image_content,
@@ -263,9 +263,9 @@ async def search_product_with_image_response_agent(state: State):
     product_image_search_results=product_image_search_results
   )
   llm_response = llm.invoke(formatted_prompt)
-  logging.info(
-      f"Agentic Workflow: State Graph: computed search product image response agent response {llm_response.content}"
-    )
+  # logging.info(
+  #     f"Agentic Workflow: State Graph: computed search product image response agent response {llm_response.content}"
+  #   )
   # cleaning image content state after operation
   image_content = None
   return {
@@ -289,9 +289,9 @@ def order_items_aggregate_agent(state: State):
   formatted_prompt = prompt.format(query=state["query"], state_messages=trimmed_state_messages)
   llm_response = llm.invoke(formatted_prompt)
   json_parsed_response = parser.parse(llm_response.content)
-  logging.info(
-    f"Agentic Workflow: State Graph: computed order items aggregate agent response {json_parsed_response}"
-  )
+  # logging.info(
+  #   f"Agentic Workflow: State Graph: computed order items aggregate agent response {json_parsed_response}"
+  # )
   return {
     "order_items": json_parsed_response["order_items"],
     "total_price": json_parsed_response["total_price"],
@@ -328,7 +328,7 @@ async def auto_payment_decision_agent(state: State):
   tool_message = vault_payment_token_exists_result[0]
   payment_token_exists = tool_message.content
 
-  logging.info(f"Agentic Workflow: State Graph: computed auto payment decision agent response :{payment_token_exists}")
+  # logging.info(f"Agentic Workflow: State Graph: computed auto payment decision agent response :{payment_token_exists}")
   return {"paypal_vault_payment_token_exists": payment_token_exists}
 
 
@@ -358,9 +358,9 @@ async def order_create_agent(state: State):
 
   paypal_payment_link = payload["payer_action_browser_link"]
   order_id = payload["order_id"]
-  logging.info(
-    f"Agentic Workflow: State Graph: computed paypal create order result {paypal_create_order_result}"
-  )
+  # logging.info(
+  #   f"Agentic Workflow: State Graph: computed paypal create order result {paypal_create_order_result}"
+  # )
 
   paypal_create_order_prompt = PromptTemplate.from_template(
     template=create_order_template
@@ -371,9 +371,9 @@ async def order_create_agent(state: State):
     paypal_payment_link=paypal_payment_link
   )
   llm_response = llm.invoke(formatted_prompt)
-  logging.info(
-    f"Agentic Workflow: State Graph: computed order create agent response {llm_response.content}"
-  )
+  # logging.info(
+  #   f"Agentic Workflow: State Graph: computed order create agent response {llm_response.content}"
+  # )
 
   # passing user and order IDs to the sse_generator for frontend to stream data with server-sent-events
   user_id = state["user_id"]
@@ -432,9 +432,9 @@ async def auto_capture_paypal_order_agent(state: State):
   print("tool_message", auto_payment_tool_message)
   payload_response = json.loads(auto_payment_tool_message.content)
   status = payload_response["status"]
-  logging.info(
-    f"Agentic Workflow: State Graph: computed auto capture paypal order agent response {status}"
-  )
+  # logging.info(
+  #   f"Agentic Workflow: State Graph: computed auto capture paypal order agent response {status}"
+  # )
 
   # settle order on the system's database
   settle_order_tool_result = await settle_order_tool_node.ainvoke([dummy_ai_message_settle_order])
@@ -501,9 +501,9 @@ async def manual_capture_order_agent(state: State):
   print("capture_order_tool_message", capture_order_tool_message)
   payload_response = json.loads(capture_order_tool_message.content)
 
-  logging.info(
-      f"Agentic Workflow: State Graph: computed auto manual capture order agent response {payload_response}"
-  )
+  # logging.info(
+  #     f"Agentic Workflow: State Graph: computed auto manual capture order agent response {payload_response}"
+  # )
 
   if payload_response["status"] == "COMPLETED":
     # settle order on the system's database
@@ -554,6 +554,7 @@ state_workflow.add_node("search_product_with_image_response_agent", search_produ
 
 def coordinator_agent_condition(state: State):
   coordinating_intent = state["intent"]
+  print("coordinator state intent", coordinating_intent)
   image_content = state["image_content"]
   # print("coordinator state image:", image_content)
   if image_content is not None:
@@ -568,6 +569,8 @@ def coordinator_agent_condition(state: State):
     return "order_items_aggregate_agent"
 
 
+
+
 def autonomous_payment_condition(state: State):
   # converting state["paypal_vault_payment_token_exists"] to boolean in case it is a string
   raw = state.get("paypal_vault_payment_token_exists", False)
@@ -576,7 +579,7 @@ def autonomous_payment_condition(state: State):
   else:
     token_exists = bool(raw)
 
-  logging.info(f"Agentic Workflow: State Graph: vault token exists = {token_exists!r} (raw={raw!r})")
+  # logging.info(f"Agentic Workflow: State Graph: vault token exists = {token_exists!r} (raw={raw!r})")
 
   if token_exists:
     return "auto_capture_paypal_order_agent"
@@ -632,9 +635,9 @@ async def state_run(human_msg: str, user_thread_id: str, image_content: str = No
     # getting the current state of the graph and checking if it has been interrupted
     current_state = await graph.aget_state(user_configuration)
 
-    logging.info(
-      f"Agentic Workflow: State Graph: current interrupt graph state {current_state}"
-    )
+    # logging.info(
+    #   f"Agentic Workflow: State Graph: current interrupt graph state {current_state}"
+    # )
 
     # if the graph has been interrupted, it means we are waiting for human feedback.. resume with human feedback
     if current_state and current_state.next:
@@ -643,9 +646,9 @@ async def state_run(human_msg: str, user_thread_id: str, image_content: str = No
         Command(resume=human_msg), user_configuration
       )
     else:
-      logging.info(
-        "Agentic Workflow: State Graph: current un-interrupt graph state"
-      )
+      # logging.info(
+      #   "Agentic Workflow: State Graph: current un-interrupt graph state"
+      # )
 
       # otherwise, start a new turn
       state_messages = await graph.ainvoke(
