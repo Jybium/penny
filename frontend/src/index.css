@@ -27,9 +27,15 @@ button:disabled { cursor: wait; opacity: .72; }
 
 .app { min-height: 100vh; background: #f6f6f1; }
 .app-header {
-  height: 72px; padding: 0 clamp(20px, 3.5vw, 48px); border-bottom: 1px solid #dcdfd8;
-  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
-  position: sticky; top: 0; z-index: 20; background: rgba(248, 248, 244, .95); backdrop-filter: blur(16px);
+  height: 72px; padding: 0 clamp(16px, 3.5vw, 48px); border-bottom: 1px solid #dcdfd8;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  position: sticky; top: 0; z-index: 25; background: rgba(248, 248, 244, .95); backdrop-filter: blur(16px);
+}
+@media (min-width: 951px) {
+  .app-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
 }
 .header-left { display: flex; align-items: center; gap: 32px; min-width: 0; }
 .header-nav-links { display: flex; align-items: center; gap: 24px; }
@@ -61,6 +67,158 @@ button:disabled { cursor: wait; opacity: .72; }
 .journey-steps button.is-active { color: #365a4b; }
 .journey-steps button.is-active span { border-color: var(--penny-green); color: #fff; background: var(--penny-green); }
 .header-actions { justify-self: end; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+
+/* Header Specific Actions & Dropdown */
+.header-chat-cta {
+  padding: 8px 14px;
+  border: 1px solid var(--penny-green);
+  border-radius: 7px;
+  color: #ffffff;
+  background: var(--penny-green);
+  font-size: 10px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.header-chat-cta:hover {
+  background: #11422e;
+  transform: translateY(-1px);
+}
+.header-icon-action {
+  padding: 8px 12px;
+  border: 1px solid #e2cb8b;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #684a0c;
+  background: #fff8e5;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.header-icon-action:hover {
+  background: #fff3d0;
+  border-color: #d8be74;
+  transform: translateY(-1px);
+}
+.header-signin-btn {
+  padding: 8px 13px;
+  border: 1px solid #d9ddd6;
+  border-radius: 7px;
+  color: #43544c;
+  background: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.header-signin-btn:hover {
+  background: #f4f7f4;
+  color: #1f3328;
+}
+.header-signup-btn {
+  padding: 8px 14px;
+  border: 1px solid var(--penny-honey);
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #2e230a;
+  background: var(--penny-honey);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.header-signup-btn:hover {
+  background: #f0bd42;
+  transform: translateY(-1px);
+}
+.header-demo-mini-btn {
+  display: none;
+  padding: 6px 11px;
+  border: 1px solid #c9d8ce;
+  border-radius: 999px;
+  align-items: center;
+  gap: 5px;
+  color: var(--penny-green);
+  background: #edf5f0;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.header-profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: #ffffff;
+  border: 1px solid #d4ddd5;
+  border-radius: 10px;
+  padding: 6px 0;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  min-width: 180px;
+  z-index: 100;
+  animation: modalPop 0.18s ease both;
+}
+.profile-dropdown-user {
+  padding: 8px 14px;
+  border-bottom: 1px solid #edf2ee;
+}
+.profile-dropdown-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #192b21;
+}
+.profile-dropdown-email {
+  font-size: 9px;
+  color: #76867d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.profile-dropdown-mobile-links {
+  display: none;
+}
+.profile-dropdown-item {
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  font-size: 10px;
+  font-weight: 600;
+  color: #405349;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.profile-dropdown-item:hover {
+  background: #f4f7f4;
+  color: #1b2e23;
+}
+.profile-dropdown-signout {
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  border-top: 1px solid #f0f3ef;
+  font-size: 10px;
+  font-weight: 700;
+  color: #b03a2e;
+  cursor: pointer;
+}
+.profile-dropdown-signout:hover {
+  background: #fff2ed;
+}
 .secure-label { display: flex; align-items: center; gap: 5px; color: #7d8782; font-size: 9px; }
 .profile-button { width: 34px; height: 34px; border: 0; border-radius: 50%; color: #36270a; background: var(--penny-honey); font-size: 10px; font-weight: 700; }
 .overline { margin: 0 0 10px; color: #7b8f86; font: 500 9px/1.3 "DM Mono"; letter-spacing: .14em; }
@@ -307,8 +465,9 @@ button:disabled { cursor: wait; opacity: .72; }
 .result-trust { margin-top: 20px; display: flex; align-items: center; gap: 6px; color: #87908b; font-size: 8px; }
 
 @media (max-width: 950px) {
-  .journey-steps, .header-nav-links { display: none; }
-  .app-header { grid-template-columns: 1fr auto; }
+  .journey-steps, .header-nav-links, .header-demo-center { display: none; }
+  .header-demo-mini-btn { display: inline-flex; }
+  .profile-dropdown-mobile-links { display: block; border-bottom: 1px solid #edf2ee; }
   .chat-layout { grid-template-columns: 280px 1fr; }
   .context-rail { padding: 42px 28px; }
   .review-grid, .payment-shell { grid-template-columns: 1fr; }
@@ -752,9 +911,57 @@ button:disabled { cursor: wait; opacity: .72; }
 .toast button { width: 28px; height: 28px; padding: 0; border: 0; display: grid; place-items: center; color: #7f8984; background: none; }
 
 @media (max-width: 680px) {
-  .customize-button { width: 34px; height: 34px; padding: 0; justify-content: center; }
-  .customize-button svg { width: 16px; }
-  .customize-button { font-size: 0; }
+  .app-header {
+    height: 58px;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .wordmark {
+    font-size: 14px;
+    gap: 7px;
+  }
+  .wordmark-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+  }
+  .wordmark-icon svg {
+    width: 13px;
+    height: 13px;
+  }
+  .header-actions {
+    gap: 6px;
+  }
+  .header-action-text {
+    display: none;
+  }
+  .header-icon-action {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 7px;
+  }
+  .header-chat-cta {
+    padding: 6px 9px;
+    font-size: 10px;
+    gap: 4px;
+  }
+  .header-signin-btn {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+  .header-signup-btn {
+    padding: 6px 10px;
+    font-size: 10px;
+    gap: 4px;
+  }
+  .profile-button {
+    width: 30px;
+    height: 30px;
+    font-size: 9px;
+  }
   .preferences-backdrop { padding: 0; align-items: end; }
   .preferences-modal { width: 100%; max-height: 92vh; border-radius: 16px 16px 0 0; }
   .preferences-header, .preference-section { padding-left: 20px; padding-right: 20px; }

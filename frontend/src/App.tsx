@@ -248,39 +248,35 @@ function Header({
           <>
             {view === "landing" && (
               <button
-                className="customize-button"
+                className="header-chat-cta"
                 onClick={() => goTo("chat")}
-                style={{
-                  background: "var(--penny-green)",
-                  color: "#ffffff",
-                  borderColor: "var(--penny-green)",
-                  fontWeight: 700,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}
                 title="Go to Penny Conversation"
                 type="button"
               >
-                Go to Chat <Icon name="arrow" size={13} />
+                <span>Go to Chat</span>
+                <Icon name="arrow" size={12} />
               </button>
             )}
 
             <button
-              className="customize-button"
+              className="header-icon-action"
               onClick={onOpenOrders}
               title="View Your Orders"
               type="button"
             >
-              <Icon name="bag" size={14} /> Orders
+              <Icon name="bag" size={14} />
+              <span className="header-action-text">Orders</span>
             </button>
+
             <button
               aria-label="Customize shopping preferences"
-              className="customize-button"
+              className="header-icon-action"
               onClick={onCustomize}
+              title="Shopping Preferences"
               type="button"
             >
-              <Icon name="settings" size={15} /> Preferences
+              <Icon name="settings" size={14} />
+              <span className="header-action-text">Preferences</span>
             </button>
 
             <div style={{ position: "relative" }}>
@@ -299,55 +295,56 @@ function Header({
               </button>
 
               {profileMenuOpen && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "100%",
-                    right: 0,
-                    marginTop: 8,
-                    background: "#ffffff",
-                    border: "1px solid #d4ddd5",
-                    borderRadius: 8,
-                    padding: "8px 0",
-                    boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
-                    minWidth: 160,
-                    zIndex: 100,
-                  }}
-                >
-                  <div
-                    style={{
-                      padding: "6px 14px",
-                      borderBottom: "1px solid #edf2ee",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 11,
-                        fontWeight: "bold",
-                        color: "#192b21",
-                      }}
-                    >
+                <div className="header-profile-dropdown">
+                  <div className="profile-dropdown-user">
+                    <div className="profile-dropdown-name">
                       {user.firstName} {user.lastName}
                     </div>
-                    <div style={{ fontSize: 9, color: "#76867d" }}>
+                    <div className="profile-dropdown-email">
                       {user.email}
                     </div>
                   </div>
+
+                  <div className="profile-dropdown-mobile-links">
+                    <button
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        onOpenOrders();
+                      }}
+                      className="profile-dropdown-item"
+                      type="button"
+                    >
+                      <Icon name="bag" size={13} /> Orders
+                    </button>
+                    <button
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        onCustomize();
+                      }}
+                      className="profile-dropdown-item"
+                      type="button"
+                    >
+                      <Icon name="settings" size={13} /> Preferences
+                    </button>
+                    <button
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        onOpenDemo();
+                      }}
+                      className="profile-dropdown-item"
+                      type="button"
+                    >
+                      <Icon name="sparkles" size={13} /> How Penny Works Demo
+                    </button>
+                  </div>
+
                   <button
                     onClick={() => {
                       setProfileMenuOpen(false);
                       onSignOut();
                     }}
-                    style={{
-                      width: "100%",
-                      textAlign: "left",
-                      padding: "8px 14px",
-                      background: "none",
-                      border: "none",
-                      fontSize: 11,
-                      color: "#b03a2e",
-                      cursor: "pointer",
-                    }}
+                    className="profile-dropdown-signout"
+                    type="button"
                   >
                     Sign out
                   </button>
@@ -358,26 +355,27 @@ function Header({
         ) : (
           <>
             <button
-              className="customize-button"
+              className="header-demo-mini-btn"
+              onClick={onOpenDemo}
+              title="How Penny Works"
+              type="button"
+            >
+              <Icon name="sparkles" size={12} />
+              <span>Demo</span>
+            </button>
+            <button
+              className="header-signin-btn"
               onClick={onSignIn}
-              style={{ background: "#ffffff" }}
               type="button"
             >
               Sign in
             </button>
             <button
-              className="landing-nav-cta"
+              className="header-signup-btn"
               onClick={onSignUp}
-              style={{
-                background: "var(--penny-honey)",
-                color: "#2c2719",
-                border: "none",
-                fontWeight: 700,
-                fontSize: 10,
-              }}
               type="button"
             >
-              Get started <Icon name="arrow" size={12} />
+              Get started <Icon name="arrow" size={11} />
             </button>
           </>
         )}
