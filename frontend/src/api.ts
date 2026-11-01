@@ -194,8 +194,13 @@ export const api = {
     return request<{ message: string }>("/vault/own", { method: "DELETE" }, token)
   },
 
-  getOrders(token: string) {
-    return request<ApiOrder[]>("/orders/own", {}, token)
+  async getOrders(token: string): Promise<ApiOrder[]> {
+    const data = await request<ApiOrder[] | { items: ApiOrder[] }>("/orders/own", {}, token)
+    if (Array.isArray(data)) return data
+    if (data && typeof data === "object" && "items" in data && Array.isArray(data.items)) {
+      return data.items
+    }
+    return []
   },
 
   getOrder(orderId: string, token: string) {
