@@ -205,7 +205,10 @@ function Header({
 
   return (
     <header className="app-header">
-      <button className="wordmark" onClick={() => goTo(user ? "chat" : "landing")}>
+      <button
+        className="wordmark"
+        onClick={() => goTo(user ? "chat" : "landing")}
+      >
         <span className="wordmark-icon">
           <Icon name="sparkles" size={16} />
         </span>
@@ -241,23 +244,10 @@ function Header({
                 title="Go to Penny Conversation"
                 type="button"
               >
-                Go to Chat &rarr;
+                Go to Chat
               </button>
             )}
 
-            <button
-              className="customize-button"
-              onClick={() => goTo("autonomy")}
-              style={{
-                background: "#f1f8f3",
-                borderColor: "#c2ded0",
-                color: "#2d5e46",
-              }}
-              title="Manage PayPal Vault & Autonomous Payments"
-              type="button"
-            >
-              <Icon name="shield" size={14} /> Autonomy
-            </button>
             <button
               className="customize-button"
               onClick={onOpenOrders}
@@ -280,7 +270,9 @@ function Header({
                 aria-label={user ? `${user.firstName}'s account` : "Account"}
                 className="profile-button"
                 onClick={() => setProfileMenuOpen((prev) => !prev)}
-                title={user?.email ? `${user.email} (click to view)` : "Account"}
+                title={
+                  user?.email ? `${user.email} (click to view)` : "Account"
+                }
                 type="button"
               >
                 {user
@@ -304,11 +296,24 @@ function Header({
                     zIndex: 100,
                   }}
                 >
-                  <div style={{ padding: "6px 14px", borderBottom: "1px solid #edf2ee" }}>
-                    <div style={{ fontSize: 11, fontWeight: "bold", color: "#192b21" }}>
+                  <div
+                    style={{
+                      padding: "6px 14px",
+                      borderBottom: "1px solid #edf2ee",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 11,
+                        fontWeight: "bold",
+                        color: "#192b21",
+                      }}
+                    >
                       {user.firstName} {user.lastName}
                     </div>
-                    <div style={{ fontSize: 9, color: "#76867d" }}>{user.email}</div>
+                    <div style={{ fontSize: 9, color: "#76867d" }}>
+                      {user.email}
+                    </div>
                   </div>
                   <button
                     onClick={() => {
@@ -343,17 +348,18 @@ function Header({
               Sign in
             </button>
             <button
-              className="customize-button"
+              className="landing-nav-cta"
               onClick={onSignUp}
               style={{
-                background: "var(--penny-green)",
-                color: "#ffffff",
-                borderColor: "var(--penny-green)",
+                background: "var(--penny-honey)",
+                color: "#2c2719",
+                border: "none",
                 fontWeight: 700,
+                fontSize: 10,
               }}
               type="button"
             >
-              Get started &rarr;
+              Get started <Icon name="arrow" size={12} />
             </button>
           </>
         )}

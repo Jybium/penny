@@ -101,33 +101,84 @@ export default function LandingPage({
 
   return (
     <main className="landing-page">
-      {/* Sub-navigation bar for in-page anchors */}
-      <nav className="landing-nav" style={{ height: 50, borderBottom: "1px solid #e2e6de" }}>
-        <div className="landing-links" style={{ gap: 24, fontSize: 11 }}>
+      {/* Synchronized Landing Navigation with Logo, Anchors, and Auth Buttons */}
+      <nav className="landing-nav">
+        <button
+          className="landing-brand"
+          onClick={() => (user ? onEnter() : window.scrollTo({ top: 0, behavior: "smooth" }))}
+          title="Penny Commerce Agent"
+          type="button"
+        >
+          <span>
+            <Sparkles />
+          </span>
+          Penny
+        </button>
+
+        <div className="landing-links">
           <a href="#how">How it works</a>
           <a href="#control">Your control</a>
           <a href="#autonomy">Autonomous payments</a>
           <button
+            className="demo-trigger-button"
             onClick={onOpenDemo}
             style={{
-              background: "none",
-              border: "none",
-              color: "var(--penny-green)",
-              fontWeight: 700,
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
+              padding: "4px 8px",
+              fontSize: 9,
               gap: 4,
             }}
+            title="Open Interactive System Demo"
+            type="button"
           >
-            System Demo <Sparkles />
+            <span className="demo-trigger-pill">DEMO</span>
+            <span>How it Works</span>
+            <Sparkles />
           </button>
         </div>
-        <div style={{ justifySelf: "end", fontSize: 10, color: "#6e7e76" }}>
-          Current Mode:{" "}
-          <strong style={{ color: mode === "buy-for-me" ? "var(--penny-green)" : "#3a4d43" }}>
-            {mode === "buy-for-me" ? "Buy for me (Autonomous)" : "Shop with me (Manual)"}
-          </strong>
+
+        <div className="landing-account-actions">
+          {user ? (
+            <>
+              <button
+                onClick={() => onEnter()}
+                style={{
+                  background: "var(--penny-green)",
+                  color: "#ffffff",
+                  padding: "9px 14px",
+                  borderRadius: 6,
+                  border: "none",
+                  fontWeight: 700,
+                  fontSize: 10,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+                title="Enter Penny Conversation"
+                type="button"
+              >
+                Go to Chat <Arrow />
+              </button>
+              <button
+                className="profile-button"
+                onClick={() => onEnter()}
+                style={{ cursor: "pointer" }}
+                title={`${user.email} (Signed in)`}
+                type="button"
+              >
+                {`${user.firstName[0] || ""}${user.lastName[0] || ""}`.toUpperCase()}
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={onSignIn} type="button">
+                Sign in
+              </button>
+              <button className="landing-nav-cta" onClick={onSignUp} type="button">
+                Get started <Arrow />
+              </button>
+            </>
+          )}
         </div>
       </nav>
 
