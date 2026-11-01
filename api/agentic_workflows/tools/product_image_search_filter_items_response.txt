@@ -1,0 +1,705 @@
+[
+    {
+        "title": "Superstar II Lace Up Sneakers",
+        "description": "Product: Adidas Superstar II women's sneaker in Cloud White with Core Black and Gold Metallic accents. Classic low-profile leather upper with three black stripes, white laces, and a clean white sole. Features a durable shell toe and padded collar for comfort. Brand: Adidas. Gender: Women. Model: Superstar II. Colorway: Cloud White / Core Black / Gold Metallic. Size: 7W. Style suitable for casual wear and everyday use.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/zjHK6Ht-lGBj-H6puj5?o=01M39TRX7C8QD23ZHJ9FK85CWB&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "shoebacca.com",
+                "price": {
+                    "price": 69.95,
+                    "compare_at_price": 100.0,
+                    "currency": "USD"
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.05,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/zjHK6Ht-wscm-H6puj5?o=01KJZBNNRHRRHZ8PFB7H2ZA16V&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "stadiumgoods.com",
+                "price": {
+                    "price": 79.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.016,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Superstar II Lace Up Sneakers",
+        "description": "Leather upper sneaker with the iconic three white stripes and shell toe detail. Low-profile outsole and lace-up closure. Classic Superstar silhouette updated with a glossy finish. Suitable for casual wear with a sporty, timeless look.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/N6MHUBh-lGBj-H6puj5?o=01M3RM4V951HA5F3VGHNRER7A8&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "shoebacca.com",
+                "price": {
+                    "price": 66.95,
+                    "compare_at_price": 110.0,
+                    "currency": "USD"
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.05,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Adidas Originals Superstar II",
+        "description": "White adidas Originals Superstar II Women's",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/bZp4Si6-NuBr-H6puj5?o=01M3448K5B8Y05E4KZBHCC4Z3D&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "farfetch.com",
+                "price": {
+                    "price": 68.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.0,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/bZp4Si6-wscm-H6puj5?o=01M35ZG8NXHRF5E533KZAQ1M0Y&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "stadiumgoods.com",
+                "price": {
+                    "price": 76.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.016,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/bZp4Si6-hHvi-H6puj5?o=01M3A5Y6JSZC1KAHWYQJE970GS&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "kickscrew.com",
+                "price": {
+                    "price": 87.75,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.04,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Puffylette 'Superstar'",
+        "description": "A unique take on the classic Superstar silhouette, the adidas Puffylette 'Superstar' features a quilted, puffy upper reminiscent of a slip-on mule or slipper, offering a cozy and unconventional look. This version maintains the iconic rubber shell toe and features black Three Stripes branding against a white body, contrasted by a cream/off-white sole unit. The model number is HP6697.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/TplWhZE-hHvi-H6puj5?o=01KBPBNWTW6M3931C5EXG694QJ&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "kickscrew.com",
+                "price": {
+                    "price": 49.14,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.04,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Adidas Superstar II 'White Black' Big Kids' Shoes",
+        "description": "Iconic and timeless, the adidas Originals Superstar II brings a reimagined 90s classic to modern street style. Crafted with a durable leather upper and a textile sockliner for enhanced comfort, these sneakers feature the signature shell toe for a structured look and added protection. The classic serrated 3-Stripes adorn the side, complemented by a clean white midsole and a reliable rubber outsole for everyday traction. Perfect for any casual or curated outfit, these Superstars offer a blend of heritage design and contemporary attitude.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/HlsK6s1-lGBj-H6puj5?o=01M3H70MYDZPDQQ9XW98J2BZMP&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "shoebacca.com",
+                "price": {
+                    "price": 64.76,
+                    "compare_at_price": 110.0,
+                    "currency": "USD"
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.05,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/HlsK6s1-wscm-H6puj5?o=01KK2GWJW8NMEWJA52W6ZPEVF2&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "stadiumgoods.com",
+                "price": {
+                    "price": 75.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.016,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/HlsK6s1-tqzD-H6puj5?o=01M2GQ9MYAB7NNBGHSBS1YXZFP&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "millenniumshoes.com",
+                "price": {
+                    "price": 79.99,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.084,
+                "dimensions": {
+                    "weight": {
+                        "number": 1361.0,
+                        "unit": "g"
+                    },
+                    "length": null,
+                    "width": null,
+                    "height": null
+                }
+            },
+            {
+                "url": "https://buy.trychannel3.com/HlsK6s1-VmFw-H6puj5?o=01KKE8PEJR7P14XJ4DAXQ1RVVB&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "journeys.com",
+                "price": {
+                    "price": 99.99,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.07,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/HlsK6s1-YikB-H6puj5?o=01KR3V6J6W8C11NTYZ9VJ62WMK&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "champssports.com",
+                "price": {
+                    "price": 100.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.056,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "adidas Women's Superstar Ii W Shoes",
+        "description": "The adidas Women's Superstar II is a timeless lifestyle sneaker featuring an iconic silhouette. This version is crafted with a premium black patent leather and textile upper, accented by the signature white three-stripes and the classic rubber shell toe. Designed for all-day comfort and durability, it includes a synthetic lining and a sturdy rubber outsole for reliable traction. The design is completed with a lace closure and branded detailing on the tongue and heeltab.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/bI2Nbsf-fdOw-H6puj5?o=01M5N9PFWACWWRPY746CBKBV2R&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "dickssportinggoods.com",
+                "price": {
+                    "price": 37.97,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.0,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Superstar II",
+        "description": "The adidas Superstar II is a women's low-top sneaker that puts a sparkling twist on a legendary silhouette. This edition features a cloud white leather upper accented by core black rhinestone detailing on the iconic 3-Stripes and heel panel, along with a glitter-finished rubber shell toe. Designed for everyday wear, it includes a textile lining for comfort and a durable cold cement rubber outsole. The classic lace closure ensures a secure fit, blending sporty heritage with a glamorous aesthetic.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/JxPAKS1-fdOw-H6puj5?o=01M655J7GQEB3VG1K35GAPRRHG&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "dickssportinggoods.com",
+                "price": {
+                    "price": 64.97,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.0,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/JxPAKS1-XsTg-H6puj5?o=01M3MS39TMRR48J5SYFCS1EH9N&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "shopwss.com",
+                "price": {
+                    "price": 71.97,
+                    "compare_at_price": 109.99,
+                    "currency": "USD"
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.07,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Superstar II Lace Up Sneakers",
+        "description": "These white Adidas Superstar II sneakers for women are inspired by 90s trainers. They feature a classic design with an iconic rubber shell toe and serrated 3-Stripes in black. The beaded upper adds texture and a sophisticated edge to this sportswear staple. With a leather upper, synthetic lining, and rubber outsole, these low-top, lace-up sneakers offer regular fit and comfort.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/2KzrrIb-lGBj-H6puj5?o=01M39PE4GR63N780JEQ24NXTZZ&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "shoebacca.com",
+                "price": {
+                    "price": 69.95,
+                    "compare_at_price": 120.0,
+                    "currency": "USD"
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.05,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Superstar II Grade School Lifestyle Shoes",
+        "description": "Step into iconic style with the Big Kids' adidas Originals Superstar II Casual Shoes. These classic sneakers feature a structured synthetic and leather upper for durability and a comfortable feel. The lace closure ensures a secure fit, while the padded collar and tongue add extra cushioning. Designed with a comfortable moulded sockliner and the iconic serrated 3-Stripes, these shoes offer both timeless looks and all-day comfort. The durable rubber cupsole with herringbone traction pattern provides reliable grip for active kids. Perfect for casual wear, these imported adidas Originals Superstar II shoes combine athletic heritage with everyday style.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/ZEz6Qya-fdOw-H6puj5?o=01M0VKC3EYKAY427MWHJ678D3D&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "dickssportinggoods.com",
+                "price": {
+                    "price": 69.99,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.0,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/ZEz6Qya-Dn2b-H6puj5?o=01KQDDYPXQ4G8WJZYTQZ99BAWW&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "kidsfootlocker.com",
+                "price": {
+                    "price": 70.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.07,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/ZEz6Qya-YikB-H6puj5?o=01M47PH093ZSF86KRCHRQJVM83&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "champssports.com",
+                "price": {
+                    "price": 70.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.056,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/ZEz6Qya-CJ7h-H6puj5?o=01M2R136K0VRCD4GNJH0WC5K9C&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "shiekh.com",
+                "price": {
+                    "price": 80.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.24,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/ZEz6Qya-4XVr-H6puj5?o=01KBPAHTDATQZNHPEB8VNTASMC&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "hibbett.com",
+                "price": {
+                    "price": 80.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.035,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/ZEz6Qya-dWqL-H6puj5?o=01M2Y760PZC81DK3FNEB9ZMW4D&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "shoepalace.com",
+                "price": {
+                    "price": 80.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.0,
+                "dimensions": {
+                    "weight": {
+                        "number": 1134.0,
+                        "unit": "g"
+                    },
+                    "length": null,
+                    "width": null,
+                    "height": null
+                }
+            },
+            {
+                "url": "https://buy.trychannel3.com/ZEz6Qya-NlEl-H6puj5?o=01KYF71686RTR2DZAZP9KPCX75&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "jdsports.com",
+                "price": {
+                    "price": 90.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.05,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/ZEz6Qya-61sn-H6puj5?o=01KXR090SW2KX3VVCN25Z9G4MR&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "finishline.com",
+                "price": {
+                    "price": 90.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.05,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Superstar II Shoes",
+        "description": "Infuse sparkling textural detail into a classic silhouette with the ADIDAS Superstar \"Beaded Black/White\". Taking iconic court style to new heights, this elevated iteration replaces traditional leather with a textured, beaded effect upper in deep black, sharply contrasted by clean white 3 Stripes and a matching heel tab. The signature rubber shell toe and durable cupsole preserve retro heritage, offering a brilliant blend of glamour and everyday versatility.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/T4L82kC-lGBj-H6puj5?o=01KSSDG9AS003E66PEFT0BTQX0&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "shoebacca.com",
+                "price": {
+                    "price": 69.95,
+                    "compare_at_price": 120.0,
+                    "currency": "USD"
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.05,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/T4L82kC-hHvi-H6puj5?o=01M3BQMQJZ9H1ARFMCBGDGDBTQ&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "kickscrew.com",
+                "price": {
+                    "price": 90.09,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.04,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/T4L82kC-NuBr-H6puj5?o=01M653ZTS1YD8M4H2TDYNFR66X&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "farfetch.com",
+                "price": {
+                    "price": 163.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.0,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/T4L82kC-wscm-H6puj5?o=01M6467ZZQSJJXWJ1QD8Z9M1DX&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "stadiumgoods.com",
+                "price": {
+                    "price": 164.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.016,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Kids' Grade School Superstar II Shoes",
+        "description": "The adidas Kids' Grade School Superstar II shoes are timeless youth trainers that fuse sport and street style. Featuring the iconic shell toe design and serrated 3-Stripes, these shoes are crafted with a structured leather and synthetic upper for durability and a moulded sockliner for all-day comfort. The stable rubber cupsole with a classic herringbone traction pattern provides reliable grip for various activities.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/fWVfWTO-fdOw-H6puj5?o=01M34PXFYZDB1B3A9G2CTJREVZ&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "dickssportinggoods.com",
+                "price": {
+                    "price": 28.77,
+                    "compare_at_price": 79.99,
+                    "currency": "USD"
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.0,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "adidas Superstar Pure 'Shibuya'",
+        "description": "The adidas Superstar Pure 'Shibuya' (FV2833) is a sleek lifestyle sneaker featuring a black leather upper with contrasting white stitching. This special edition design includes a classic white rubber shell toe and a matching white sole. The heel is uniquely accented with gold-toned Japanese characters representing 'Shibuya', adding a distinct cultural touch to the iconic Superstar silhouette.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/6KXjg5n-hHvi-H6puj5?o=01M3G1DRJCM5Y94CKWTXS8FWJ0&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "kickscrew.com",
+                "price": {
+                    "price": 69.03,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.04,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "adidas Kids' Grade School Superstar II Shoes",
+        "description": "The adidas Superstar II shoes for kids are iconic street-style sneakers featuring a durable leather and synthetic upper with the signature shell toe design. These youth trainers are designed for all-day comfort with a moulded sockliner and a stable rubber cupsole with a herringbone traction pattern for enhanced grip.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/BWUhfzf-fdOw-H6puj5?o=01M34MYRFZFSFEZ0NQ3M033F4P&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "dickssportinggoods.com",
+                "price": {
+                    "price": 35.07,
+                    "compare_at_price": 84.99,
+                    "currency": "USD"
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.0,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Womens Superstar II Shoes",
+        "description": "The adidas Women's Superstar II is a timeless lifestyle sneaker featuring a premium patent leather and textile upper. This iconic silhouette is characterized by its signature rubber shell toe and the classic three-stripes branding on the sides. Designed for everyday comfort and versatility, it includes a secure lace-up closure, synthetic lining, and a durable rubber outsole for reliable traction. This particular model is presented in a crisp white colorway with contrasting black stripes.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/xLX3uWM-fdOw-H6puj5?o=01M453YRVGBXEBES5P4EDRMGSX&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "dickssportinggoods.com",
+                "price": {
+                    "price": 64.97,
+                    "compare_at_price": 129.99,
+                    "currency": "USD"
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.0,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Adidas Superstar II Rhinestone Pre-School",
+        "description": "Premium kids basketball sneaker featuring Rhinestone detailing on the heel and the iconic three black stripes on a white leather upper. Hook-and-loop lace closure with padded tongue and textile lining for all-day comfort. Durable rubber outsole with classic shell toe. Color shown: White/Black with rhinestone accents.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/KMnTksw-4Raz-H6puj5?o=01KJRCHJTCWB6Y4WDW18EXKP22&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "dtlr.com",
+                "price": {
+                    "price": 29.98,
+                    "compare_at_price": 70.0,
+                    "currency": "USD"
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.03,
+                "dimensions": {
+                    "weight": {
+                        "number": 1.31,
+                        "unit": "lb"
+                    },
+                    "length": null,
+                    "width": null,
+                    "height": null
+                }
+            }
+        ]
+    },
+    {
+        "title": "(PS) adidas originals Superstar 360 GX3265",
+        "description": "The adidas Originals Superstar 360 GX3265 is a stylish and comfortable sneaker for kids, featuring a classic silhouette with a modern twist. The shoe is crafted from a black canvas upper accented with a bold grey flame graphic on the side panels. It maintains the iconic Superstar look with a white rubber shell toe and a clean white sole, blending streetwear aesthetics with a playful design.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/HTepfgG-hHvi-H6puj5?o=01M3KKEADG895TNVGH8XM36C2C&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "kickscrew.com",
+                "price": {
+                    "price": 66.69,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.04,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Superstar",
+        "description": "The Adidas Originals Women's Superstar sneakers are a modern take on a classic '70s basketball shoe. Featuring a coated leather upper, breathable mesh lining, and the iconic rubber shell toe, these sneakers offer both style and comfort. The herringbone-pattern rubber cupsole provides excellent traction, making them perfect for everyday wear.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/p2wlWQK-uHwm-H6puj5?o=01KC78FVTHE3G29MSM7XANHKB9&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "feature.com",
+                "price": {
+                    "price": 66.0,
+                    "compare_at_price": 95.0,
+                    "currency": "USD"
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.15,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Superstar II Pony Hair Womens Lifestyle Shoes",
+        "description": "The adidas Superstar II WMNS \"Black Ponyhair\" is a rebellious take on a court legend. This special edition sneaker features a striking black pony hair overlay on the upper, contrasted with smooth leather accents and the iconic three white stripes. It maintains the classic rubber shell toe, updated with a sleeker, modernized shape, and sits atop a durable rubber cupsole for court-inspired traction and comfort.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/47cl6Jj-4Raz-H6puj5?o=01KT2TWYPGH5645J05M5V0MQ7Q&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "dtlr.com",
+                "price": {
+                    "price": 10.0,
+                    "compare_at_price": 120.0,
+                    "currency": "USD"
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.03,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/47cl6Jj-gn9k-H6puj5?o=01M5CKJZR6VKYSX6F0Q3H3SNZV&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "vinted.com",
+                "price": {
+                    "price": 35.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "used",
+                "max_commission_rate": 0.0,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/47cl6Jj-wscm-H6puj5?o=01KBPAMPSQ93S5W3ERTBXKCN6R&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "stadiumgoods.com",
+                "price": {
+                    "price": 74.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.016,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/47cl6Jj-hHvi-H6puj5?o=01M3A36ZVP4ZR5X6A2234CG234&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "kickscrew.com",
+                "price": {
+                    "price": 88.92,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.04,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/47cl6Jj-NuBr-H6puj5?o=01M343NGW3MPHBDWX012ENSWZZ&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "farfetch.com",
+                "price": {
+                    "price": 89.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.0,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Grade-School Superstar II x Minecraft",
+        "description": "These juniors' adidas Superstar shoes blend the iconic basketball sneaker design with graphics inspired by the blocky world of Minecraft. The sneakers feature a classic shell toe, serrated 3-Stripes in core black, and synthetic uppers in cloud white, accented with green Minecraft-themed pixel patterns. Designed for comfort and durability, they include a padded tongue, molded sockliner, and a rubber outsole suitable for various terrains.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/LU5tMSm-CJ7h-H6puj5?o=01M2QWJFE63VGAYQTR5RJGMGHR&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "shiekh.com",
+                "price": {
+                    "price": 49.99,
+                    "compare_at_price": 84.99,
+                    "currency": "USD"
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.24,
+                "dimensions": null
+            }
+        ]
+    },
+    {
+        "title": "Superstar Vintage Croc-Effect Leather Sneakers",
+        "description": "These Adidas Superstar sneakers offer a vintage-inspired design with a distinctive crocodile-pattern leather upper. Featuring the iconic 3-Stripes and a classic shell toe, they sit on an off-white midsole for a worn-in look. Designed for women, these low-top sneakers have a regular fit and lace closure for comfort and style.",
+        "offers": [
+            {
+                "url": "https://buy.trychannel3.com/TDuhOPR-eedi-H6puj5?o=01M5ESDHWF384P6RD19T33HVS6&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "theoutnet.com",
+                "price": {
+                    "price": 64.0,
+                    "compare_at_price": 160.0,
+                    "currency": "USD"
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.042,
+                "dimensions": null
+            },
+            {
+                "url": "https://buy.trychannel3.com/TDuhOPR-eq5N-H6puj5?o=01M66MR42A3WYF5GM9VAQ59G55&aid=01M6996WMPG08SMWZ597YV9KPY",
+                "domain": "bbcicecream.com",
+                "price": {
+                    "price": 120.0,
+                    "currency": "USD",
+                    "compare_at_price": null
+                },
+                "availability": "InStock",
+                "condition": "new",
+                "max_commission_rate": 0.024,
+                "dimensions": null
+            }
+        ]
+    }
+]
