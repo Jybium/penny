@@ -9,6 +9,7 @@ from modules.auth.auth_router import router as auth_router
 from modules.agent_interface.agent_interface_router import router as agent_interface_router
 from modules.vault_tokens.vault_token_router import router as vault_token_router
 from modules.orders.order_router import router as order_router
+from modules.messages.chat_message_router import router as chat_message_router
 
 from fastapi_pagination import add_pagination
 
@@ -52,6 +53,7 @@ app.include_router(auth_router)
 app.include_router(agent_interface_router)
 app.include_router(vault_token_router)
 app.include_router(order_router)
+app.include_router(chat_message_router)
 
 
 # @app.get("/")
