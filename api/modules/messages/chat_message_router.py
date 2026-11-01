@@ -5,13 +5,14 @@ from utils.jwt_encode_decode import get_current_user
 from database_config import get_db
 from sqlalchemy.orm import Session
 from . import chat_message_service
+from .dtos.chat_message_response_dto import Chat_Message_Response_Dto
 
 router = APIRouter(prefix="/messages", tags=["Messages"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
-@router.get("/own", summary="Get the latest messages for the current user")
+@router.get("/own", response_model=list[Chat_Message_Response_Dto], summary="Get the latest messages for the current user")
 async def get_latest_messages(
   token: str = Depends(oauth2_scheme),
   db: Session = Depends(get_db)
