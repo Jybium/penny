@@ -184,7 +184,7 @@ export default function DemoModal({ open, onClose, onTryQuery }: Props) {
             <div className="demo-visual-card">
               <div className="demo-badge-row">
                 <span className="demo-flow-badge">NON-CUSTODIAL COMMERCE</span>
-                <span className="demo-tech-badge">PAYPAL VAULT API &bull; SSE STREAM</span>
+                <span className="demo-tech-badge">PAYPAL VAULT API &bull; REAL-TIME STREAM</span>
               </div>
 
               <h3>Two Modes, Complete User Control</h3>
@@ -218,7 +218,7 @@ export default function DemoModal({ open, onClose, onTryQuery }: Props) {
                 </div>
               </div>
 
-              <div className="demo-sse-note">
+              <div className="demo-stream-note">
                 <svg fill="none" height="14" viewBox="0 0 24 24" width="14">
                   <path
                     d="m12 3 1.2 3.3L16.5 8l-3.3 1.2L12 12.5l-1.2-3.3L7.5 8l3.3-1.7L12 3Z"
@@ -226,7 +226,7 @@ export default function DemoModal({ open, onClose, onTryQuery }: Props) {
                     strokeWidth="1.8"
                   />
                 </svg>
-                <span>Live Server-Sent Events (SSE) stream order fulfillment updates in real time.</span>
+                <span>Live updates stream order fulfillment and status in real time.</span>
               </div>
             </div>
           </div>

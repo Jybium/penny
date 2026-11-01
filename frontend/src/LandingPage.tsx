@@ -349,7 +349,7 @@ export default function LandingPage({
         </div>
 
         {/* Live Synchronized Control Panel */}
-        <div className="control-panel">
+        <div className="control-panel  rounded-lg">
           <header>
             <span>
               <Shield /> Penny mode
@@ -365,6 +365,7 @@ export default function LandingPage({
               background: mode === "shop-with-me" ? "#eef6f1" : "transparent",
               transition: "background 0.15s ease",
             }}
+            className="p-3 rounded-lg"
           >
             <span>
               <strong>Shop with me (Default)</strong>
@@ -382,6 +383,7 @@ export default function LandingPage({
               background: mode === "buy-for-me" ? "#eef6f1" : "transparent",
               transition: "background 0.15s ease",
             }}
+            className="p-3 rounded-lg"
           >
             <span>
               <strong>Buy for me (Autonomous)</strong>
@@ -464,7 +466,7 @@ export default function LandingPage({
               <Check />
               <span>
                 <strong>Live Order Tracking &amp; History</strong>
-                Penny streams real-time updates via SSE and records completed
+                Penny streams real-time updates and records completed
                 orders
               </span>
             </li>

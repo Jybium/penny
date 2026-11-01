@@ -1194,7 +1194,7 @@ button:disabled { cursor: wait; opacity: .72; }
 }
 .mode-feature-tag.active { color: #826629; }
 
-.demo-sse-note {
+.demo-stream-note {
   display: flex;
   align-items: center;
   gap: 7px;
