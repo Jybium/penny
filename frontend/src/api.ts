@@ -1,0 +1,232 @@
+export type ApiUser = {
+  id: string
+  email: string
+  first_name: string
+  last_name: string
+  gender: string
+  role: string
+  created_at: string
+}
+
+export type LoginResponse = {
+  access_token: string
+  token_type: string
+  user: ApiUser
+}
+
+export type RegistrationPayload = {
+  first_name: string
+  last_name: string
+  email: string
+  password: string
+  gender: string
+}
+
+export type ChatResponse = {
+  user_id: string
+  message: string
+  penny: string
+}
+
+export type VaultSetupResponse = {
+  user_id: string
+  paypal_response: {
+    payer_vault_setup_approval_link: string
+    vault_setup_token_id: string
+  }
+}
+
+export type VaultTokenResponse = {
+  user_id: string
+  decrypted_paypal_token: string
+}
+
+export type ApiOrderItem = {
+  id?: string
+  product_description: string
+  quantity: number
+  unit_price: number
+  created_at?: string
+}
+
+export type ApiOrder = {
+  id: string
+  user_id: string
+  paid_amount: number
+  paypal_order_id: string
+  is_autonomous: boolean
+  created_at: string
+  order_items: ApiOrderItem[]
+}
+
+const baseUrl = (
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
+).replace(/\/$/, "")
+
+function errorMessage(value: unknown): string {
+  if (
+    value &&
+    typeof value === "object" &&
+    "detail" in value &&
+    Array.isArray(value.detail)
+  ) {
+    return value.detail
+      .map((item) =>
+        item && typeof item === "object" && "msg" in item
+          ? String(item.msg)
+          : "Invalid value",
+      )
+      .join(". ")
+  }
+  if (
+    value &&
+    typeof value === "object" &&
+    "detail" in value &&
+    typeof value.detail === "string"
+  ) {
+    return value.detail
+  }
+  return "Penny couldn’t complete that request. Please try again."
+}
+
+async function request<T>(
+  path: string,
+  init: RequestInit = {},
+  token?: string,
+): Promise<T> {
+  const headers = new Headers(init.headers)
+  if (token) headers.set("Authorization", `Bearer ${token}`)
+  if (
+    init.body &&
+    !(init.body instanceof URLSearchParams) &&
+    !(init.body instanceof FormData)
+  ) {
+    headers.set("Content-Type", "application/json")
+  }
+
+  let response: Response
+  try {
+    response = await fetch(`${baseUrl}${path}`, { ...init, headers })
+  } catch {
+    throw new Error("Penny can’t reach the server. Check your connection.")
+  }
+
+  const contentType = response.headers.get("content-type") || ""
+  const body = contentType.includes("application/json")
+    ? await response.json()
+    : await response.text()
+
+  if (!response.ok) {
+    const error = new Error(errorMessage(body)) as Error & { status: number }
+    error.status = response.status
+    throw error
+  }
+  return body as T
+}
+
+export const api = {
+  getBaseUrl() {
+    return baseUrl
+  },
+
+  register(payload: RegistrationPayload) {
+    return request<ApiUser>("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })
+  },
+
+  createUser(payload: RegistrationPayload) {
+    return request<ApiUser>("/users/", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })
+  },
+
+  login(email: string, password: string) {
+    const body = new URLSearchParams({
+      grant_type: "password",
+      username: email,
+      password,
+      scope: "",
+    })
+    return request<LoginResponse>("/auth/login", { method: "POST", body })
+  },
+
+  chat(message: string, token: string) {
+    return request<ChatResponse>(
+      "/agent/chat",
+      {
+        method: "POST",
+        body: JSON.stringify({ message }),
+      },
+      token,
+    )
+  },
+
+  createVaultSetupToken(token: string) {
+    return request<VaultSetupResponse>("/vault/setup-token", { method: "POST" }, token)
+  },
+
+  exchangeVaultSetupToken(setupToken: string, token: string) {
+    return request<{ id?: string; user_id?: string; message?: string }>(
+      "/vault/setup-token-exchange",
+      {
+        method: "POST",
+        body: JSON.stringify({ setup_token: setupToken }),
+      },
+      token,
+    )
+  },
+
+  async getVault(token: string): Promise<VaultTokenResponse | null> {
+    try {
+      return await request<VaultTokenResponse>("/vault/own", {}, token)
+    } catch (err: unknown) {
+      if (err && typeof err === "object" && "status" in err && err.status === 404) {
+        return null
+      }
+      return null
+    }
+  },
+
+  deleteVault(token: string) {
+    return request<{ message: string }>("/vault/own", { method: "DELETE" }, token)
+  },
+
+  getOrders(token: string) {
+    return request<ApiOrder[]>("/orders/own", {}, token)
+  },
+
+  getOrder(orderId: string, token: string) {
+    return request<ApiOrder>(
+      `/orders/own/${encodeURIComponent(orderId)}`,
+      {},
+      token,
+    )
+  },
+
+  subscribeSSE(
+    onMessage: (data: { user_id?: string; order_id?: string }) => void,
+    onError?: (err: Event) => void,
+  ): () => void {
+    const eventSource = new EventSource(`${baseUrl}/agent/sse-stream`)
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        onMessage(data)
+      } catch {
+        // ignore malformed ping or non-JSON keepalives
+      }
+    }
+
+    if (onError) {
+      eventSource.onerror = onError
+    }
+
+    return () => {
+      eventSource.close()
+    }
+  },
+}

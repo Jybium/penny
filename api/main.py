@@ -8,6 +8,7 @@ from modules.users.user_router import router as users_router
 from modules.auth.auth_router import router as auth_router
 from modules.agent_interface.agent_interface_router import router as agent_interface_router
 from modules.vault_tokens.vault_token_router import router as vault_token_router
+from modules.orders.order_router import router as orders_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -29,6 +30,10 @@ app = FastAPI(
 origins = [
     "http://localhost:3000",
     "http://localhost:3001",
+    "http://localhost:5173",
+    "http://localhost:8443",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:8443",
 ]
 
 app.add_middleware(
@@ -44,6 +49,7 @@ app.include_router(users_router)
 app.include_router(auth_router)
 app.include_router(agent_interface_router)
 app.include_router(vault_token_router)
+app.include_router(orders_router)
 
 
 @app.get("/")

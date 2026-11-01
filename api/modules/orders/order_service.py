@@ -74,3 +74,23 @@ async def agent_create_order(
   except HTTPException as e:
     logging.error(f"Error creating order via agent")
     raise e
+
+
+async def get_user_orders(user_id: str, db: Session = Depends(get_db)):
+  try:
+    orders = db.query(Order).filter(Order.user_id == user_id).order_by(Order.created_at.desc()).all()
+    return orders
+  except HTTPException as e:
+    logging.error(f"Error getting user orders: {e}")
+    raise e
+
+
+async def get_user_order(user_id: str, order_id: str, db: Session = Depends(get_db)):
+  try:
+    order = db.query(Order).filter(Order.user_id == user_id, Order.id == order_id).first()
+    if not order:
+      raise HTTPException(detail="Order not found", status_code=status.HTTP_404_NOT_FOUND)
+    return order
+  except HTTPException as e:
+    logging.error(f"Error getting order {order_id}: {e}")
+    raise e
