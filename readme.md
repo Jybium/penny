@@ -30,7 +30,6 @@ Buy for me only works after a user saves a PayPal payment method, called a **vau
 | `DELETE` | `/own` | Deletes the current user's saved vault token. Buy for me turns off and Penny goes back to Shop with me. |
 | `POST` | `/setup-token-exchange` | Exchanges the approved setup token for a permanent vault payment token and saves it for the user. |
  
-> These paths are relative to the vault token router's prefix. Replace this note with the full path from your app, for example `/api/vault-token/setup-token`.
 
 
 ## Features
