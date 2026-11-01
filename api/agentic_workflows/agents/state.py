@@ -1,3 +1,4 @@
+import base64
 import json
 import logging
 import os
@@ -34,6 +35,7 @@ from ..templates.create_order_template import template as create_order_template
 from ..templates.auto_payment_capture_template import template as auto_payment_capture_template
 from ..templates.manual_capture_order_template import template as manual_capture_order_template
 from ..templates.product_image_search_request_template import template as product_image_search_request_template
+from ..templates.product_image_search_response_template import template as product_image_search_response_template
 
 from ..tools.channel3_tools import product_search, image_search
 from ..tools.paypal_tools import create_order, vault_payment_token_exists, auto_create_order_and_capture_payment, capture_order
@@ -220,6 +222,51 @@ def search_product_with_image_request_agent(state: State):
     "gender": json_parsed_response["gender"],
   }
 
+
+image_search_tool_node = ToolNode(tools=[image_search])
+async def search_product_with_image_response_agent(state: State):
+  """
+  this agent is responsible for responding with the result of product image search
+  """
+
+  # base64 encoding of langgraph state[image_content] string
+  image_b64 = base64.b64encode(state["image_content"]).decode("utf-8")
+
+  dummy_ai_message = AIMessage(
+    content="",
+    tool_calls=[
+      ToolCall(
+        name="image_search",
+        args={
+          # "image_content": state["image_content"],
+          "image_content": image_b64,
+          "min_price": state["min_price"],
+          "max_price": state["max_price"],
+          "gender": state["gender"],
+        },
+        id="call_10"
+      )
+    ]
+  )
+
+  product_image_search_results = await image_search_tool_node.ainvoke([dummy_ai_message])
+
+  image_search_response_prompt = PromptTemplate.from_template(
+    template=product_image_search_response_template
+  )
+  formatted_prompt = image_search_response_prompt.format(
+    product_image_search_results=product_image_search_results
+  )
+  llm_response = llm.invoke(formatted_prompt)
+  logging.info(
+      f"Agentic Workflow: State Graph: computed search product image response agent response {llm_response.content}"
+    )
+  # cleaning image content state after operation
+  image_content = None
+  return {
+    "image_content": image_content,
+    "messages": [llm_response]
+  }
 
 
 
@@ -498,11 +545,12 @@ state_workflow.add_node(
 )
 state_workflow.add_node("auto_capture_paypal_order_agent", auto_capture_paypal_order_agent)
 state_workflow.add_node("manual_capture_order_agent", manual_capture_order_agent)
+state_workflow.add_node("search_product_with_image_response_agent", search_product_with_image_response_agent)
 
 def coordinator_agent_condition(state: State):
   coordinating_intent = state["intent"]
   image_content = state["image_content"]
-  print("coordinator state image:", image_content)
+  # print("coordinator state image:", image_content)
   if image_content is not None:
     return "search_product_with_image_request_agent"
   elif coordinating_intent == User_Intent.SYSTEM_ENQUIRY:
@@ -544,7 +592,9 @@ state_workflow.add_conditional_edges("coordinator_agent", coordinator_agent_cond
 state_workflow.add_edge("system_enquiry_agent", END)
 state_workflow.add_edge("search_product_request_agent", "search_product_response_agent")
 state_workflow.add_edge("search_product_response_agent", END)
-state_workflow.add_edge("search_product_with_image_request_agent", END)
+state_workflow.add_edge("search_product_with_image_request_agent", "search_product_with_image_response_agent")
+state_workflow.add_edge("search_product_with_image_response_agent", END)
+
 # state_workflow.add_edge("order_items_aggregate_agent", "order_create_agent")
 # state_workflow.add_edge("order_create_agent", END)
 state_workflow.add_edge("order_items_aggregate_agent", "auto_payment_decision_agent")

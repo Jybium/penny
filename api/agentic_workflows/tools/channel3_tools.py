@@ -74,7 +74,56 @@ async def product_search(
   return first_five_products
 
 
+@tool(description="product image search tool with Channel3")
 async def image_search(
+  image_content: str,
+  min_price: Optional[int] = None, 
+  max_price: Optional[int] = None,
+  gender: Optional[str] = None,
+):
+
+  print("State image content: ", image_content)
+
+  image_base_64 = image_content # image content from langgraph state is already base64 encoded
+
+  # filters don't really work with the image search
+  search_filters = {}
+  price = {}
+  
+  if min_price:
+    price["min_price"] = min_price
+    
+  if max_price:
+    price["max_price"] = max_price
+    
+  if price:
+    search_filters["price"] = price
+  
+  if gender:
+    search_filters["gender"] = gender
+
+  # results = await client.products.search(base64image=image_base_64)
+  if search_filters:
+    results = await client.products.search(
+      base64image=image_base_64,
+      filters=search_filters
+    )
+  else:
+    results = await client.products.search(base64image=image_base_64)
+  
+
+  print("RESULTS:", results)
+  cleaned_results = [
+    {"title": item.title, "description": item.description, "offers": item.offers}
+    for item in results.items
+  ]
+  return cleaned_results
+
+
+
+
+
+async def image_search_test(
   image_content: str,
   min_price: Optional[int] = None, 
   max_price: Optional[int] = None,
@@ -115,6 +164,7 @@ async def image_search(
     )
   else:
     results = await client.products.search(base64image=image_base_64)
+  
 
   print("RESULTS:", results)
   cleaned_results = [
