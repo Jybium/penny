@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
   from modules.users.models.user_model import User
+  from .chat_message_model import Chat_Message
 
 
 
@@ -22,3 +23,5 @@ class Chat_Room(Base):
   # relationships
   user_id: Mapped[UUID(as_uuid=True)] = mapped_column(ForeignKey("users.id"))
   user: Mapped["User"] = relationship("User", back_populates="chat_room")
+
+  messages: Mapped[list["Chat_Message"]] = relationship("Chat_Message", back_populates="chat_room", cascade="all, delete-orphan")
