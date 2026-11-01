@@ -1,23 +1,120 @@
-import { ReactNode } from "react"
+import { ReactNode, useState } from "react"
+
+export type ParsedProduct = {
+  index?: string
+  title: string
+  price?: string
+  retailer?: string
+  inStock?: boolean
+  rating?: string
+  extra?: string
+  imageUrl?: string
+  imageAlt?: string
+}
 
 /**
- * Formats Markdown text into clean React elements.
- * Supports bold (**text**), italics (*text*), code (`code`),
- * links ([text](url)), bullet lists, tables, headers, and paragraphs.
+ * Modern product card component for Penny chat
+ */
+export function ProductCard({ product }: { product: ParsedProduct }) {
+  const [imgError, setImgError] = useState(false)
+
+  return (
+    <div className="penny-product-card">
+      <div className="penny-product-thumb">
+        {product.imageUrl && !imgError ? (
+          <img
+            alt={product.imageAlt || product.title}
+            loading="lazy"
+            onError={() => setImgError(true)}
+            src={product.imageUrl}
+          />
+        ) : (
+          <div className="penny-product-thumb-placeholder">
+            <svg fill="none" height="22" stroke="currentColor" viewBox="0 0 24 24" width="22">
+              <rect height="18" rx="2" strokeWidth="1.5" width="18" x="3" y="3" />
+              <circle cx="8.5" cy="8.5" r="1.5" strokeWidth="1.5" />
+              <path d="m21 15-5-5L5 21" strokeWidth="1.5" />
+            </svg>
+            <span>Product</span>
+          </div>
+        )}
+      </div>
+
+      <div className="penny-product-info">
+        <div>
+          <div className="penny-product-top">
+            {product.index && (
+              <span className="penny-product-index">#{product.index}</span>
+            )}
+            {product.inStock && (
+              <span className="penny-product-stock">IN STOCK</span>
+            )}
+            {product.rating && (
+              <span className="penny-product-rating">
+                ★ {product.rating}
+              </span>
+            )}
+          </div>
+
+          <h4 className="penny-product-title" title={product.title}>
+            {product.title}
+          </h4>
+        </div>
+
+        <div>
+          <div className="penny-product-meta">
+            {product.price && (
+              <span className="penny-product-price">{product.price}</span>
+            )}
+            {product.retailer && (
+              <span className="penny-product-retailer">
+                at <strong>{product.retailer}</strong>
+              </span>
+            )}
+          </div>
+
+          {product.extra && (
+            <p className="penny-product-extra">{product.extra}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Formats Markdown text into clean, modern React elements with product cards,
+ * tables, lists, and inline media.
  */
 export function formatPennyMessage(text: string): ReactNode {
   if (!text) return null
 
-  // Split lines
-  const lines = text.split("\n")
+  const rawLines = text.split("\n")
   const elements: ReactNode[] = []
-  let inList = false
-  let listItems: ReactNode[] = []
+
   let inTable = false
   let tableRows: string[][] = []
 
+  let inBulletList = false
+  let bulletItems: ReactNode[] = []
+
+  let pendingProducts: ParsedProduct[] = []
+
+  function flushProducts() {
+    if (pendingProducts.length > 0) {
+      elements.push(
+        <div className="penny-products-container" key={`products-${elements.length}`}>
+          {pendingProducts.map((p, idx) => (
+            <ProductCard key={`${p.title}-${idx}`} product={p} />
+          ))}
+        </div>,
+      )
+      pendingProducts = []
+    }
+  }
+
   function flushList() {
-    if (inList && listItems.length > 0) {
+    if (inBulletList && bulletItems.length > 0) {
       elements.push(
         <ul
           key={`list-${elements.length}`}
@@ -28,11 +125,11 @@ export function formatPennyMessage(text: string): ReactNode {
             gap: 6,
           }}
         >
-          {listItems}
+          {bulletItems}
         </ul>,
       )
-      listItems = []
-      inList = false
+      bulletItems = []
+      inBulletList = false
     }
   }
 
@@ -95,65 +192,162 @@ export function formatPennyMessage(text: string): ReactNode {
     }
   }
 
-  lines.forEach((line, lineIdx) => {
+  for (let i = 0; i < rawLines.length; i++) {
+    const line = rawLines[i]
     const trimmed = line.trim()
 
-    // Table row detection
+    // 1. Table Detection
     if (trimmed.startsWith("|") && trimmed.endsWith("|")) {
+      flushProducts()
       flushList()
       inTable = true
-      const cells = trimmed
-        .slice(1, -1)
-        .split("|")
+      const cells = trimmed.slice(1, -1).split("|")
       tableRows.push(cells)
-      return
+      continue
     } else if (inTable) {
       flushTable()
     }
 
-    // Bullet list detection
+    // 2. Product Detection: Numbered (1. **...**) or Bullet (- **...**)
+    const productMatch = trimmed.match(/^(?:(\d+)\.|\-|\*)\s+\*\*([^*]+)\*\*(.*)$/)
+    if (productMatch) {
+      flushList()
+      const index = productMatch[1]
+      const title = productMatch[2].trim()
+      let details = productMatch[3].trim()
+
+      // Lookahead for image markdown on same line, or next lines
+      let imageUrl: string | undefined
+      let imageAlt: string | undefined
+
+      const inlineImg = details.match(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/)
+      if (inlineImg) {
+        imageAlt = inlineImg[1]
+        imageUrl = inlineImg[2]
+        details = details.replace(inlineImg[0], "").trim()
+      } else {
+        // Look ahead in subsequent lines for the image
+        let nextIdx = i + 1
+        while (nextIdx < rawLines.length && !rawLines[nextIdx].trim()) {
+          nextIdx++
+        }
+        if (nextIdx < rawLines.length) {
+          const nextTrimmed = rawLines[nextIdx].trim()
+          const nextImg = nextTrimmed.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)$/)
+          if (nextImg) {
+            imageAlt = nextImg[1]
+            imageUrl = nextImg[2]
+            i = nextIdx // consume the image line
+          }
+        }
+      }
+
+      // Parse metadata from details:
+      // Price
+      const priceMatch = details.match(/(\$[\d,]+(?:\.\d{2})?)/)
+      const price = priceMatch ? priceMatch[1] : undefined
+
+      // InStock
+      const inStock = /\b(instock|in\s+stock)\b/i.test(details)
+
+      // Rating
+      const ratingMatch = details.match(/rated\s+([\d.]+(?:\s*(?:from|out of|\/)\s*[\w\d\s]+)?)/i)
+      const rating = ratingMatch ? ratingMatch[1].trim() : undefined
+
+      // Retailer
+      const retailerMatch = details.match(/(?:at|available at)\s+([^()]+?)(?=\s*\([iI]n\s*[sS]tock|\s*;|\s*$|\s*rated)/i)
+      const retailer = retailerMatch ? retailerMatch[1].trim().replace(/\.$/, "") : undefined
+
+      // Extra description / notes
+      let extra = details
+        .replace(/^—\s*/, "")
+        .replace(/^[–-]\s*/, "")
+        .trim()
+
+      if (price) extra = extra.replace(price, "").trim()
+      if (retailer) extra = extra.replace(new RegExp(`(?:at|available at)\\s+${retailer.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"), "").trim()
+      extra = extra.replace(/\(?in\s*stock\)?/gi, "").replace(/;?\s*rated[^;.]*[;.]?/gi, "").replace(/^[,\s;—–-]+|[,\s;—–-]+$/g, "").trim()
+
+      pendingProducts.push({
+        index,
+        title,
+        price,
+        retailer,
+        inStock,
+        rating,
+        extra: extra.length > 2 ? extra : undefined,
+        imageUrl,
+        imageAlt,
+      })
+      continue
+    }
+
+    // 3. Standalone Image Detection: ![alt](url)
+    const standaloneImg = trimmed.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)$/)
+    if (standaloneImg) {
+      flushProducts()
+      flushList()
+      elements.push(
+        <div className="penny-standalone-image-wrap" key={`img-${elements.length}`}>
+          <img
+            alt={standaloneImg[1] || "Penny product view"}
+            loading="lazy"
+            src={standaloneImg[2]}
+          />
+          {standaloneImg[1] && (
+            <div className="penny-standalone-image-caption">{standaloneImg[1]}</div>
+          )}
+        </div>,
+      )
+      continue
+    }
+
+    // If we have pending products and this line is NOT a product, flush the products grid
+    flushProducts()
+
+    // 4. Bullet list detection
     if (/^[-*•]\s+/.test(trimmed)) {
-      inList = true
+      inBulletList = true
       const content = trimmed.replace(/^[-*•]\s+/, "")
-      listItems.push(
-        <li key={`li-${lineIdx}`} style={{ lineHeight: 1.55 }}>
+      bulletItems.push(
+        <li key={`li-${i}`} style={{ lineHeight: 1.55 }}>
           {renderInline(content)}
         </li>,
       )
-      return
-    } else if (inList) {
+      continue
+    } else if (inBulletList) {
       flushList()
     }
 
-    // Header detection
+    // 5. Headings
     if (/^###\s+/.test(trimmed)) {
       elements.push(
         <h4
-          key={`h4-${lineIdx}`}
+          key={`h4-${i}`}
           style={{ margin: "14px 0 6px", fontSize: 13, fontWeight: 700, color: "inherit" }}
         >
           {renderInline(trimmed.replace(/^###\s+/, ""))}
         </h4>,
       )
-      return
+      continue
     }
     if (/^##\s+/.test(trimmed)) {
       elements.push(
         <h3
-          key={`h3-${lineIdx}`}
+          key={`h3-${i}`}
           style={{ margin: "16px 0 8px", fontSize: 14, fontWeight: 700, color: "inherit" }}
         >
           {renderInline(trimmed.replace(/^##\s+/, ""))}
         </h3>,
       )
-      return
+      continue
     }
 
-    // Horizontal rule
+    // 6. Horizontal rule
     if (/^[-*_]{3,}$/.test(trimmed)) {
       elements.push(
         <hr
-          key={`hr-${lineIdx}`}
+          key={`hr-${i}`}
           style={{
             margin: "12px 0",
             border: "none",
@@ -161,22 +355,23 @@ export function formatPennyMessage(text: string): ReactNode {
           }}
         />,
       )
-      return
+      continue
     }
 
-    // Empty line
+    // 7. Empty line
     if (!trimmed) {
-      return
+      continue
     }
 
-    // Standard paragraph
+    // 8. Standard paragraph
     elements.push(
-      <p key={`p-${lineIdx}`} style={{ margin: "6px 0", lineHeight: 1.55 }}>
+      <p key={`p-${i}`} style={{ margin: "6px 0", lineHeight: 1.55 }}>
         {renderInline(trimmed)}
       </p>,
     )
-  })
+  }
 
+  flushProducts()
   flushList()
   flushTable()
 
@@ -184,15 +379,16 @@ export function formatPennyMessage(text: string): ReactNode {
 }
 
 /**
- * Parses inline formatting: **bold**, *italic*, `code`, and [label](url).
+ * Parses inline formatting: images, **bold**, *italic*, `code`, and [label](url).
  */
 function renderInline(text: string): ReactNode {
-  // Regex pattern matching bold, code, link, or italic
   const parts: ReactNode[] = []
   let remaining = text
   let keyIndex = 0
 
   while (remaining.length > 0) {
+    // Images ![alt](url) - match images BEFORE links to prevent ! from dangling
+    const imgMatch = remaining.match(/!\[([^\]]*)\]\(([^)]+)\)/)
     // Links [text](url)
     const linkMatch = remaining.match(/\[([^\]]+)\]\(([^)]+)\)/)
     // Bold **text**
@@ -202,8 +398,8 @@ function renderInline(text: string): ReactNode {
     // Strike ~~text~~
     const strikeMatch = remaining.match(/~~([^~]+)~~/)
 
-    // Find the earliest match
     const matches = [
+      imgMatch ? { type: "image", match: imgMatch, index: imgMatch.index! } : null,
       linkMatch ? { type: "link", match: linkMatch, index: linkMatch.index! } : null,
       boldMatch ? { type: "bold", match: boldMatch, index: boldMatch.index! } : null,
       codeMatch ? { type: "code", match: codeMatch, index: codeMatch.index! } : null,
@@ -223,13 +419,34 @@ function renderInline(text: string): ReactNode {
       parts.push(remaining.substring(0, first.index))
     }
 
-    if (first.type === "link") {
+    if (first.type === "image") {
+      const alt = first.match[1]
+      const url = first.match[2]
+      parts.push(
+        <img
+          alt={alt || "Product view"}
+          key={`inline-img-${keyIndex++}`}
+          loading="lazy"
+          src={url}
+          style={{
+            maxWidth: "100%",
+            maxHeight: 180,
+            borderRadius: 6,
+            border: "1px solid #dbe2dc",
+            margin: "4px 0",
+            display: "block",
+            objectFit: "contain",
+          }}
+        />,
+      )
+      remaining = remaining.substring(first.index + first.match[0].length)
+    } else if (first.type === "link") {
       const label = first.match[1]
       const url = first.match[2]
       parts.push(
         <a
-          key={`inline-${keyIndex++}`}
           href={url}
+          key={`inline-${keyIndex++}`}
           rel="noopener noreferrer"
           style={{ color: "var(--penny-green, #1b5338)", textDecoration: "underline" }}
           target="_blank"
@@ -273,4 +490,3 @@ function renderInline(text: string): ReactNode {
 
   return parts.length === 1 ? parts[0] : <>{parts}</>
 }
-
