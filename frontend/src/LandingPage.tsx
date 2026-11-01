@@ -378,7 +378,7 @@ export default function LandingPage({
               <img
                 alt="Instant secure PayPal checkout"
                 loading="lazy"
-                src="https://images.unsplash.com/photo-1556742049-0a67c5574f73?auto=format&fit=crop&w=600&q=80"
+                src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=600&q=80"
               />
               <span className="landing-how-badge">03 &bull; Guarded Settlement</span>
             </div>
@@ -548,6 +548,81 @@ export default function LandingPage({
             {user ? "Open Autonomous Settings" : "Set up autonomous payments"}{" "}
             <Arrow />
           </button>
+        </div>
+
+        {/* Live Autonomous Protection Dashboard Filler */}
+        <div className="autonomy-dashboard">
+          <header>
+            <div>
+              <span className="automation-pulse" />
+              <span>
+                <strong>Autonomous Checkout Engine</strong>
+                <small>PayPal Vault &bull; Tokenized Settlement</small>
+              </span>
+            </div>
+            <b>LIVE GUARD</b>
+          </header>
+
+          <div className="automation-limit">
+            <span>
+              <small>SPENDING GUARDRAIL</small>
+              <strong>$250</strong>
+              <em>/ order cap</em>
+            </span>
+            <div style={{ textAlign: "right" }}>
+              <span
+                style={{
+                  fontSize: "9px",
+                  fontWeight: 700,
+                  color: "#1f5f3e",
+                  background: "#d9f0e1",
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  display: "inline-block",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                ● AUTO-CAPTURE READY
+              </span>
+            </div>
+          </div>
+
+          <div className="automation-rules">
+            <div>
+              <em>01</em>
+              <span>
+                <strong>Explicit Price Ceiling</strong>
+                <small>Orders above cap require manual confirmation</small>
+              </span>
+              <b>ENFORCED</b>
+            </div>
+            <div>
+              <em>02</em>
+              <span>
+                <strong>Non-Custodial Token</strong>
+                <small>Penny never stores your raw card credentials</small>
+              </span>
+              <b>VERIFIED</b>
+            </div>
+            <div>
+              <em>03</em>
+              <span>
+                <strong>Instant Revocation</strong>
+                <small>Disconnect vault token anytime in one click</small>
+              </span>
+              <b>ACTIVE</b>
+            </div>
+          </div>
+
+          <footer>
+            <div className="automation-check">
+              <Check />
+            </div>
+            <span>
+              <strong>Guaranteed User Control</strong>
+              <small>Penny acts strictly within your pre-authorized limits</small>
+            </span>
+          </footer>
         </div>
       </section>
     </main>
