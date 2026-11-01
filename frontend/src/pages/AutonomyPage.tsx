@@ -359,7 +359,7 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                   </span>
                   <span>
                     <strong>Switch back to Shop for me</strong>
-                    <small>
+                    <small className="ml-2">
                       Delete the vault token to require manual checkout on
                       PayPal
                     </small>
@@ -461,7 +461,14 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
               ) : (
                 <div style={{ display: "grid", gap: 14, marginTop: 14 }}>
                   {/* Step A: PayPal Approval Window */}
-                  <div style={{ padding: 16, borderRadius: 6, border: "1px solid #d9e2db", background: "#f8faf8" }}>
+                  <div
+                    style={{
+                      padding: 16,
+                      borderRadius: 6,
+                      border: "1px solid #d9e2db",
+                      background: "#f8faf8",
+                    }}
+                  >
                     <p style={{ margin: 0, fontWeight: 700, color: "#365c49" }}>
                       Step 1: Approve Faster Payment on PayPal
                     </p>
@@ -493,7 +500,14 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                   </div>
 
                   {/* Step B: Exchange Setup Token */}
-                  <div style={{ padding: 16, borderRadius: 6, border: "1px solid #d9e2db", background: "#f8faf8" }}>
+                  <div
+                    style={{
+                      padding: 16,
+                      borderRadius: 6,
+                      border: "1px solid #d9e2db",
+                      background: "#f8faf8",
+                    }}
+                  >
                     <p style={{ margin: 0, fontWeight: 700, color: "#365c49" }}>
                       Step 2: Complete Setup Token Exchange
                     </p>
