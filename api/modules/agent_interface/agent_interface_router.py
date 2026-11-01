@@ -9,6 +9,7 @@ from database_config import get_db
 from sqlalchemy.orm import Session
 from fastapi.responses import StreamingResponse
 from utils.sse_management import stream_sse
+from .dtos.chat_response_dto import Chat_Response_Dto
 
 router = APIRouter(prefix="/agent", tags=["Agent Interface"])
 
@@ -28,7 +29,11 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 #   )
 
 
-@router.post("/chat")
+@router.post("/chat", 
+  response_model=Chat_Response_Dto, 
+  summary="Chat with the Penny agent",
+  description="Send a text query, an image, or both. At least one is required.",
+)
 async def chat_with_agent(
   # file: UploadFile = File(...),
   file: UploadFile | None = File(None),
@@ -58,7 +63,7 @@ async def sse_stream(request: Request):
   return await stream_sse(request)
 
 
-@router.delete("/checkpoints")
+@router.delete("/checkpoints", summary="Delete all checkpoints for the current user")
 async def adelete_thread_checkpoints(
   token: str = Depends(oauth2_scheme), 
   db: Session = Depends(get_db)
