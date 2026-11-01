@@ -1,14 +1,8 @@
 import { useState, type ReactNode, type FormEvent } from "react"
-
-export type AuthUserSummary = {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-}
+import type { AuthUser } from "./AuthModal"
 
 type Props = {
-  user: AuthUserSummary | null
+  user: AuthUser | null
   mode: "shop-with-me" | "buy-for-me"
   onModeChange: (mode: "shop-with-me" | "buy-for-me") => void
   onEnter: (query?: string) => void
