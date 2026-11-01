@@ -515,7 +515,7 @@ button:disabled { cursor: wait; opacity: .72; }
   .secure-label { display: none; }
   .chat-layout { display: block; }
   .context-rail {
-    padding: 38px 24px;
+    padding: 28px 20px;
     border-right: 0;
     border-bottom: 1px solid #dfe1da;
     position: static;
@@ -523,22 +523,67 @@ button:disabled { cursor: wait; opacity: .72; }
     overflow-y: visible;
   }
   .agent-rules { display: none; }
-  .autonomy-preview { margin-top: 24px; }
-  .conversation-head { padding: 0 24px; }
-  .messages, .composer { width: calc(100% - 32px); }
+  .autonomy-preview { margin-top: 20px; }
+  .autonomy-preview h3 { font-size: 14px; }
+  .autonomy-preview p { font-size: 11.5px; }
+  .conversation-head { padding: 0 16px; }
+  .conversation-head strong { font-size: 13px; }
+  .conversation-head small { font-size: 10.5px; }
+  .messages, .composer { width: calc(100% - 24px); }
+  .message { font-size: 13px; line-height: 1.6; padding: 12px 14px; }
+  .composer input { font-size: 13.5px; height: 50px; }
+  .composer p { font-size: 10px; }
   .suggestion-row { margin-left: 0; }
+  .suggestion-row button { font-size: 10.5px; padding: 7px 12px; }
+  .penny-product-card {
+    grid-template-columns: 96px 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
+  .penny-product-thumb {
+    width: 96px;
+    height: 90px;
+  }
+  .penny-product-title {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  .penny-product-price {
+    font-size: 12.5px;
+  }
+  .penny-product-retailer {
+    font-size: 10.5px;
+  }
+  .penny-product-stock, .penny-product-index {
+    font-size: 9px;
+  }
   .review-page, .payment-page { width: calc(100% - 32px); padding-top: 26px; }
   .review-heading { display: block; }
+  .review-heading h1, .payment-heading h1 { font-size: clamp(26px, 6vw, 34px); }
   .confidence { margin-top: 22px; }
+  .confidence strong { font-size: 12px; }
+  .confidence small { font-size: 10.5px; }
   .decision-card, .decision-card.compact { grid-template-columns: 1fr; }
   .product-visual, .compact .product-visual { min-height: 230px; }
+  .product-meta { font-size: 11px; }
+  .reason-box strong { font-size: 12px; }
+  .reason-box p { font-size: 11.5px; }
+  .merchant-line { font-size: 11px; }
+  .decision-details strong { font-size: 12px; }
+  .decision-details small { font-size: 10.5px; }
   .approval-terms { grid-template-columns: 1fr; }
+  .approval-terms strong { font-size: 12px; }
+  .approval-terms small { font-size: 10.5px; }
   .payment-shell { gap: 26px; }
   .handoff-card { padding: 22px 15px; }
-  .handoff-labels { font-size: 7px; }
+  .handoff-labels { font-size: 10.5px; }
   .url-row { grid-template-columns: 72px 1fr 22px; }
   .result-card { padding: 36px 22px; }
-  .result-card h1 { font-size: 32px; }
+  .result-card h1 { font-size: 28px; }
+  .order-confirmation div { font-size: 12px; }
+  .cancel-options strong { font-size: 12px; }
+  .cancel-options small { font-size: 10.5px; }
+  .tracking-steps { display: none; }
 }
 
 .landing-page { overflow: hidden; background: #f7f7f2; }
@@ -822,23 +867,65 @@ button:disabled { cursor: wait; opacity: .72; }
 
 @media (max-width: 680px) {
   .landing-hero, .landing-how, .landing-control, .landing-autonomy { width: calc(100% - 32px); }
-  .landing-hero { padding: 48px 0 70px; }
-  .landing-copy h1 { font-size: 48px; }
-  .landing-demo-wrap { min-height: 430px; }
-  .landing-demo { width: 96%; }
+  .landing-hero { padding: 40px 0 60px; }
+  .landing-label { font-size: 10px; }
+  .landing-copy h1 { font-size: clamp(30px, 8vw, 42px); line-height: 1.06; letter-spacing: -0.04em; margin-bottom: 18px; }
+  .landing-lead { font-size: 13.5px; line-height: 1.6; }
+  .landing-actions { gap: 12px; flex-wrap: wrap; }
+  .landing-actions button { font-size: 12px; padding: 12px 18px; }
+  .landing-proof strong { font-size: 11.5px; }
+  .landing-proof p { font-size: 10.5px; }
+
+  .landing-demo-wrap { min-height: 420px; }
+  .landing-demo { width: 100%; transform: rotate(0deg); }
   .float-card { display: none; }
+  .landing-demo header strong { font-size: 12px; }
+  .landing-demo header small { font-size: 10px; }
+  .demo-welcome strong { font-size: 14px; }
+  .demo-welcome p { font-size: 11.5px; }
+  .demo-sample-prompt { font-size: 10.5px; padding: 6px 10px; }
+  .demo-search-submit { font-size: 12px; padding: 13px 18px; }
+
   .landing-trust { padding: 22px 16px; flex-direction: column; align-items: flex-start; gap: 14px; }
-  .landing-trust > div { gap: 14px; flex-wrap: wrap; }
-  .landing-how { padding: 80px 0; }
+  .landing-trust > span { font-size: 10px; }
+  .landing-trust > div { gap: 12px; flex-wrap: wrap; }
+  .landing-trust p { font-size: 11.5px; }
+
+  .landing-how { padding: 70px 0; }
+  .landing-section-heading h2, .control-copy h2, .landing-autonomy h2 { font-size: clamp(24px, 6vw, 32px); line-height: 1.14; }
+  .landing-section-heading > p, .control-copy > p { font-size: 10px; }
+  .landing-section-heading > span, .control-copy > span, .autonomy-copy p { font-size: 13px; line-height: 1.65; }
   .landing-how-grid { grid-template-columns: 1fr; }
-  .landing-how-grid article, .landing-how-grid article + article { padding: 28px 0; border-right: 0; border-bottom: 1px solid #dce0d9; }
-  .landing-control { margin-bottom: 80px; padding: 36px 24px; }
-  .landing-autonomy { margin-bottom: 80px; padding: 40px 24px; }
+  .landing-how-grid article, .landing-how-grid article + article { padding: 24px 0; border-right: 0; border-bottom: 1px solid #dce0d9; }
+  .landing-how-grid h3 { font-size: 15px; }
+  .landing-how-grid p { font-size: 12.5px; line-height: 1.6; }
+  .landing-how-grid article > b { font-size: 11px; }
+
+  .landing-control { margin-bottom: 70px; padding: 36px 20px; }
+  .control-copy li { font-size: 12px; }
+  .control-panel header { font-size: 12px; }
+  .control-panel strong { font-size: 12.5px; }
+  .control-panel small { font-size: 10.5px; }
+  .control-panel em { font-size: 12px; }
+  .control-panel b { font-size: 10px; }
+
+  .landing-autonomy { margin-bottom: 70px; padding: 36px 20px; }
+  .autonomy-copy > b { font-size: 10px; }
+  .autonomy-copy li { font-size: 12px; line-height: 1.5; }
+  .autonomy-copy li strong { font-size: 12.5px; }
+  .landing-autonomy button { font-size: 12px; padding: 13px 18px; }
   .penny-modes { grid-template-columns: 1fr; }
   .penny-modes > div + div { border-top: 1px solid #e5d49e; border-left: 0; }
+  .penny-modes strong { font-size: 13px; }
+  .penny-modes small { font-size: 11.5px; line-height: 1.5; }
+  .autonomy-dashboard header strong { font-size: 12.5px; }
+  .autonomy-dashboard header small { font-size: 10.5px; }
+  .automation-rules strong { font-size: 12px; }
+  .automation-rules small { font-size: 10.5px; }
+
   .control-copy ul { grid-template-columns: 1fr; }
   .landing-footer { width: calc(100% - 32px); grid-template-columns: 1fr auto; }
-  .landing-footer p { display: none; }
+  .landing-footer p, .landing-footer small { font-size: 11px; }
 }
 
 /* A warmer, familiar first-generation app treatment */
@@ -1005,14 +1092,30 @@ button:disabled { cursor: wait; opacity: .72; }
   .preferences-backdrop { padding: 0; align-items: end; }
   .preferences-modal { width: 100%; max-height: 92vh; border-radius: 16px 16px 0 0; }
   .preferences-header, .preference-section { padding-left: 20px; padding-right: 20px; }
+  .preferences-header h2 { font-size: 20px; }
+  .preferences-header p { font-size: 10px; }
+  .preferences-header span { font-size: 11.5px; }
+  .preference-section > p { font-size: 11px; }
+  .preference-switches b { font-size: 12.5px; }
+  .preference-switches small { font-size: 10.5px; }
   .approval-options { grid-template-columns: 1fr; }
+  .approval-options b { font-size: 12px; }
+  .approval-options small { font-size: 10.5px; }
   .preference-note { margin-left: 20px; margin-right: 20px; }
+  .preference-note p { font-size: 11px; }
   .preferences-footer { padding-left: 20px; padding-right: 20px; }
+  .preferences-footer button { font-size: 12px; }
   .auth-backdrop { padding: 0; align-items: end; }
   .auth-modal { width: 100%; min-height: 0; max-height: 94vh; border-radius: 16px 16px 0 0; display: block; overflow: auto; }
   .auth-aside { display: none; }
-  .auth-form-panel { padding: 44px 24px 30px; }
-  .auth-form-panel h1 { font-size: 29px; }
+  .auth-form-panel { padding: 36px 20px 24px; }
+  .auth-form-panel h1 { font-size: 24px; }
+  .auth-intro { font-size: 12px; }
+  .auth-form-panel label { font-size: 11px; }
+  .auth-form-panel label > input:not([type="checkbox"]), .auth-form-panel select { font-size: 13.5px; }
+  .auth-submit { font-size: 12px; }
+  .auth-switch, .auth-switch button { font-size: 11px; }
+  .auth-error { font-size: 11px; }
   .auth-name-row { grid-template-columns: 1fr; }
   .toast-region { right: 16px; bottom: 16px; }
 }
