@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import os
 from typing import Optional
 
@@ -71,6 +72,106 @@ async def product_search(
   first_five_products = {"products": products[:5]}
   print(first_five_products)
   return first_five_products
+
+
+@tool(description="product image search tool with Channel3")
+async def image_search(
+  image_content: str,
+  min_price: Optional[int] = None, 
+  max_price: Optional[int] = None,
+  gender: Optional[str] = None,
+):
+
+  print("State image content: ", image_content)
+
+  image_base_64 = image_content # image content from langgraph state is already base64 encoded
+
+  # filters don't really work with the image search
+  search_filters = {}
+  price = {}
+  
+  if min_price:
+    price["min_price"] = min_price
+    
+  if max_price:
+    price["max_price"] = max_price
+    
+  if price:
+    search_filters["price"] = price
+  
+  if gender:
+    search_filters["gender"] = gender
+
+  # results = await client.products.search(base64image=image_base_64)
+  if search_filters:
+    results = await client.products.search(
+      base64image=image_base_64,
+      filters=search_filters
+    )
+  else:
+    results = await client.products.search(base64image=image_base_64)
+  
+
+  print("RESULTS:", results)
+  cleaned_results = [
+    {"title": item.title, "description": item.description, "offers": item.offers}
+    for item in results.items
+  ]
+  return cleaned_results
+
+
+
+
+
+async def image_search_test(
+  image_content: str,
+  min_price: Optional[int] = None, 
+  max_price: Optional[int] = None,
+  gender: Optional[str] = None,
+):
+  image_base_64 = base64.b64encode(image_content).decode("utf-8")
+
+  # filters don't really work with the image search
+  # search_filters = {
+  #   "price": {
+  #     "min_price": min_price,
+  #     "max_price": max_price,
+  #   },
+  #   "gender": gender
+  # }
+
+  # filters don't really work with the image search
+  search_filters = {}
+  price = {}
+  
+  if min_price:
+    price["min_price"] = min_price
+    
+  if max_price:
+    price["max_price"] = max_price
+    
+  if price:
+    search_filters["price"] = price
+  
+  if gender:
+    search_filters["gender"] = gender
+
+  # results = await client.products.search(base64image=image_base_64)
+  if search_filters:
+    results = await client.products.search(
+      base64image=image_base_64,
+      filters=search_filters
+    )
+  else:
+    results = await client.products.search(base64image=image_base_64)
+  
+
+  print("RESULTS:", results)
+  cleaned_results = [
+    {"title": item.title, "description": item.description, "offers": item.offers}
+    for item in results.items
+]
+  return cleaned_results
 
 
 

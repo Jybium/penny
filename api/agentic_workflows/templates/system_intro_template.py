@@ -25,18 +25,6 @@ it isn't supported yet and suggest the closest available alternative.
   requires: none
   status: available
 
-- name: product_url_lookup
-  what_it_does: look up products on the web based on the product url from a brand or website
-  example_request: User sends a url of the product they want to buy from a brand or website. The system then looks up the product on the web and displays it in detail to the user.
-  requires: none
-  status: available
-
-- name: e_commerce_web_product_search
-  what_it_does: search for products on specific e-commerce websites
-  example_request: "Can you find me a red shoe on Amazon?"
-  requires: none
-  status: available
-
 - name: payment_confirmation_trigger
   what_it_does: trigger payment confirmation to the frontend, to enable the user pay for their desired product
   example_request: "Okay, I think I've made my decision, let's proceed with the payment." or "Okay, this will do."
