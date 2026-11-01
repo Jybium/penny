@@ -89,7 +89,7 @@ After items are aggregated, the **auto payment decision** step checks whether th
 ## Tech stack
  
 - **Orchestration:** LangGraph state graph with async agents (Python)
-- **LLM:** DeepSeek, through an OpenAI-compatible chat API
+- **LLM:** DeepSeek
 - **Product search:** Channel3 SDK (text and image search)
 - **Payments:** PayPal Orders API and vaulted payment tokens (sandbox)
 <!-- - **Frontend:** React -->
