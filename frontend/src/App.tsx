@@ -205,31 +205,27 @@ function Header({
 
   return (
     <header className="app-header">
-      <button
-        className="wordmark"
-        onClick={() => goTo(user ? "chat" : "landing")}
-      >
-        <span className="wordmark-icon">
-          <Icon name="sparkles" size={16} />
-        </span>
-        Penny
-      </button>
+      <div className="header-left">
+        <button
+          className="wordmark"
+          onClick={() => goTo(user ? "chat" : "landing")}
+        >
+          <span className="wordmark-icon">
+            <Icon name="sparkles" size={16} />
+          </span>
+          Penny
+        </button>
 
-      <div className="header-demo-center" style={{ display: "flex", alignItems: "center", gap: 20 }}>
         {view === "landing" && (
-          <div className="landing-links" style={{ display: "flex", gap: 20, alignItems: "center" }}>
-            <a href="#how" style={{ color: "#5d6d64", textDecoration: "none", fontSize: 10, fontWeight: 600 }}>
-              How it works
-            </a>
-            <a href="#control" style={{ color: "#5d6d64", textDecoration: "none", fontSize: 10, fontWeight: 600 }}>
-              Your control
-            </a>
-            <a href="#autonomy" style={{ color: "#5d6d64", textDecoration: "none", fontSize: 10, fontWeight: 600 }}>
-              Autonomous payments
-            </a>
-          </div>
+          <nav className="header-nav-links">
+            <a href="#how">How it works</a>
+            <a href="#control">Your control</a>
+            <a href="#autonomy">Autonomous payments</a>
+          </nav>
         )}
+      </div>
 
+      <div className="header-demo-center">
         <button
           className="demo-trigger-button"
           onClick={onOpenDemo}
