@@ -9,11 +9,11 @@ from .dtos.order_with_item_response_dto import Order_With_Items_Response_Dto
 
 
 
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
+
 
 @router.get("/own", response_model=Paginated_Orders_Response_Dto, summary="Get paginated orders for the authenticated user")
 async def get_own_orders(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):

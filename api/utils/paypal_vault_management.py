@@ -14,6 +14,7 @@ load_dotenv(override=True)
 PAYPAL_SANDBOX_CLIENT_ID=os.environ.get("PAYPAL_BUSINESS_SANDBOX_CLIENT_ID")
 PAYPAL_SANDBOX_SECRET=os.environ.get("PAYPAL_BUSINESS_SANDBOX_SECRET_KEY")
 PAYPAL_SANDBOX_API_BASE_URL="https://api-m.sandbox.paypal.com"
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:8443").rstrip("/")
 
 async def get_access_token():
   try:
@@ -38,6 +39,9 @@ async def generate_paypal_vault_setup_token():
     if not access_token:
       return None
     
+    return_url = os.environ.get("PAYPAL_VAULT_RETURN_URL", f"{FRONTEND_URL}/autonomy?approved=true")
+    cancel_url = os.environ.get("PAYPAL_VAULT_CANCEL_URL", f"{FRONTEND_URL}/autonomy?cancelled=true")
+
     response = requests.post(
       url=f"{PAYPAL_SANDBOX_API_BASE_URL}/v3/vault/setup-tokens",
       headers={
@@ -50,8 +54,8 @@ async def generate_paypal_vault_setup_token():
           "paypal": {
             "usage_type": "MERCHANT",
             "experience_context": {
-              "return_url": "https://princeigwe.medium.com", # the redirect-url after a customer approves to generate a vault setup token # TODO: replace with actual frontend url
-              "cancel_url": "https://google.com", # the redirect-url if a customer denies to generate a vault setup token # TODO: replace with actual frontend url
+              "return_url": return_url,
+              "cancel_url": cancel_url,
             }
           }
         }
@@ -164,4 +168,3 @@ if __name__ == "__main__":
   vault_setup_token = "8J029613N2479672X"
   # paypal_vault_payment_token_response = asyncio.run(generate_paypal_vault_payment_token(vault_setup_token))
   delete_paypal_vault_payment_token_response = asyncio.run(delete_paypal_vault_payment_token(vault_setup_token))
-

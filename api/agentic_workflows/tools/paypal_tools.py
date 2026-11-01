@@ -20,6 +20,7 @@ load_dotenv(override=True)
 PAYPAL_SANDBOX_CLIENT_ID=os.environ.get("PAYPAL_BUSINESS_SANDBOX_CLIENT_ID")
 PAYPAL_SANDBOX_SECRET=os.environ.get("PAYPAL_BUSINESS_SANDBOX_SECRET_KEY")
 PAYPAL_SANDBOX_API_BASE_URL="https://api-m.sandbox.paypal.com"
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:8443").rstrip("/")
 
 
 async def get_access_token():
@@ -44,6 +45,9 @@ async def create_order(amount: float):
     if not access_token:
       return None
     
+    return_url = os.environ.get("PAYPAL_ORDER_RETURN_URL", f"{FRONTEND_URL}/order/success")
+    cancel_url = os.environ.get("PAYPAL_ORDER_CANCEL_URL", f"{FRONTEND_URL}/checkout/cancel")
+
     response = requests.post(
       url=f"{PAYPAL_SANDBOX_API_BASE_URL}/v2/checkout/orders",
       headers={
@@ -66,8 +70,8 @@ async def create_order(amount: float):
         "payment_source": {
           "paypal": {
             "experience_context": {
-              "return_url": "https://princeigwe.medium.com", # customer will be redirected to this link upon successful payment # TODO: replace with actual frontend success url
-              "cancel_url": "https://google.com", # customer will be redirected to this link upon cancellation of payment # TODO: replace with actual frontend cancel url
+              "return_url": return_url,
+              "cancel_url": cancel_url,
             }
           }
         },
@@ -165,17 +169,3 @@ async def auto_create_order_and_capture_payment(user_id: str, amount: float):
   print("PAYPAL ORDER API RESPONSE: ", response.json())
   create_order_data = response.json()
   return create_order_data
-
-
-###### TESTING SCRIPT ######``
-
-# if __name__ == "__main__":
-#   # asyncio.run(get_vault_payment_token("456719b0-c7d1-41c2-a114-c484393d81de"))
-#   # create_order_response = asyncio.run(create_order(100))
-#   order_id = "6WD412855K764362A"
-#   asyncio.run(capture_order(order_id))
-
-#   input("Press Enter after approving the payment...")
-#   response_order_id = create_order_response["order_id"]
-#   capture_order_response = asyncio.run(capture_order(response_order_id))
-#   print("CAPTURE ORDER RESPONSE: ", capture_order_response)
