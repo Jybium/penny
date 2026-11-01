@@ -12,6 +12,7 @@
   font-family: "Manrope", sans-serif;
   color: #17201d;
   background: #f5f5f0;
+  
   font-synthesis: none;
 }
 
@@ -1534,6 +1535,450 @@ button:disabled { cursor: wait; opacity: .72; }
   color: #728279;
   background: #f7faf8;
   border-top: 1px solid #eef2ef;
+}
+
+/* ============================================================
+   BEAUTIFICATION & PRODUCT IMAGERY ENHANCEMENTS
+   ============================================================ */
+
+/* 1. Multimodal Attachment in Demo Modal */
+.demo-attached-img {
+  display: block;
+  width: 100%;
+  max-width: 220px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.demo-attached-label {
+  display: block;
+  font-size: 8.5px;
+  opacity: 0.9;
+  letter-spacing: 0.02em;
+}
+
+/* 2. Demo Modal Product Match Card */
+.demo-product-match-card {
+  display: flex;
+  gap: 14px;
+  background: #ffffff;
+  border: 1px solid #d8dfd9;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  align-items: center;
+}
+
+.demo-product-thumb {
+  width: 90px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  border: 1px solid #eef2ed;
+}
+
+.demo-product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.demo-product-tag-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.demo-retailer-tag {
+  font: 700 8px "DM Mono", monospace;
+  background: #eef6f0;
+  color: var(--penny-green);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.demo-match-score {
+  font: 600 8px "DM Mono", monospace;
+  background: #fdf5e6;
+  color: #a06e12;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.demo-product-info h4 {
+  margin: 0 0 3px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e2d25;
+}
+
+.demo-product-desc {
+  margin: 0 0 6px !important;
+  font-size: 9.5px !important;
+  color: #64736b !important;
+  line-height: 1.4 !important;
+}
+
+.demo-product-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.demo-product-meta .demo-price {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--penny-green);
+}
+
+.demo-product-meta .demo-price del {
+  font-size: 10px;
+  color: #92a098;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.demo-product-meta .demo-stock {
+  font-size: 9px;
+  color: #4b8665;
+  font-weight: 500;
+}
+
+/* 3. Demo Step 2: Spec Comparison */
+.demo-comparison-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.demo-compare-item {
+  display: flex;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #dce2dc;
+  border-radius: 8px;
+  padding: 10px;
+  align-items: center;
+}
+
+.demo-compare-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.demo-compare-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.demo-compare-badge {
+  font: 700 7.5px "DM Mono", monospace;
+  text-transform: uppercase;
+  color: #556b60;
+  background: #edf3ee;
+  padding: 1px 5px;
+  border-radius: 3px;
+  width: fit-content;
+}
+
+.demo-compare-badge.recommended {
+  color: #0d5f38;
+  background: #d4eedd;
+}
+
+.demo-compare-meta strong {
+  font-size: 11px;
+  color: #1e2c24;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.demo-compare-meta small {
+  font-size: 8.5px;
+  color: #6a7971;
+}
+
+.demo-score-chip {
+  font-size: 8px;
+  color: #3b7d58;
+  margin-top: 1px;
+  font-weight: 600;
+}
+
+/* 4. Demo Step 3: Vault Security Preview */
+.demo-vault-card {
+  margin-top: 14px;
+  background: #ffffff;
+  border: 1px solid #d3ded7;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.demo-vault-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #edf2ed;
+}
+
+.demo-paypal-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.demo-paypal-badge {
+  background: #003087;
+  color: #ffffff;
+  font: 800 9px sans-serif;
+  padding: 2px 5px;
+  border-radius: 3px;
+  letter-spacing: -0.04em;
+}
+
+.demo-vault-header strong {
+  font-size: 11px;
+  color: #1d2d24;
+}
+
+.demo-vault-active-badge {
+  font: 700 8px "DM Mono", monospace;
+  color: #1c7c4b;
+  background: #e4f7ec;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.demo-vault-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.demo-vault-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9.5px;
+}
+
+.demo-vault-row span:first-child {
+  color: #6c7c73;
+}
+
+.demo-vault-row code {
+  font: 600 8.5px "DM Mono", monospace;
+  background: #f1f4f1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #274033;
+}
+
+/* 5. Landing Page Hero Product Showcase Strip */
+.hero-product-showcase {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed #d6e0d9;
+}
+
+.hero-showcase-label {
+  display: block;
+  font: 700 8px "DM Mono", monospace;
+  letter-spacing: 0.08em;
+  color: #7b8e83;
+  margin-bottom: 8px;
+}
+
+.hero-product-pills {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.hero-product-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #d5dfd7;
+  border-radius: 7px;
+  padding: 6px 8px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.hero-product-pill:hover {
+  border-color: var(--penny-green);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.hero-product-pill img {
+  width: 38px;
+  height: 38px;
+  object-fit: cover;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.hero-product-pill strong {
+  display: block;
+  font-size: 10px;
+  color: #1e2c24;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 105px;
+}
+
+.hero-product-pill small {
+  display: block;
+  font-size: 8.5px;
+  color: #65756c;
+}
+
+/* 6. Landing Page "How it works" Photographic Cards */
+.landing-how-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 18px;
+  border: 1px solid #dbe2db;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.landing-how-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.landing-how-grid article:hover .landing-how-img-wrap img {
+  transform: scale(1.04);
+}
+
+.landing-how-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(22, 48, 35, 0.82);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  font: 700 8px "DM Mono", monospace;
+  padding: 3px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+/* 7. Chat Visual Discovery Strip */
+.chat-visual-discovery {
+  margin: 6px 0 16px;
+  background: #f7faf7;
+  border: 1px solid #e1e8e3;
+  border-radius: 9px;
+  padding: 12px;
+}
+
+.chat-discovery-label {
+  display: block;
+  font: 700 8px "DM Mono", monospace;
+  letter-spacing: 0.08em;
+  color: #71847a;
+  margin-bottom: 8px;
+}
+
+.chat-visual-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.chat-visual-tile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #d4ded6;
+  border-radius: 7px;
+  padding: 8px 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.chat-visual-tile:hover {
+  border-color: var(--penny-green);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+.chat-visual-tile img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.chat-tile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.chat-tile-badge {
+  font: 700 7px "DM Mono", monospace;
+  color: var(--penny-green);
+  background: #edf5f0;
+  padding: 1px 4px;
+  border-radius: 3px;
+  width: fit-content;
+}
+
+.chat-tile-text strong {
+  font-size: 10.5px;
+  color: #1f2e26;
+  line-height: 1.3;
+}
+
+@media (max-width: 768px) {
+  .hero-product-pills,
+  .chat-visual-tiles,
+  .demo-comparison-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .demo-product-match-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .demo-product-thumb {
+    width: 100%;
+    height: 140px;
+  }
 }
 
 

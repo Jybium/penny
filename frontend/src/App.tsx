@@ -180,6 +180,30 @@ const suggestions = [
   "I need an ergonomic mechanical keyboard for typing",
 ];
 
+const visualSuggestions = [
+  {
+    title: "Noise Cancelling Headphones",
+    query: "Find me wireless noise cancelling headphones under $150",
+    image:
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=240&q=80",
+    badge: "Under $150",
+  },
+  {
+    title: "Marathon Running Shoes",
+    query: "Help me compare top running shoes for marathons with high arch support",
+    image:
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=240&q=80",
+    badge: "High Cushion",
+  },
+  {
+    title: "Ergonomic Mechanical Keyboard",
+    query: "I need an ergonomic mechanical keyboard for typing with quiet switches",
+    image:
+      "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=240&q=80",
+    badge: "Tactile",
+  },
+];
+
 function Header({
   goTo,
   onCustomize,
@@ -673,6 +697,28 @@ function ChatView({
           <div className="date-divider">
             <span>Today</span>
           </div>
+
+          {chatMessages.length <= 1 && (
+            <div className="chat-visual-discovery">
+              <span className="chat-discovery-label">POPULAR VISUAL SEARCHES</span>
+              <div className="chat-visual-tiles">
+                {visualSuggestions.map((item) => (
+                  <button
+                    className="chat-visual-tile"
+                    key={item.title}
+                    onClick={() => setText(item.query)}
+                    type="button"
+                  >
+                    <img alt={item.title} src={item.image} />
+                    <div className="chat-tile-text">
+                      <span className="chat-tile-badge">{item.badge}</span>
+                      <strong>{item.title}</strong>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="suggestion-row">
             {suggestions.map((suggestion) => (

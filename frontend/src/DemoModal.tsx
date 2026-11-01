@@ -1,28 +1,33 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 
-type StepId = "search" | "decide" | "settle"
+type StepId = "search" | "decide" | "settle";
 
 type Props = {
-  open: boolean
-  onClose: () => void
-  onTryQuery?: (query: string) => void
-}
+  open: boolean;
+  onClose: () => void;
+  onTryQuery?: (query: string) => void;
+};
 
 export default function DemoModal({ open, onClose, onTryQuery }: Props) {
-  const [activeStep, setActiveStep] = useState<StepId>("search")
+  const [activeStep, setActiveStep] = useState<StepId>("search");
 
   useEffect(() => {
-    if (!open) return
+    if (!open) return;
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose()
-    }
-    window.addEventListener("keydown", handleKey)
-    return () => window.removeEventListener("keydown", handleKey)
-  }, [open, onClose])
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [open, onClose]);
 
-  if (!open) return null
+  if (!open) return null;
 
-  const steps: { id: StepId; number: string; title: string; subtitle: string }[] = [
+  const steps: {
+    id: StepId;
+    number: string;
+    title: string;
+    subtitle: string;
+  }[] = [
     {
       id: "search",
       number: "01",
@@ -41,7 +46,7 @@ export default function DemoModal({ open, onClose, onTryQuery }: Props) {
       title: "Non-Custodial Settlement",
       subtitle: "Shop with me or autonomous Buy for me",
     },
-  ]
+  ];
 
   return (
     <div className="preferences-backdrop" onMouseDown={onClose}>
@@ -57,8 +62,8 @@ export default function DemoModal({ open, onClose, onTryQuery }: Props) {
             <p>INTERACTIVE ARCHITECTURE</p>
             <h2 id="demo-modal-title">How Penny Agentic Commerce Works</h2>
             <span>
-              Explore the end-to-end autonomous flow: from multimodal intent recognition
-              to non-custodial PayPal order settlement.
+              Explore the end-to-end autonomous flow: from multimodal intent
+              recognition to non-custodial PayPal order settlement.
             </span>
           </div>
           <button aria-label="Close walkthrough" onClick={onClose}>
@@ -96,29 +101,62 @@ export default function DemoModal({ open, onClose, onTryQuery }: Props) {
             <div className="demo-visual-card">
               <div className="demo-badge-row">
                 <span className="demo-flow-badge">MULTIMODAL INGESTION</span>
-                <span className="demo-tech-badge">FASTAPI + CHAT FORM-DATA</span>
               </div>
 
               <h3>Chat or Upload Product Images</h3>
               <p>
-                Penny accepts both text prompts and photo uploads (JPEG, PNG, WEBP).
-                When an image is attached, the coordinator extracts visual attributes
-                and routes to the multimodal search agent.
+                Penny accepts both text prompts and photo uploads (JPEG, PNG,
+                WEBP). When an image is attached, the coordinator extracts
+                visual attributes and routes to the multimodal search agent.
               </p>
 
               <div className="demo-chat-bubble-preview">
                 <div className="demo-bubble user-bubble">
                   <div className="demo-image-preview">
-                    <span>📷 Attached: marathon-runners.png</span>
+                    <img
+                      src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80"
+                      alt="Red running shoe upload preview"
+                      className="demo-attached-img"
+                    />
+                    <span className="demo-attached-label">
+                      📷 marathon-runners.png (2.1 MB)
+                    </span>
                   </div>
-                  <p>&ldquo;Find me running shoes like these under $130 with high arch support&rdquo;</p>
+                  <p>
+                    &ldquo;Find me running shoes like these under $130 with high
+                    arch support&rdquo;
+                  </p>
                 </div>
                 <div className="demo-bubble agent-bubble">
                   <div className="demo-sparkle-dot" />
                   <p>
-                    Analyzing shoe silhouette, cushioning type, and outsole pattern...
-                    Querying live merchant catalog for sub-$130 matches.
+                    Analyzing shoe silhouette, cushioning type, and outsole
+                    pattern... Querying live merchant catalog for sub-$130
+                    matches.
                   </p>
+                </div>
+              </div>
+
+              {/* Matched Live Product Recommendation Card */}
+              <div className="demo-product-match-card">
+                <img
+                  src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80"
+                  alt="Nike Air Zoom Pegasus"
+                  className="demo-product-thumb"
+                />
+                <div className="demo-product-info">
+                  <div className="demo-product-tag-row">
+                    <span className="demo-retailer-tag">Live Catalog Match</span>
+                    <span className="demo-match-score">98% Visual Match</span>
+                  </div>
+                  <h4>Nike Air Zoom Pegasus 40</h4>
+                  <p className="demo-product-desc">
+                    Neutral &amp; high arch support &bull; Dual Zoom Air cushioning &bull; Engineered breathable mesh
+                  </p>
+                  <div className="demo-product-meta">
+                    <span className="demo-price">$124.99 <del>$140.00</del></span>
+                    <span className="demo-stock">✓ In Stock &bull; Free 2-Day Delivery</span>
+                  </div>
                 </div>
               </div>
 
@@ -127,12 +165,19 @@ export default function DemoModal({ open, onClose, onTryQuery }: Props) {
                 <button
                   className="primary-action"
                   onClick={() => {
-                    onClose()
-                    onTryQuery?.("Find running shoes like these with arch support under $130")
+                    onClose();
+                    onTryQuery?.(
+                      "Find running shoes like these with arch support under $130",
+                    );
                   }}
-                  style={{ width: "auto", padding: "8px 14px", display: "inline-flex", gap: 8 }}
+                  style={{
+                    width: "auto",
+                    padding: "8px 14px",
+                    display: "inline-flex",
+                    gap: 8,
+                  }}
                 >
-                  Try Sample Search in Chat &rarr;
+                  Try Sample Search in Chat <span className="ml-2">&rarr;</span>
                 </button>
               </div>
             </div>
@@ -145,7 +190,9 @@ export default function DemoModal({ open, onClose, onTryQuery }: Props) {
             <div className="demo-visual-card">
               <div className="demo-badge-row">
                 <span className="demo-flow-badge">LANGGRAPH AGENT GRAPH</span>
-                <span className="demo-tech-badge">INTENT &bull; AGGREGATOR &bull; TOOLS</span>
+                <span className="demo-tech-badge">
+                  INTENT &bull; AGGREGATOR &bull; TOOLS
+                </span>
               </div>
 
               <h3>Automated Comparison &amp; Order Synthesis</h3>
@@ -157,22 +204,65 @@ export default function DemoModal({ open, onClose, onTryQuery }: Props) {
                 <div className="pipeline-node">
                   <span>Step A</span>
                   <strong>Coordinator Agent</strong>
-                  <small>Classifies intent: search, image lookup, or order confirmation.</small>
+                  <small>
+                    Classifies intent: search, image lookup, or order
+                    confirmation.
+                  </small>
                 </div>
                 <div className="pipeline-node">
                   <span>Step B</span>
                   <strong>Product Filter &amp; Search</strong>
-                  <small>Applies real price caps, brand parameters, and merchant inventory.</small>
+                  <small>
+                    Applies real price caps, brand parameters, and merchant
+                    inventory.
+                  </small>
                 </div>
                 <div className="pipeline-node">
                   <span>Step C</span>
                   <strong>Order Item Aggregator</strong>
-                  <small>Synthesizes line items, quantities, and totals with strict currency precision.</small>
+                  <small>
+                    Synthesizes line items, quantities, and totals with strict
+                    currency precision.
+                  </small>
+                </div>
+              </div>
+
+              {/* Live Spec & Price Evaluation Preview */}
+              <div className="demo-comparison-preview">
+                <div className="demo-compare-item">
+                  <img
+                    src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=300&q=80"
+                    alt="Mechanical Keyboard"
+                    className="demo-compare-img"
+                  />
+                  <div className="demo-compare-meta">
+                    <span className="demo-compare-badge recommended">Top Value Pick</span>
+                    <strong>Keychron K2 Wireless</strong>
+                    <small>Gateron Brown switches &bull; $89.00</small>
+                    <span className="demo-score-chip">✓ Verified return policy</span>
+                  </div>
+                </div>
+                <div className="demo-compare-item">
+                  <img
+                    src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=80"
+                    alt="Wireless Headphones"
+                    className="demo-compare-img"
+                  />
+                  <div className="demo-compare-meta">
+                    <span className="demo-compare-badge">Under Budget</span>
+                    <strong>Sony WH-1000XM5</strong>
+                    <small>Active noise cancelling &bull; $148.00</small>
+                    <span className="demo-score-chip">✓ Within $150 price cap</span>
+                  </div>
                 </div>
               </div>
 
               <div className="demo-quote-box">
-                <em>&ldquo;Penny never invents products or hallucinates checkout links. Every item is verified against live e-commerce search tools.&rdquo;</em>
+                <em>
+                  &ldquo;Penny never invents products or hallucinates checkout
+                  links. Every item is verified against live e-commerce search
+                  tools.&rdquo;
+                </em>
               </div>
             </div>
           </div>
@@ -184,13 +274,10 @@ export default function DemoModal({ open, onClose, onTryQuery }: Props) {
             <div className="demo-visual-card">
               <div className="demo-badge-row">
                 <span className="demo-flow-badge">NON-CUSTODIAL COMMERCE</span>
-                <span className="demo-tech-badge">PAYPAL VAULT API &bull; REAL-TIME STREAM</span>
               </div>
 
               <h3>Two Modes, Complete User Control</h3>
-              <p>
-                Penny provides two checkout paths based on your preference:
-              </p>
+              <p>Penny provides two checkout paths based on your preference:</p>
 
               <div className="demo-modes-comparison">
                 <div className="mode-box">
@@ -199,8 +286,9 @@ export default function DemoModal({ open, onClose, onTryQuery }: Props) {
                     <strong>Shop with me</strong>
                   </div>
                   <p>
-                    Penny generates a secure PayPal checkout link. You review the total
-                    and approve payment directly in the PayPal sandbox window.
+                    Penny generates a secure PayPal checkout link. You review
+                    the total and approve payment directly in the PayPal sandbox
+                    window.
                   </p>
                   <div className="mode-feature-tag">YOU APPROVE REDIRECT</div>
                 </div>
@@ -211,41 +299,58 @@ export default function DemoModal({ open, onClose, onTryQuery }: Props) {
                     <strong>Buy for me (Autonomous)</strong>
                   </div>
                   <p>
-                    You authorize a PayPal Vault Setup Token once. When you confirm an order,
-                    Penny autonomously captures and settles it using tokenized non-custodial credentials.
+                    You authorize a PayPal Vault Setup Token once. When you
+                    confirm an order, Penny autonomously captures and settles it
+                    using tokenized non-custodial credentials.
                   </p>
-                  <div className="mode-feature-tag active">AUTONOMOUS SETTLEMENT</div>
+                  <div className="mode-feature-tag active">
+                    AUTONOMOUS SETTLEMENT
+                  </div>
                 </div>
               </div>
 
-              <div className="demo-stream-note">
-                <svg fill="none" height="14" viewBox="0 0 24 24" width="14">
-                  <path
-                    d="m12 3 1.2 3.3L16.5 8l-3.3 1.2L12 12.5l-1.2-3.3L7.5 8l3.3-1.7L12 3Z"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                </svg>
-                <span>Live updates stream order fulfillment and status in real time.</span>
+              {/* Vault Security Token Visualization */}
+              <div className="demo-vault-card">
+                <div className="demo-vault-header">
+                  <div className="demo-paypal-pill">
+                    <span className="demo-paypal-badge">PP</span>
+                    <strong>PayPal Non-Custodial Vault</strong>
+                  </div>
+                  <span className="demo-vault-active-badge">✓ Active &amp; Guarded</span>
+                </div>
+                <div className="demo-vault-details">
+                  <div className="demo-vault-row">
+                    <span>Payment Token:</span>
+                    <code>vault_tok_sand_4892bc...</code>
+                  </div>
+                  <div className="demo-vault-row">
+                    <span>Safety Guardrail:</span>
+                    <span>Max $200.00 / order &bull; Merchant verified</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        <footer className="preferences-footer" style={{ borderTop: "1px solid #e5e5dc" }}>
+        <footer
+          className="preferences-footer"
+          style={{ borderTop: "1px solid #e5e5dc" }}
+        >
           <button onClick={onClose}>Close Walkthrough</button>
           <button
             onClick={() => {
-              if (activeStep === "search") setActiveStep("decide")
-              else if (activeStep === "decide") setActiveStep("settle")
-              else onClose()
+              if (activeStep === "search") setActiveStep("decide");
+              else if (activeStep === "decide") setActiveStep("settle");
+              else onClose();
             }}
           >
-            {activeStep === "settle" ? "Start Shopping with Penny" : "Next Architecture Step &rarr;"}
+            {activeStep === "settle"
+              ? "Start Shopping with Penny"
+              : "Next Architecture Step"}
           </button>
         </footer>
       </section>
     </div>
-  )
+  );
 }
-

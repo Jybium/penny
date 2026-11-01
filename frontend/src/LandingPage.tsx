@@ -215,6 +215,55 @@ export default function LandingPage({
                   <Arrow />
                 </button>
               </form>
+
+              {/* Visual Curated Discovery Strip */}
+              <div className="hero-product-showcase">
+                <span className="hero-showcase-label">POPULAR AGENT SEARCHES</span>
+                <div className="hero-product-pills">
+                  <button
+                    className="hero-product-pill"
+                    onClick={() => onEnter("Find wireless noise cancelling headphones under $150")}
+                    type="button"
+                  >
+                    <img
+                      alt="Sony Headphones"
+                      src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=120&q=80"
+                    />
+                    <div>
+                      <strong>Sony WH-1000XM5</strong>
+                      <small>$148 &bull; 4.8 ★</small>
+                    </div>
+                  </button>
+                  <button
+                    className="hero-product-pill"
+                    onClick={() => onEnter("Ergonomic mechanical keyboard for typing")}
+                    type="button"
+                  >
+                    <img
+                      alt="Mechanical Keyboard"
+                      src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=120&q=80"
+                    />
+                    <div>
+                      <strong>Keychron K2</strong>
+                      <small>$89 &bull; 4.9 ★</small>
+                    </div>
+                  </button>
+                  <button
+                    className="hero-product-pill"
+                    onClick={() => onEnter("Running shoes with high arch support")}
+                    type="button"
+                  >
+                    <img
+                      alt="Running Shoes"
+                      src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=120&q=80"
+                    />
+                    <div>
+                      <strong>Nike Pegasus 40</strong>
+                      <small>$124 &bull; 4.7 ★</small>
+                    </div>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -287,6 +336,14 @@ export default function LandingPage({
         </div>
         <div className="landing-how-grid">
           <article>
+            <div className="landing-how-img-wrap">
+              <img
+                alt="Shopper querying commerce assistant"
+                loading="lazy"
+                src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80"
+              />
+              <span className="landing-how-badge">01 &bull; Natural Intent</span>
+            </div>
             <b>01</b>
             <i>
               <Person />
@@ -298,6 +355,14 @@ export default function LandingPage({
             </p>
           </article>
           <article>
+            <div className="landing-how-img-wrap">
+              <img
+                alt="Live merchant search and product comparison"
+                loading="lazy"
+                src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80"
+              />
+              <span className="landing-how-badge">02 &bull; Agent Synthesis</span>
+            </div>
             <b>02</b>
             <i>
               <Sparkles />
@@ -309,6 +374,14 @@ export default function LandingPage({
             </p>
           </article>
           <article>
+            <div className="landing-how-img-wrap">
+              <img
+                alt="Instant secure PayPal checkout"
+                loading="lazy"
+                src="https://images.unsplash.com/photo-1556742049-0a67c5574f73?auto=format&fit=crop&w=600&q=80"
+              />
+              <span className="landing-how-badge">03 &bull; Guarded Settlement</span>
+            </div>
             <b>03</b>
             <i>
               <Check />

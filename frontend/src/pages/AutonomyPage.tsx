@@ -293,7 +293,7 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                   <span className="automation-pulse" />
                   <span>
                     <strong>Buy for me Mode: Active</strong>
-                    <small>
+                    <small className="ml-2">
                       PayPal Vault payment token is connected and active
                     </small>
                   </span>
