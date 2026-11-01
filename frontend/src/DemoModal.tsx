@@ -248,3 +248,4 @@ export default function DemoModal({ open, onClose, onTryQuery }: Props) {
     </div>
   )
 }
+

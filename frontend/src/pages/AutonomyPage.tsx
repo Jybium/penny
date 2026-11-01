@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useSearchParams } from "react-router"
 import { api, VaultTokenResponse } from "../api"
 
 type Props = {
@@ -8,13 +9,18 @@ type Props = {
 }
 
 export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
+  const [searchParams] = useSearchParams()
   const [vaultToken, setVaultToken] = useState<VaultTokenResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [setupLoading, setSetupLoading] = useState(false)
   const [exchangeLoading, setExchangeLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+
   const [approvalLink, setApprovalLink] = useState<string | null>(null)
-  const [setupTokenId, setSetupTokenId] = useState<string>("")
-  const [manualTokenInput, setManualTokenInput] = useState("")
+  const [setupTokenId, setSetupTokenId] = useState<string>(
+    () => sessionStorage.getItem("penny_vault_setup_token_id") || "",
+  )
+  const [copiedKey, setCopiedKey] = useState<string | null>(null)
 
   const [activeMode, setActiveMode] = useState<"shop-with-me" | "buy-for-me">(() => {
     return sessionStorage.getItem("penny_mode") === "buy-for-me"
@@ -22,22 +28,27 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
       : "shop-with-me"
   })
 
+  // Check vault token and handle return redirect
   useEffect(() => {
     if (!token) {
       setLoading(false)
       return
     }
+
     let active = true
     setLoading(true)
+
     api
       .getVault(token)
       .then((data) => {
-        if (active) {
-          setVaultToken(data)
-          if (data) {
-            setActiveMode("buy-for-me")
-            sessionStorage.setItem("penny_mode", "buy-for-me")
-          }
+        if (!active) return
+        setVaultToken(data)
+        if (data) {
+          setActiveMode("buy-for-me")
+          sessionStorage.setItem("penny_mode", "buy-for-me")
+        } else {
+          setActiveMode("shop-with-me")
+          sessionStorage.setItem("penny_mode", "shop-with-me")
         }
       })
       .catch(() => undefined)
@@ -45,32 +56,44 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
         if (active) setLoading(false)
       })
 
+    // If user approved on PayPal and returned with ?approved=true
+    const isApprovedParam = searchParams.get("approved") === "true"
+    const savedTokenId = sessionStorage.getItem("penny_vault_setup_token_id")
+    if (isApprovedParam && savedTokenId && !vaultToken) {
+      onNotify("Detected PayPal approval return. Ready to complete activation.", "info")
+    }
+
     return () => {
       active = false
     }
-  }, [token])
+  }, [token, searchParams])
 
+  // Step 1: Call POST /vault/setup-token without a request body
   async function handleStartSetup() {
     if (!token) {
       onNotify("Please sign in first to configure autonomous payments.", "error")
       return
     }
+
     setSetupLoading(true)
     try {
       const response = await api.createVaultSetupToken(token)
       const link = response.paypal_response?.payer_vault_setup_approval_link
       const id = response.paypal_response?.vault_setup_token_id
-      if (link) {
+
+      if (link && id) {
         setApprovalLink(link)
-        setSetupTokenId(id || "")
-        setManualTokenInput(id || "")
+        setSetupTokenId(id)
+        sessionStorage.setItem("penny_vault_setup_token_id", id)
+
+        // Open PayPal page for user to approve faster payments
         window.open(link, "_blank", "noopener,noreferrer")
         onNotify(
-          "PayPal authorization window opened. Approve the setup token, then complete the exchange.",
+          "PayPal approval window opened. Once approved, click 'Complete Activation' below.",
           "info",
         )
       } else {
-        onNotify("Could not retrieve PayPal vault setup link.", "error")
+        onNotify("Could not retrieve PayPal vault setup link from API.", "error")
       }
     } catch (err: unknown) {
       onNotify(
@@ -82,26 +105,35 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
     }
   }
 
+  // Step 2: Pass setup_token_id to POST /vault/setup-token-exchange in request body
   async function handleExchangeToken() {
-    const tokenToExchange = manualTokenInput.trim() || setupTokenId
+    const tokenToExchange = setupTokenId.trim() || sessionStorage.getItem("penny_vault_setup_token_id")
     if (!tokenToExchange) {
-      onNotify("Please provide a valid vault setup token ID.", "error")
+      onNotify("No setup token found. Please click 'Setup Buy for me' first.", "error")
       return
     }
+
     setExchangeLoading(true)
     try {
       await api.exchangeVaultSetupToken(tokenToExchange, token)
+
+      // Refresh vault token state from backend
       const nextVault = await api.getVault(token)
       setVaultToken(nextVault)
+
+      // Switch mode to buy-for-me
       setActiveMode("buy-for-me")
       sessionStorage.setItem("penny_mode", "buy-for-me")
+      sessionStorage.removeItem("penny_vault_setup_token_id")
       setApprovalLink(null)
-      onNotify("Autonomous payment token successfully activated!", "success")
+      setSetupTokenId("")
+
+      onNotify("Switched from 'Shop for me' to 'Buy for me'! Autonomous checkout is now active.", "success")
     } catch (err: unknown) {
       onNotify(
         err instanceof Error
           ? err.message
-          : "Failed to exchange setup token for payment token.",
+          : "Failed to exchange setup token for vault payment token.",
         "error",
       )
     } finally {
@@ -109,33 +141,47 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
     }
   }
 
+  // Step 3: Delete vault token via DELETE /vault/own
   async function handleDeleteVaultToken() {
-    if (!window.confirm("Are you sure you want to revoke your saved PayPal payment token?")) {
+    if (!window.confirm("Are you sure you want to delete your saved PayPal payment token? This will switch Penny back to 'Shop for me' mode.")) {
       return
     }
+
+    setDeleteLoading(true)
     try {
       await api.deleteVault(token)
       setVaultToken(null)
+
+      // Switch mode back to shop-with-me (Shop for me)
       setActiveMode("shop-with-me")
       sessionStorage.setItem("penny_mode", "shop-with-me")
-      onNotify("PayPal vault payment token revoked successfully.", "success")
+      sessionStorage.removeItem("penny_vault_setup_token_id")
+      setApprovalLink(null)
+      setSetupTokenId("")
+
+      onNotify("PayPal vault token deleted. Switched back to 'Shop for me' mode.", "success")
     } catch (err: unknown) {
       onNotify(
-        err instanceof Error ? err.message : "Failed to revoke vault token.",
+        err instanceof Error ? err.message : "Failed to delete vault token.",
         "error",
       )
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
-  function handleModeChange(mode: "shop-with-me" | "buy-for-me") {
-    if (mode === "buy-for-me" && !vaultToken) {
-      onNotify("Connect a PayPal payment token first to activate Buy for me.", "info")
-      return
-    }
-    setActiveMode(mode)
-    sessionStorage.setItem("penny_mode", mode)
-    onNotify(`Penny mode set to ${mode === "buy-for-me" ? "Buy for me" : "Shop with me"}.`)
+  function handleCopy(text: string, key: string) {
+    navigator.clipboard.writeText(text)
+    setCopiedKey(key)
+    onNotify("Copied redirect URL to clipboard.")
+    window.setTimeout(() => setCopiedKey(null), 2000)
   }
+
+  const originUrl = window.location.origin
+  const vaultReturnUrl = `${originUrl}/autonomy?approved=true`
+  const vaultCancelUrl = `${originUrl}/autonomy?cancelled=true`
+  const orderReturnUrl = `${originUrl}/order/success`
+  const orderCancelUrl = `${originUrl}/checkout/cancel`
 
   return (
     <main className="payment-page page-enter">
@@ -154,29 +200,78 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
 
       <div className="review-heading">
         <div>
-          <p className="overline">AUTONOMOUS COMMERCE CONTROLS</p>
-          <h1>Autonomous Payments &amp; PayPal Vault</h1>
+          <p className="overline">VAULT MANAGEMENT &amp; MODES</p>
+          <h1>Penny Commerce Modes</h1>
           <p>
-            Configure Penny's autonomous order settlement permissions. Saved payment tokens
-            are non-custodial and tokenized securely via PayPal Vault.
+            By default, Penny is set to <strong>Shop for me</strong> (manual approval).
+            Set up <strong>Buy for me</strong> to authorize autonomous checkout using your tokenized PayPal Vault.
           </p>
         </div>
       </div>
 
       <div className="payment-shell">
         <section className="payment-main">
+          {/* Mode Status Pill */}
+          <div
+            style={{
+              padding: "16px 20px",
+              borderRadius: 8,
+              border: "1px solid #dcdfd8",
+              background: "#ffffff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 24,
+            }}
+          >
+            <div>
+              <span
+                style={{
+                  font: "700 8px 'DM Mono', monospace",
+                  color: activeMode === "buy-for-me" ? "#1d583c" : "#7d8a83",
+                  background: activeMode === "buy-for-me" ? "#e0ece4" : "#f1f2ee",
+                  padding: "3px 6px",
+                  borderRadius: 4,
+                  display: "inline-block",
+                  marginBottom: 4,
+                }}
+              >
+                CURRENT ACTIVE MODE
+              </span>
+              <h3 style={{ margin: 0, fontSize: 16 }}>
+                {activeMode === "buy-for-me"
+                  ? "Buy for me (Autonomous Mode)"
+                  : "Shop for me (Manual Checkout — Default)"}
+              </h3>
+            </div>
+
+            <span
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background: activeMode === "buy-for-me" ? "var(--penny-green)" : "#e2b842",
+                boxShadow:
+                  activeMode === "buy-for-me"
+                    ? "0 0 0 4px var(--penny-green-soft)"
+                    : "0 0 0 4px #faeed3",
+              }}
+            />
+          </div>
+
           {loading ? (
             <div style={{ padding: "40px 0", textAlign: "center", color: "#667" }}>
               <span className="button-spinner" /> Checking PayPal Vault authorization...
             </div>
           ) : vaultToken ? (
+            /* ACTIVE VAULT TOKEN (BUY FOR ME IS ACTIVE) */
             <div className="autonomy-dashboard">
               <header>
                 <div>
                   <span className="automation-pulse" />
                   <span>
-                    <strong>Autonomous Payments: Active</strong>
-                    <small>Encrypted PayPal payment token attached</small>
+                    <strong>Buy for me Mode: Active</strong>
+                    <small>PayPal Vault payment token is connected and active</small>
                   </span>
                 </div>
                 <b>TOKENIZED</b>
@@ -184,9 +279,9 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
 
               <div className="automation-limit">
                 <span>
-                  <small>AUTO-SETTLEMENT GUARDRAIL</small>
-                  <strong>$250.00</strong>
-                  <em>per purchase limit</em>
+                  <small>AUTONOMOUS SETTLEMENT STATUS</small>
+                  <strong>Active</strong>
+                  <em>Penny will settle orders autonomously</em>
                 </span>
                 <span style={{ fontSize: "10px", color: "var(--penny-green)" }}>
                   Verified &bull; Non-Custodial
@@ -197,26 +292,26 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                 <div>
                   <em>1</em>
                   <span>
-                    <strong>Penny Autonomous Execution</strong>
-                    <small>Penny agent auto-settles approved purchase orders</small>
+                    <strong>Auto-Create &amp; Settle</strong>
+                    <small>Penny creates and captures approved orders on your behalf</small>
                   </span>
                   <b>ENABLED</b>
                 </div>
                 <div>
                   <em>2</em>
                   <span>
-                    <strong>Buyer Protection &amp; Receipts</strong>
-                    <small>Instant PayPal confirmation email on every settlement</small>
+                    <strong>Buyer Protection Included</strong>
+                    <small>Standard PayPal Purchase Protection covers all settlements</small>
                   </span>
                   <b>ACTIVE</b>
                 </div>
                 <div>
                   <em>3</em>
                   <span>
-                    <strong>Revocation Guarantee</strong>
-                    <small>Delete or disconnect token with immediate effect anytime</small>
+                    <strong>Instant Token Revocation</strong>
+                    <small>Delete token anytime to immediately return to Shop for me</small>
                   </span>
-                  <b>GUARANTEED</b>
+                  <b>AVAILABLE</b>
                 </div>
               </div>
 
@@ -228,35 +323,36 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                         d="m5 12 4 4L19 7"
                         stroke="currentColor"
                         strokeLinecap="round"
-                        strokeLinejoin="round"
                         strokeWidth="2"
                       />
                     </svg>
                   </span>
                   <span>
-                    <strong>Ready for Buy for me checkouts</strong>
-                    <small>Penny can complete order settlement automatically</small>
+                    <strong>Switch back to Shop for me</strong>
+                    <small>Delete the vault token to require manual checkout on PayPal</small>
                   </span>
                 </div>
 
                 <button
+                  disabled={deleteLoading}
                   onClick={handleDeleteVaultToken}
                   style={{
-                    padding: "8px 12px",
+                    padding: "8px 14px",
                     border: "1px solid #d9534f",
                     borderRadius: "6px",
                     color: "#d9534f",
-                    background: "#fff",
-                    fontSize: "9px",
+                    background: "#ffffff",
+                    fontSize: "10px",
                     fontWeight: 700,
                     cursor: "pointer",
                   }}
                 >
-                  Revoke Token
+                  {deleteLoading ? "Deleting Token..." : "Delete Vault Token"}
                 </button>
               </footer>
             </div>
           ) : (
+            /* NO VAULT TOKEN: SETUP FLOW TO SWITCH FROM SHOP FOR ME TO BUY FOR ME */
             <div className="handoff-card">
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
                 <span
@@ -274,84 +370,95 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                   P
                 </span>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: 16 }}>Connect PayPal Vault Token</h3>
+                  <h3 style={{ margin: 0, fontSize: 16 }}>Switch from &ldquo;Shop for me&rdquo; to &ldquo;Buy for me&rdquo;</h3>
                   <small style={{ color: "#77817c" }}>
-                    Enable Penny to complete checkouts autonomously without manual redirection
+                    Authorize a PayPal Vault Setup Token to enable autonomous payments
                   </small>
                 </div>
               </div>
 
               <p style={{ fontSize: 11, color: "#66736d", lineHeight: 1.6 }}>
-                To use Penny's <strong>Buy for me</strong> mode, PayPal requires you to approve a
-                Vault Setup Token. This grants Penny non-custodial authorization to capture orders you
-                confirm in chat.
+                Currently in <strong>Shop for me</strong> mode (default). Penny asks you to review
+                and approve every checkout on the PayPal screen. To enable <strong>Buy for me</strong>:
               </p>
 
-              {!approvalLink ? (
+              <ol style={{ fontSize: 11, color: "#54645d", paddingLeft: 18, lineHeight: 1.7, margin: "10px 0 16px" }}>
+                <li>Call the setup token endpoint to generate a PayPal vault approval link.</li>
+                <li>Approve faster payments on the PayPal sandbox window.</li>
+                <li>Exchange the setup token to activate autonomous settlement.</li>
+              </ol>
+
+              {!approvalLink && !setupTokenId ? (
                 <button
                   className="paypal-button"
                   disabled={setupLoading}
                   onClick={handleStartSetup}
-                  style={{ marginTop: 14 }}
+                  style={{ marginTop: 8 }}
                 >
                   <span>P</span>{" "}
                   {setupLoading
-                    ? "Generating PayPal Vault Setup Token..."
-                    : "Authorize PayPal Vault for Autonomous Payments"}
+                    ? "Generating Vault Setup Token..."
+                    : "Setup Buy for me (Generate Setup Token)"}
                 </button>
               ) : (
-                <div style={{ marginTop: 16, display: "grid", gap: 12 }}>
+                <div style={{ display: "grid", gap: 14, marginTop: 14 }}>
+                  {/* Step A: PayPal Approval Window */}
                   <div className="redirect-panel">
-                    <p style={{ margin: 0, fontWeight: 700, color: "#416452" }}>
-                      Step 1: Approve on PayPal Sandbox
-                    </p>
-                    <p style={{ margin: "6px 0 12px", fontSize: 10, color: "#69756f" }}>
-                      A PayPal window opened. If it was blocked, click below to open it:
-                    </p>
-                    <a
-                      className="primary-action"
-                      href={approvalLink}
-                      rel="noopener noreferrer"
-                      style={{ textAlign: "center", textDecoration: "none" }}
-                      target="_blank"
-                    >
-                      Open PayPal Vault Approval Link &rarr;
-                    </a>
-                  </div>
-
-                  <div className="redirect-panel">
-                    <p style={{ margin: 0, fontWeight: 700, color: "#416452" }}>
-                      Step 2: Complete Token Exchange
+                    <p style={{ margin: 0, fontWeight: 700, color: "#365c49" }}>
+                      Step 1: Approve Faster Payment on PayPal
                     </p>
                     <p style={{ margin: "6px 0 10px", fontSize: 10, color: "#69756f" }}>
-                      Once approved, click to exchange your setup token for the secure payment token:
+                      The PayPal window was opened. If blocked by your browser, open it directly:
+                    </p>
+                    {approvalLink && (
+                      <a
+                        className="primary-action"
+                        href={approvalLink}
+                        rel="noopener noreferrer"
+                        style={{ textAlign: "center", textDecoration: "none", display: "inline-block" }}
+                        target="_blank"
+                      >
+                        Open PayPal Vault Approval Link &rarr;
+                      </a>
+                    )}
+                  </div>
+
+                  {/* Step B: Exchange Setup Token */}
+                  <div className="redirect-panel">
+                    <p style={{ margin: 0, fontWeight: 700, color: "#365c49" }}>
+                      Step 2: Complete Setup Token Exchange
+                    </p>
+                    <p style={{ margin: "6px 0 10px", fontSize: 10, color: "#69756f" }}>
+                      Once approved on PayPal, click below to exchange your setup token for the persistent payment token.
                     </p>
 
-                    <label style={{ display: "grid", gap: 4, fontSize: 9, fontWeight: 700 }}>
-                      Setup Token ID:
-                      <input
-                        onChange={(e) => setManualTokenInput(e.target.value)}
-                        placeholder="Setup token ID (e.g. 8D548483N8830151S)"
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
+                      <span style={{ fontSize: 9, font: "700 8px 'DM Mono'", color: "#77857d" }}>
+                        SETUP TOKEN ID:
+                      </span>
+                      <code
                         style={{
-                          height: 38,
-                          padding: "0 10px",
-                          border: "1px solid #ccd1ca",
-                          borderRadius: 6,
+                          background: "#ffffff",
+                          padding: "4px 8px",
+                          border: "1px solid #d4ddd5",
+                          borderRadius: 4,
                           fontSize: 10,
+                          fontFamily: "monospace",
+                          color: "#273a30",
                         }}
-                        value={manualTokenInput}
-                      />
-                    </label>
+                      >
+                        {setupTokenId || "Pending generation..."}
+                      </code>
+                    </div>
 
                     <button
                       className="primary-action"
                       disabled={exchangeLoading}
                       onClick={handleExchangeToken}
-                      style={{ marginTop: 10 }}
                     >
                       {exchangeLoading
-                        ? "Exchanging Setup Token..."
-                        : "Complete Setup Token Exchange"}
+                        ? "Exchanging Setup Token with Penny API..."
+                        : "I've Approved on PayPal — Complete Activation & Switch to Buy for me"}
                     </button>
                   </div>
                 </div>
@@ -359,97 +466,124 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
             </div>
           )}
 
-          <div style={{ marginTop: 28 }}>
-            <p className="overline">MODE SELECTOR</p>
-            <div className="penny-modes" style={{ marginTop: 10 }}>
-              <div
-                onClick={() => handleModeChange("shop-with-me")}
-                style={{
-                  cursor: "pointer",
-                  background: activeMode === "shop-with-me" ? "#fff8e3" : undefined,
-                  border: activeMode === "shop-with-me" ? "1px solid var(--penny-honey)" : undefined,
-                }}
-              >
-                <span>1</span>
-                <strong>Shop with me</strong>
-                <small>You review recommendations and complete checkout manually via PayPal.</small>
+          {/* REDIRECT URLS REFERENCE PANEL */}
+          <div className="redirect-panel" style={{ marginTop: 28 }}>
+            <div className="redirect-head">
+              <div>
+                <h3 style={{ margin: 0, fontSize: 13 }}>Frontend Redirect URLs for PayPal</h3>
+                <small style={{ color: "#77817c" }}>
+                  Configure these URLs in your PayPal app or environment variables
+                </small>
               </div>
+              <span>CONFIG</span>
+            </div>
 
-              <div
-                onClick={() => handleModeChange("buy-for-me")}
-                style={{
-                  cursor: "pointer",
-                  background: activeMode === "buy-for-me" ? "#fff8e3" : undefined,
-                  border: activeMode === "buy-for-me" ? "1px solid var(--penny-honey)" : undefined,
-                }}
+            <p style={{ margin: "10px 0 14px", fontSize: 10, color: "#69756f" }}>
+              When PayPal finishes a customer approval or cancellation, it redirects to these URLs:
+            </p>
+
+            <div className="url-row">
+              <span className="url-status success">Vault Return</span>
+              <code>{vaultReturnUrl}</code>
+              <button
+                aria-label="Copy Vault Return URL"
+                onClick={() => handleCopy(vaultReturnUrl, "vaultReturn")}
+                title="Copy Vault Return URL"
               >
-                <span>2</span>
-                <strong>Buy for me (Autonomous)</strong>
-                <small>Penny automatically captures and settles orders using your saved PayPal token.</small>
-              </div>
+                {copiedKey === "vaultReturn" ? "✓" : "📋"}
+              </button>
+            </div>
+
+            <div className="url-row">
+              <span className="url-status cancel">Vault Cancel</span>
+              <code>{vaultCancelUrl}</code>
+              <button
+                aria-label="Copy Vault Cancel URL"
+                onClick={() => handleCopy(vaultCancelUrl, "vaultCancel")}
+                title="Copy Vault Cancel URL"
+              >
+                {copiedKey === "vaultCancel" ? "✓" : "📋"}
+              </button>
+            </div>
+
+            <div className="url-row">
+              <span className="url-status success">Order Return</span>
+              <code>{orderReturnUrl}</code>
+              <button
+                aria-label="Copy Order Return URL"
+                onClick={() => handleCopy(orderReturnUrl, "orderReturn")}
+                title="Copy Order Return URL"
+              >
+                {copiedKey === "orderReturn" ? "✓" : "📋"}
+              </button>
+            </div>
+
+            <div className="url-row">
+              <span className="url-status cancel">Order Cancel</span>
+              <code>{orderCancelUrl}</code>
+              <button
+                aria-label="Copy Order Cancel URL"
+                onClick={() => handleCopy(orderCancelUrl, "orderCancel")}
+                title="Copy Order Cancel URL"
+              >
+                {copiedKey === "orderCancel" ? "✓" : "📋"}
+              </button>
             </div>
           </div>
         </section>
 
+        {/* SIDEBAR EXPLANATION */}
         <aside className="payment-summary">
           <div className="summary-title">
-            <span>AUTONOMY ARCHITECTURE</span>
+            <span>MODE COMPARISON</span>
           </div>
 
-          <p style={{ fontSize: 10, color: "#6f7974", lineHeight: 1.6 }}>
-            Penny's autonomous commerce architecture relies on LangGraph agent state machines and
-            PayPal's Vault APIs:
-          </p>
-
-          <div className="decision-details">
-            <div>
-              <svg fill="none" height="15" viewBox="0 0 24 24" width="15">
-                <path
-                  d="M12 3 5 6v5c0 4.8 3 8.1 7 10 4-1.9 7-5.2 7-10V6l-7-3Z"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.8"
-                />
-              </svg>
-              <span>
-                <strong>Zero Credential Storage</strong>
-                <small>Card details never pass through Penny servers</small>
-              </span>
+          <div style={{ display: "grid", gap: 14 }}>
+            <div
+              style={{
+                padding: 12,
+                borderRadius: 6,
+                border: "1px solid #d9e2db",
+                background: activeMode === "shop-with-me" ? "#fffcf4" : "#ffffff",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                <strong style={{ fontSize: 11 }}>Shop for me</strong>
+                <span style={{ fontSize: 8, font: "700 7px 'DM Mono'", color: "#77857d" }}>
+                  DEFAULT
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: 9, color: "#697770", lineHeight: 1.5 }}>
+                Penny compiles recommendations and creates a PayPal order. You review the total
+                and log in to PayPal to complete checkout manually.
+              </p>
             </div>
 
-            <div>
-              <svg fill="none" height="15" viewBox="0 0 24 24" width="15">
-                <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
-                <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="1.8" />
-              </svg>
-              <span>
-                <strong>Idempotent Operations</strong>
-                <small>Every payment call contains a unique UUID idempotency key</small>
-              </span>
-            </div>
-
-            <div>
-              <svg fill="none" height="15" viewBox="0 0 24 24" width="15">
-                <path
-                  d="m12 3 1.2 3.3L16.5 8l-3.3 1.2L12 12.5l-1.2-3.3L7.5 8l3.3-1.7L12 3Z"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.8"
-                />
-              </svg>
-              <span>
-                <strong>Live SSE Telemetry</strong>
-                <small>Order creation stream notifies client in real-time</small>
-              </span>
+            <div
+              style={{
+                padding: 12,
+                borderRadius: 6,
+                border: "1px solid #d9e2db",
+                background: activeMode === "buy-for-me" ? "#fffcf4" : "#ffffff",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                <strong style={{ fontSize: 11 }}>Buy for me</strong>
+                <span style={{ fontSize: 8, font: "700 7px 'DM Mono'", color: "var(--penny-green)" }}>
+                  AUTONOMOUS
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: 9, color: "#697770", lineHeight: 1.5 }}>
+                With your PayPal Vault setup token exchanged, Penny uses the saved non-custodial
+                token to auto-capture payments when you confirm an order in chat.
+              </p>
             </div>
           </div>
 
           <button
             className="continue-button"
             onClick={() => onNavigate("chat")}
-            style={{ marginTop: 20 }}
+            style={{ marginTop: 22 }}
           >
             Return to Shopping &rarr;
           </button>
@@ -458,4 +592,3 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
     </main>
   )
 }
-
