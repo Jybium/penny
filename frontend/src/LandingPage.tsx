@@ -1,15 +1,15 @@
-import { useState, type ReactNode, type FormEvent } from "react"
-import type { AuthUser } from "./AuthModal"
+import { useState, type ReactNode, type FormEvent } from "react";
+import type { AuthUser } from "./AuthModal";
 
 type Props = {
-  user: AuthUser | null
-  mode: "shop-with-me" | "buy-for-me"
-  onModeChange: (mode: "shop-with-me" | "buy-for-me") => void
-  onEnter: (query?: string) => void
-  onSignIn: () => void
-  onSignUp: () => void
-  onOpenDemo: () => void
-}
+  user: AuthUser | null;
+  mode: "shop-with-me" | "buy-for-me";
+  onModeChange: (mode: "shop-with-me" | "buy-for-me") => void;
+  onEnter: (query?: string) => void;
+  onSignIn: () => void;
+  onSignUp: () => void;
+  onOpenDemo: () => void;
+};
 
 function Mark({ children }: { children: ReactNode }) {
   return (
@@ -29,53 +29,53 @@ function Mark({ children }: { children: ReactNode }) {
         {children}
       </g>
     </svg>
-  )
+  );
 }
 
 const Arrow = () => (
   <Mark>
     <path d="M5 12h14M13 6l6 6-6 6" />
   </Mark>
-)
+);
 const Sparkles = () => (
   <Mark>
     <path d="m12 3 1.2 3.3L16.5 8l-3.3 1.2L12 12.5l-1.2-3.3L7.5 8l3.3-1.7L12 3ZM18 14l.7 1.7 1.8.8-1.8.7L18 19l-.7-1.8-1.8-.7 1.8-.8L18 14Z" />
   </Mark>
-)
+);
 const Shield = () => (
   <Mark>
     <path d="M12 3 5 6v5c0 4.8 3 8.1 7 10 4-1.9 7-5.2 7-10V6l-7-3Z" />
   </Mark>
-)
+);
 const Check = () => (
   <Mark>
     <path d="m5 12 4 4L19 7" />
   </Mark>
-)
+);
 const Person = () => (
   <Mark>
     <circle cx="12" cy="8" r="4" />
     <path d="M4 21a8 8 0 0 1 16 0" />
   </Mark>
-)
+);
 const Lock = () => (
   <Mark>
     <rect height="10" rx="2" width="14" x="5" y="10" />
     <path d="M8 10V7a4 4 0 0 1 8 0v3" />
   </Mark>
-)
+);
 const Card = () => (
   <Mark>
     <rect height="14" rx="2" width="18" x="3" y="5" />
     <path d="M3 10h18" />
   </Mark>
-)
+);
 
 const SAMPLE_PROMPTS = [
   "Find me wireless noise cancelling headphones under $150",
   "Ergonomic mechanical keyboard for typing",
   "Adjustable standing desk converter",
-]
+];
 
 export default function LandingPage({
   user,
@@ -86,11 +86,11 @@ export default function LandingPage({
   onSignUp,
   onOpenDemo,
 }: Props) {
-  const [heroSearch, setHeroSearch] = useState("")
+  const [heroSearch, setHeroSearch] = useState("");
 
   function handleSearchSubmit(e: FormEvent) {
-    e.preventDefault()
-    onEnter(heroSearch.trim() || undefined)
+    e.preventDefault();
+    onEnter(heroSearch.trim() || undefined);
   }
 
   return (
@@ -150,11 +150,14 @@ export default function LandingPage({
               </span>
               <div>
                 <strong>Your commerce agent</strong>
-                <small>Multimodal Search &bull; LangGraph &bull; PayPal Ready</small>
+                <small>
+                  Multimodal Search &bull; LangGraph &bull; PayPal Ready
+                </small>
               </div>
-              <i style={{ font: "700 8px 'DM Mono'", background: "#def0e5", color: "#175837", padding: "2px 6px", borderRadius: 4 }}>
+              <span className="online-tag">
+                <span className="online-beacon" />
                 ONLINE
-              </i>
+              </span>
             </header>
             <div className="landing-demo-body">
               <div className="demo-welcome">
@@ -168,7 +171,10 @@ export default function LandingPage({
               </div>
 
               {/* Interactive Search Input on Landing Hero */}
-              <form onSubmit={handleSearchSubmit} style={{ display: "grid", gap: 8, margin: "10px 0" }}>
+              <form
+                onSubmit={handleSearchSubmit}
+                style={{ display: "grid", gap: 8, margin: "10px 0" }}
+              >
                 <input
                   aria-label="Describe what you want to buy"
                   onChange={(e) => setHeroSearch(e.target.value)}
@@ -205,7 +211,7 @@ export default function LandingPage({
                   title="Search with Penny"
                   type="submit"
                 >
-                  <span>Search with Penny</span>
+                  <span className="text-black ">Search with Penny</span>
                   <Arrow />
                 </button>
               </form>
@@ -275,8 +281,8 @@ export default function LandingPage({
             One confident decision.
           </h2>
           <span>
-            Penny handles the searching and comparing. You keep the
-            judgment and the final say.
+            Penny handles the searching and comparing. You keep the judgment and
+            the final say.
           </span>
         </div>
         <div className="landing-how-grid">
@@ -298,8 +304,8 @@ export default function LandingPage({
             </i>
             <h3>Your agent does the work</h3>
             <p>
-              It queries verified merchant catalogs, compares specs, and
-              returns live product cards with stock status and prices.
+              It queries verified merchant catalogs, compares specs, and returns
+              live product cards with stock status and prices.
             </p>
           </article>
           <article>
@@ -309,8 +315,8 @@ export default function LandingPage({
             </i>
             <h3>You make the call</h3>
             <p>
-              Review curated recommendations, approve checkout with PayPal,
-              or let Penny capture automatically in Buy for me mode.
+              Review curated recommendations, approve checkout with PayPal, or
+              let Penny capture automatically in Buy for me mode.
             </p>
           </article>
         </div>
@@ -348,7 +354,9 @@ export default function LandingPage({
             <span>
               <Shield /> Penny mode
             </span>
-            <i>ACTIVE: {mode === "buy-for-me" ? "BUY FOR ME" : "SHOP WITH ME"}</i>
+            <i>
+              ACTIVE: {mode === "buy-for-me" ? "BUY FOR ME" : "SHOP WITH ME"}
+            </i>
           </header>
           <div
             onClick={() => onModeChange("shop-with-me")}
@@ -360,7 +368,10 @@ export default function LandingPage({
           >
             <span>
               <strong>Shop with me (Default)</strong>
-              <small>Penny creates the order; you review and complete PayPal checkout.</small>
+              <small>
+                Penny creates the order; you review and complete PayPal
+                checkout.
+              </small>
             </span>
             <b>{mode === "shop-with-me" ? "SELECTED" : "CLICK TO SELECT"}</b>
           </div>
@@ -374,7 +385,10 @@ export default function LandingPage({
           >
             <span>
               <strong>Buy for me (Autonomous)</strong>
-              <small>Penny settles orders automatically with your saved PayPal Vault token.</small>
+              <small>
+                Penny settles orders automatically with your saved PayPal Vault
+                token.
+              </small>
             </span>
             <b>{mode === "buy-for-me" ? "SELECTED" : "CLICK TO SELECT"}</b>
           </div>
@@ -390,34 +404,45 @@ export default function LandingPage({
             You choose who checks out.
           </h2>
           <p>
-            Use <strong>Shop with me</strong> when you want to review and authorize
-            each checkout manually. Switch to <strong>Buy for me</strong> when you want Penny to
-            handle checkout seamlessly using your tokenized PayPal Vault.
+            Use <strong>Shop with me</strong> when you want to review and
+            authorize each checkout manually. Switch to{" "}
+            <strong>Buy for me</strong> when you want Penny to handle checkout
+            seamlessly using your tokenized PayPal Vault.
           </p>
           <div className="penny-modes">
             <div
               onClick={() => onModeChange("shop-with-me")}
               style={{
                 cursor: "pointer",
-                border: mode === "shop-with-me" ? "2px solid var(--penny-green)" : "1px solid #dce2dc",
+                border:
+                  mode === "shop-with-me"
+                    ? "2px solid var(--penny-green)"
+                    : "1px solid #dce2dc",
                 background: mode === "shop-with-me" ? "#ffffff" : "#fbfdfc",
               }}
             >
               <span>01</span>
               <strong>Shop with me {mode === "shop-with-me" && "✓"}</strong>
-              <small>You manually complete checkout on the PayPal screen.</small>
+              <small>
+                You manually complete checkout on the PayPal screen.
+              </small>
             </div>
             <div
               onClick={() => onModeChange("buy-for-me")}
               style={{
                 cursor: "pointer",
-                border: mode === "buy-for-me" ? "2px solid var(--penny-green)" : "1px solid #dce2dc",
+                border:
+                  mode === "buy-for-me"
+                    ? "2px solid var(--penny-green)"
+                    : "1px solid #dce2dc",
                 background: mode === "buy-for-me" ? "#ffffff" : "#fbfdfc",
               }}
             >
               <span>02</span>
               <strong>Buy for me {mode === "buy-for-me" && "✓"}</strong>
-              <small>Penny completes checkout with your saved PayPal Vault.</small>
+              <small>
+                Penny completes checkout with your saved PayPal Vault.
+              </small>
             </div>
           </div>
           <ul>
@@ -439,15 +464,17 @@ export default function LandingPage({
               <Check />
               <span>
                 <strong>Live Order Tracking &amp; History</strong>
-                Penny streams real-time updates via SSE and records completed orders
+                Penny streams real-time updates via SSE and records completed
+                orders
               </span>
             </li>
           </ul>
           <button onClick={() => (user ? onEnter() : onSignUp())}>
-            {user ? "Open Autonomous Settings" : "Set up autonomous payments"} <Arrow />
+            {user ? "Open Autonomous Settings" : "Set up autonomous payments"}{" "}
+            <Arrow />
           </button>
         </div>
       </section>
     </main>
-  )
+  );
 }
