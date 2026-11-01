@@ -215,7 +215,21 @@ function Header({
         Penny
       </button>
 
-      <div className="header-demo-center">
+      <div className="header-demo-center" style={{ display: "flex", alignItems: "center", gap: 20 }}>
+        {view === "landing" && (
+          <div className="landing-links" style={{ display: "flex", gap: 20, alignItems: "center" }}>
+            <a href="#how" style={{ color: "#5d6d64", textDecoration: "none", fontSize: 10, fontWeight: 600 }}>
+              How it works
+            </a>
+            <a href="#control" style={{ color: "#5d6d64", textDecoration: "none", fontSize: 10, fontWeight: 600 }}>
+              Your control
+            </a>
+            <a href="#autonomy" style={{ color: "#5d6d64", textDecoration: "none", fontSize: 10, fontWeight: 600 }}>
+              Autonomous payments
+            </a>
+          </div>
+        )}
+
         <button
           className="demo-trigger-button"
           onClick={onOpenDemo}
@@ -240,11 +254,14 @@ function Header({
                   color: "#ffffff",
                   borderColor: "var(--penny-green)",
                   fontWeight: 700,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
                 }}
                 title="Go to Penny Conversation"
                 type="button"
               >
-                Go to Chat
+                Go to Chat <Icon name="arrow" size={13} />
               </button>
             )}
 
