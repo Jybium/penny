@@ -49,6 +49,15 @@ export type ApiOrderItem = {
   created_at?: string
 }
 
+export type SSEEventData = {
+  user_id?: string
+  order_id?: string
+  message?: string
+  penny?: string
+  content?: string
+  text?: string
+}
+
 export type ApiOrder = {
   id: string
   user_id: string
@@ -225,17 +234,21 @@ export const api = {
   },
 
   subscribeSSE(
-    onMessage: (data: { user_id?: string; order_id?: string }) => void,
+    onMessage: (data: SSEEventData) => void,
     onError?: (err: Event) => void,
   ): () => void {
     const eventSource = new EventSource(`${baseUrl}/agent/sse-stream`)
 
     eventSource.onmessage = (event) => {
+      if (!event.data) return
       try {
         const data = JSON.parse(event.data)
         onMessage(data)
       } catch {
-        // ignore malformed ping or non-JSON keepalives
+        const raw = String(event.data).trim()
+        if (raw && !raw.startsWith(":")) {
+          onMessage({ penny: raw })
+        }
       }
     }
 

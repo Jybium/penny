@@ -291,6 +291,57 @@ function ChatView({
     }
   }, [presetQuery])
 
+  // Subscribe to GET /agent/sse-stream to populate chat with streamed messages & order events
+  useEffect(() => {
+    const unsubscribe = api.subscribeSSE(
+      (data) => {
+        // 1. If incoming message / penny response is streamed
+        const pennyText = data.penny || data.content || data.text
+        if (pennyText && typeof pennyText === "string") {
+          setChatMessages((prev) => {
+            const last = prev[prev.length - 1]
+            if (last && last.role === "penny" && last.content.trim() === pennyText.trim()) {
+              return prev
+            }
+            return [
+              ...prev,
+              {
+                id: `penny-sse-${Date.now()}`,
+                role: "penny",
+                content: pennyText,
+              },
+            ]
+          })
+          setSending(false)
+        }
+
+        // 2. If background order is published via SSE
+        if (data.order_id) {
+          const orderNotice = `📦 **Order Created: #${data.order_id}**\n\nPenny has compiled and created your order specification. You can review items, approve payment, or settle autonomously.`
+          setChatMessages((prev) => {
+            if (prev.some((m) => m.content.includes(data.order_id!))) return prev
+            return [
+              ...prev,
+              {
+                id: `order-sse-${Date.now()}`,
+                role: "penny",
+                content: orderNotice,
+              },
+            ]
+          })
+          onNotify(`Live stream: Order ${data.order_id} generated!`, "info")
+        }
+      },
+      () => {
+        // SSE disconnected / reconnecting
+      },
+    )
+
+    return () => {
+      unsubscribe()
+    }
+  }, [onNotify])
+
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const selected = event.target.files?.[0] || null
     if (!selected) return
@@ -355,14 +406,20 @@ function ChatView({
           ? response
           : (response?.penny || "I’ve updated your recommendation.")
 
-      setChatMessages((prev) => [
-        ...prev,
-        {
-          id: `penny-${Date.now()}`,
-          role: "penny",
-          content: pennyText,
-        },
-      ])
+      setChatMessages((prev) => {
+        const last = prev[prev.length - 1]
+        if (last && last.role === "penny" && last.content.trim() === pennyText.trim()) {
+          return prev
+        }
+        return [
+          ...prev,
+          {
+            id: `penny-${Date.now()}`,
+            role: "penny",
+            content: pennyText,
+          },
+        ]
+      })
 
       // Check if response contains a PayPal payment link
       const paypalMatch = pennyText.match(/https?:\/\/[^\s)]*sandbox\.paypal\.com[^\s)]*/i)
