@@ -190,18 +190,9 @@ export default function LandingPage({
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {SAMPLE_PROMPTS.map((prompt) => (
                     <button
+                      className="demo-sample-prompt"
                       key={prompt}
                       onClick={() => onEnter(prompt)}
-                      style={{
-                        padding: "4px 8px",
-                        borderRadius: 4,
-                        border: "1px solid #dbe2dc",
-                        background: "#f4f7f5",
-                        fontSize: 9,
-                        color: "#465c51",
-                        cursor: "pointer",
-                        textAlign: "left",
-                      }}
                       type="button"
                     >
                       &ldquo;{prompt}&rdquo;
@@ -209,8 +200,13 @@ export default function LandingPage({
                   ))}
                 </div>
 
-                <button style={{ marginTop: 4 }} type="submit">
-                  Search with Penny <Arrow />
+                <button
+                  className="demo-search-submit"
+                  title="Search with Penny"
+                  type="submit"
+                >
+                  <span>Search with Penny</span>
+                  <Arrow />
                 </button>
               </form>
             </div>
@@ -220,17 +216,16 @@ export default function LandingPage({
           <button
             className={`float-card guardrail ${mode === "shop-with-me" ? "is-selected" : ""}`}
             onClick={() => onModeChange("shop-with-me")}
-            style={{
-              cursor: "pointer",
-              textAlign: "left",
-              border: mode === "shop-with-me" ? "2px solid var(--penny-green)" : "1px solid #dce0d9",
-              background: mode === "shop-with-me" ? "#fffcf5" : "#ffffff",
-            }}
             type="button"
           >
             <Shield />
             <span>
-              <strong>Shop with me {mode === "shop-with-me" ? "✓ (ACTIVE)" : ""}</strong>
+              <strong>
+                Shop with me
+                {mode === "shop-with-me" && (
+                  <span className="float-card-active-pill">ACTIVE</span>
+                )}
+              </strong>
               You complete PayPal checkout
             </span>
           </button>
@@ -238,17 +233,16 @@ export default function LandingPage({
           <button
             className={`float-card savings ${mode === "buy-for-me" ? "is-selected" : ""}`}
             onClick={() => onModeChange("buy-for-me")}
-            style={{
-              cursor: "pointer",
-              textAlign: "left",
-              border: mode === "buy-for-me" ? "2px solid var(--penny-green)" : "1px solid #dce0d9",
-              background: mode === "buy-for-me" ? "#fffcf5" : "#ffffff",
-            }}
             type="button"
           >
-            <Check />
+            <Sparkles />
             <span>
-              <strong>Buy for me {mode === "buy-for-me" ? "✓ (ACTIVE)" : ""}</strong>
+              <strong>
+                Buy for me
+                {mode === "buy-for-me" && (
+                  <span className="float-card-active-pill">ACTIVE</span>
+                )}
+              </strong>
               Penny completes checkout autonomously
             </span>
           </button>

@@ -208,7 +208,12 @@ function Header({
       <div className="header-left">
         <button
           className="wordmark"
-          onClick={() => goTo(user ? "chat" : "landing")}
+          onClick={() => {
+            goTo("landing");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          title="Go to Home"
+          type="button"
         >
           <span className="wordmark-icon">
             <Icon name="sparkles" size={16} />

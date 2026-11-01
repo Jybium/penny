@@ -382,7 +382,72 @@ button:disabled { cursor: wait; opacity: .72; }
 .demo-product-copy footer { margin: auto 0 0; display: flex; justify-content: space-between; color: #7c8781; font-size: 7px; }
 .demo-product-copy footer strong { color: #2e3b35; font-size: 11px; }
 .landing-demo-body > button { width: 100%; margin-top: 12px; padding: 11px 13px; border: 0; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; color: #352607; background: var(--penny-honey); font-size: 8px; font-weight: 700; }
-.float-card { padding: 11px 13px; border: 1px solid #dce1da; border-radius: 8px; display: flex; align-items: center; gap: 9px; position: absolute; z-index: 3; color: #557064; background: rgba(252,253,249,.94); box-shadow: 0 12px 28px rgba(47,64,55,.12); }
+.demo-search-submit {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #2b230f;
+  background: var(--penny-honey);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(229, 179, 61, 0.28);
+  transition: all 0.18s ease;
+}
+.demo-search-submit:hover {
+  background: #f0bd42;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(229, 179, 61, 0.42);
+}
+.demo-search-submit:active {
+  transform: translateY(0);
+}
+.demo-search-submit svg {
+  width: 15px;
+  height: 15px;
+  transition: transform 0.18s ease;
+}
+.demo-search-submit:hover svg {
+  transform: translateX(3px);
+}
+.demo-sample-prompt {
+  padding: 5px 9px;
+  border-radius: 6px;
+  border: 1px solid #dbe2dc;
+  background: #f4f7f5;
+  font-size: 9px;
+  font-weight: 500;
+  color: #465c51;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+.demo-sample-prompt:hover {
+  background: #e8f0ec;
+  border-color: #bcd0c5;
+  color: var(--penny-green);
+  transform: translateY(-1px);
+}
+.float-card { padding: 11px 14px; border: 1px solid #dce1da; border-radius: 10px; display: flex; align-items: center; gap: 10px; position: absolute; z-index: 3; color: #557064; background: rgba(255,255,255,.96); box-shadow: 0 12px 28px rgba(47,64,55,.14); cursor: pointer; text-align: left; transition: all 0.2s ease; }
+.float-card:hover { transform: translateY(-2px); box-shadow: 0 16px 36px rgba(47,64,55,.2); }
+.float-card.is-selected { border: 2px solid var(--penny-green); background: #fffcf5; }
+.float-card-active-pill {
+  margin-left: 6px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font: 700 7px "DM Mono", monospace;
+  letter-spacing: 0.08em;
+  background: #def0e5;
+  color: #175837;
+  display: inline-block;
+  vertical-align: middle;
+}
 .float-card span { display: flex; flex-direction: column; gap: 2px; color: #929a96; font-size: 7px; }
 .float-card strong { color: #405048; font-size: 8px; }
 .guardrail { right: 0; top: 50px; }
