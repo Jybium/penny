@@ -5,10 +5,11 @@ from database_config import get_db
 from fastapi.security import OAuth2PasswordRequestForm
 from modules.users.dtos.create_user_dto import Create_User_Dto
 from .dtos.access_token_response_dto import TokenResponse
+from .dtos.register_user_response_dto import User_Response_Dto
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-@router.post("/register")
+@router.post("/register", response_model=User_Response_Dto)
 async def register_customer(body: Create_User_Dto, db: Session = Depends(get_db)):
   return await auth_service.register_customer(
     first_name=body.first_name,

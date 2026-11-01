@@ -14,7 +14,10 @@ The {query} contains details of the products the user has decided to buy. Get ex
 2. The **quantity** of the product they are interested in
 3. The **unit_price** of the product they are interested in
 
-If no quantity is provided, the default value is 1
+RULES
+- If no quantity is provided, the default value is 1
+- Make sure the unit price to be paid for matches with the data from {state_messages}, and not what the user says in the {query}. 
+- If the product is not found in the {state_messages}, return an empty list.
 
 Compute these attributes at a higher level into a list of order items. 
 
