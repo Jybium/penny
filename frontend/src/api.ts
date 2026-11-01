@@ -153,12 +153,17 @@ export const api = {
     return request<LoginResponse>("/auth/login", { method: "POST", body })
   },
 
-  chat(message: string, token: string) {
-    return request<ChatResponse>(
+  chat(query: string, token: string, file?: File | null) {
+    const body = new FormData()
+    body.append("query", query)
+    if (file) {
+      body.append("file", file)
+    }
+    return request<ChatResponse | string>(
       "/agent/chat",
       {
         method: "POST",
-        body: JSON.stringify({ message }),
+        body,
       },
       token,
     )

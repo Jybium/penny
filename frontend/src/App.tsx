@@ -1,7 +1,8 @@
-import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react"
+import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react"
 import { useLocation, useNavigate } from "react-router"
 import LandingPage from "./LandingPage"
 import GuardrailModal from "./GuardrailModal"
+import DemoModal from "./DemoModal"
 import AuthModal, {
   AuthMode,
   AuthPayload,
@@ -51,6 +52,14 @@ type ToastItem = {
   id: number
   message: string
   tone: "success" | "info" | "error"
+}
+
+type ChatMessage = {
+  id: string
+  role: "user" | "penny"
+  content: string
+  imageUrl?: string
+  fileName?: string
 }
 
 function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
@@ -166,24 +175,17 @@ const suggestions = [
   "I need an ergonomic mechanical keyboard for typing",
 ]
 
-const steps = [
-  { id: "chat", label: "Ask your agent" },
-  { id: "review", label: "Make a decision" },
-  { id: "payment", label: "Approve payment" },
-]
-
 function Header({
-  view,
   goTo,
   onCustomize,
+  onOpenDemo,
   user,
 }: {
-  view: View
   goTo: (view: View) => void
   onCustomize: () => void
+  onOpenDemo: () => void
   user: AuthUser | null
 }) {
-  const activeIndex = view === "chat" ? 0 : view === "review" ? 1 : 2
   return (
     <header className="app-header">
       <button className="wordmark" onClick={() => goTo("chat")}>
@@ -192,30 +194,27 @@ function Header({
         </span>
         Penny
       </button>
-      <nav className="journey-steps" aria-label="Purchase progress">
-        {steps.map((step, index) => (
-          <button
-            className={index <= activeIndex ? "is-active" : ""}
-            key={step.id}
-            onClick={() => index <= activeIndex && goTo(step.id as View)}
-          >
-            <span>
-              {index < activeIndex ? (
-                <Icon name="check" size={11} />
-              ) : (
-                index + 1
-              )}
-            </span>
-            {step.label}
-          </button>
-        ))}
-      </nav>
+
+      <div className="header-demo-center">
+        <button
+          className="demo-trigger-button"
+          onClick={onOpenDemo}
+          title="See an interactive demo of how Penny works"
+          type="button"
+        >
+          <span className="demo-trigger-pill">SYSTEM DEMO</span>
+          <span className="demo-trigger-label">How Penny Works</span>
+          <Icon name="sparkles" size={14} />
+        </button>
+      </div>
+
       <div className="header-actions">
         <button
           className="customize-button"
           onClick={() => goTo("autonomy")}
           style={{ background: "#f1f8f3", borderColor: "#c2ded0", color: "#2d5e46" }}
           title="Manage PayPal Vault & Autonomous Payments"
+          type="button"
         >
           <Icon name="shield" size={14} /> Autonomy
         </button>
@@ -223,6 +222,7 @@ function Header({
           aria-label="Customize shopping preferences"
           className="customize-button"
           onClick={onCustomize}
+          type="button"
         >
           <Icon name="settings" size={15} /> Preferences
         </button>
@@ -230,6 +230,7 @@ function Header({
           aria-label={user ? `${user.firstName}'s account` : "Account"}
           className="profile-button"
           title={user?.email}
+          type="button"
         >
           {user
             ? `${user.firstName[0] || ""}${user.lastName[0] || ""}`.toUpperCase()
@@ -244,31 +245,107 @@ function ChatView({
   goTo,
   guardrails,
   onCustomize,
+  onOpenDemo,
   onNotify,
   token,
+  presetQuery,
 }: {
   goTo: (view: View) => void
   guardrails: Guardrails
   onCustomize: () => void
+  onOpenDemo: () => void
   onNotify: (message: string, tone?: ToastItem["tone"]) => void
   token: string
+  presetQuery?: string
 }) {
-  const [text, setText] = useState("")
-  const [messages, setMessages] = useState<string[]>([])
-  const [agentReplies, setAgentReplies] = useState<string[]>([])
+  const [text, setText] = useState(presetQuery || "")
+  const [file, setFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    {
+      id: "intro-penny",
+      role: "penny",
+      content:
+        "What are you looking for today?\nShare your budget, must-haves, or attach a product photo. I’ll search real merchant catalogs, compare options, and prepare your order.",
+    },
+  ])
   const [sending, setSending] = useState(false)
+
+  useEffect(() => {
+    if (presetQuery) {
+      setText(presetQuery)
+    }
+  }, [presetQuery])
+
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const selected = event.target.files?.[0] || null
+    if (!selected) return
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(selected.type)) {
+      onNotify("Please select an image file (JPEG, PNG, or WEBP).", "error")
+      return
+    }
+
+    setFile(selected)
+    setPreviewUrl(URL.createObjectURL(selected))
+    onNotify(`Attached "${selected.name}" for visual search.`, "info")
+  }
+
+  function handleRemoveFile() {
+    setFile(null)
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl)
+      setPreviewUrl(null)
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
 
   async function sendMessage(event: FormEvent) {
     event.preventDefault()
-    if (!text.trim()) return
-    const userMessage = text.trim()
-    setMessages((current) => [...current, userMessage])
+    if (!text.trim() && !file) return
+
+    const userQuery = text.trim() || (file ? "Find products matching this photo" : "")
+    const currentFile = file
+    const currentPreview = previewUrl
+
+    // Append user message immediately
+    const userMsgId = `user-${Date.now()}`
+    setChatMessages((prev) => [
+      ...prev,
+      {
+        id: userMsgId,
+        role: "user",
+        content: userQuery,
+        imageUrl: currentPreview || undefined,
+        fileName: currentFile?.name,
+      },
+    ])
+
     setText("")
+    setFile(null)
+    setPreviewUrl(null)
+    if (fileInputRef.current) fileInputRef.current.value = ""
     setSending(true)
+
     try {
-      const response: ChatResponse = await api.chat(userMessage, token)
-      const pennyText = response?.penny || "I’ve updated your recommendation."
-      setAgentReplies((current) => [...current, pennyText])
+      const response = await api.chat(userQuery, token, currentFile)
+      const pennyText =
+        typeof response === "string"
+          ? response
+          : (response?.penny || "I’ve updated your recommendation.")
+
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          id: `penny-${Date.now()}`,
+          role: "penny",
+          content: pennyText,
+        },
+      ])
 
       // Check if response contains a PayPal payment link
       const paypalMatch = pennyText.match(/https?:\/\/[^\s)]*sandbox\.paypal\.com[^\s)]*/i)
@@ -279,7 +356,7 @@ function ChatView({
           currency: "USD",
           items: [
             {
-              description: "Penny Agent Curated Order",
+              description: "Penny Curated Order",
               quantity: 1,
               unitPrice: 129.0,
             },
@@ -309,9 +386,10 @@ function ChatView({
           <h2>Let’s find the right fit, not just a product.</h2>
           <p>
             Shop the way you’d talk to someone who knows you. Start with what
-            you need, then shape the answer together.
+            you need or an image, then shape the answer together.
           </p>
         </div>
+
         <div className="agent-rules">
           <p className="overline">YOUR DEFAULT CONTROLS</p>
           <div>
@@ -330,9 +408,15 @@ function ChatView({
             </span>
           </div>
         </div>
+
         <button className="edit-guardrails" onClick={onCustomize}>
           <Icon name="settings" size={14} /> Change Penny mode
         </button>
+
+        <button className="edit-guardrails" onClick={onOpenDemo} style={{ marginTop: 8 }}>
+          <Icon name="sparkles" size={14} /> How Penny Works Demo
+        </button>
+
         <div className="autonomy-preview">
           <span className="soon-badge available-badge">AVAILABLE</span>
           <h3>Autonomous payments</h3>
@@ -354,7 +438,7 @@ function ChatView({
             </span>
             <div>
               <strong>Commerce agent</strong>
-              <small>LangGraph &bull; Ready to research</small>
+              <small>Multimodal Search &bull; LangGraph &bull; PayPal Ready</small>
             </div>
           </div>
           <span className="live-dot">Online</span>
@@ -363,18 +447,6 @@ function ChatView({
         <div className="messages">
           <div className="date-divider">
             <span>Today</span>
-          </div>
-          <div className="agent-message-row">
-            <span className="mini-avatar">
-              <Icon name="sparkles" size={13} />
-            </span>
-            <div className="message agent-message">
-              <p>What are you looking for today?</p>
-              <p className="muted">
-                Share your budget, must-haves, and preferences. I’ll search and compare
-                options, then prepare your order.
-              </p>
-            </div>
           </div>
 
           <div className="suggestion-row">
@@ -385,21 +457,57 @@ function ChatView({
             ))}
           </div>
 
-          {messages.map((message, index) => (
-            <div className="message user-message" key={`${message}-${index}`}>
-              {message}
-            </div>
-          ))}
+          {chatMessages.map((msg) => {
+            const isUser = msg.role === "user"
+            const hasPayPalLink =
+              !isUser &&
+              (msg.content.includes("sandbox.paypal.com") ||
+                msg.content.toLowerCase().includes("paypal"))
 
-          {agentReplies.map((message, index) => {
-            const hasPayPalLink = message.includes("sandbox.paypal.com") || message.toLowerCase().includes("paypal")
             return (
-              <div className="agent-message-row" key={`${message}-${index}`}>
-                <span className="mini-avatar">
-                  <Icon name="sparkles" size={13} />
-                </span>
-                <div className="message agent-message">
-                  <p style={{ whiteSpace: "pre-wrap" }}>{message}</p>
+              <div
+                className={isUser ? "message user-message" : "agent-message-row"}
+                key={msg.id}
+              >
+                {!isUser && (
+                  <span className="mini-avatar">
+                    <Icon name="sparkles" size={13} />
+                  </span>
+                )}
+
+                <div className={isUser ? "" : "message agent-message"}>
+                  {msg.imageUrl && (
+                    <div
+                      style={{
+                        marginBottom: 8,
+                        borderRadius: 6,
+                        overflow: "hidden",
+                        border: "1px solid rgba(255,255,255,0.3)",
+                        maxWidth: 240,
+                      }}
+                    >
+                      <img
+                        alt="Uploaded for search"
+                        src={msg.imageUrl}
+                        style={{ display: "block", width: "100%", height: "auto" }}
+                      />
+                      {msg.fileName && (
+                        <div
+                          style={{
+                            padding: "3px 6px",
+                            fontSize: 9,
+                            background: "rgba(0,0,0,0.5)",
+                            color: "#fff",
+                          }}
+                        >
+                          {msg.fileName}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{msg.content}</p>
+
                   {hasPayPalLink && (
                     <div style={{ marginTop: 12, borderTop: "1px solid #dcdfd8", paddingTop: 10 }}>
                       <button
@@ -432,16 +540,48 @@ function ChatView({
         </div>
 
         <form className="composer" onSubmit={sendMessage}>
+          {file && (
+            <div className="file-chip">
+              <Icon name="sparkles" size={12} />
+              <span>{file.name}</span>
+              <button
+                aria-label="Remove attachment"
+                onClick={handleRemoveFile}
+                type="button"
+              >
+                <Icon name="x" size={12} />
+              </button>
+            </div>
+          )}
+
           <input
             aria-label="Message your commerce agent"
             onChange={(event) => setText(event.target.value)}
-            placeholder="Ask a follow-up or change your request..."
+            placeholder={
+              file
+                ? "Add specifics (budget, color, sizing) or press Enter to search photo..."
+                : "Ask Penny to search, compare, or attach a photo..."
+            }
             value={text}
           />
+
+          <label
+            className="file-button"
+            title="Attach a product photo or screenshot (JPEG, PNG, WEBP)"
+          >
+            <input
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileChange}
+              ref={fileInputRef}
+              type="file"
+            />
+            <Icon name="plus" size={16} />
+          </label>
+
           <button
             aria-label="Send message"
             className="send-button"
-            disabled={sending || !text.trim()}
+            disabled={sending || (!text.trim() && !file)}
             type="submit"
           >
             {sending ? (
@@ -579,6 +719,8 @@ export default function App() {
   const navigate = useNavigate()
   const view = viewFromPath(location.pathname)
   const [preferencesOpen, setPreferencesOpen] = useState(false)
+  const [demoOpen, setDemoOpen] = useState(false)
+  const [demoPresetQuery, setDemoPresetQuery] = useState("")
   const [authMode, setAuthMode] = useState<AuthMode>("signup")
   const [authOpen, setAuthOpen] = useState(false)
   const [user, setUser] = useState<AuthUser | null>(() => {
@@ -686,8 +828,8 @@ export default function App() {
         <Header
           goTo={goTo}
           onCustomize={() => setPreferencesOpen(true)}
+          onOpenDemo={() => setDemoOpen(true)}
           user={user}
-          view={view}
         />
       )}
 
@@ -705,6 +847,8 @@ export default function App() {
           guardrails={guardrails}
           onCustomize={() => setPreferencesOpen(true)}
           onNotify={notify}
+          onOpenDemo={() => setDemoOpen(true)}
+          presetQuery={demoPresetQuery}
           token={token}
         />
       )}
@@ -734,6 +878,15 @@ export default function App() {
           token={token}
         />
       )}
+
+      <DemoModal
+        onClose={() => setDemoOpen(false)}
+        onTryQuery={(q) => {
+          setDemoPresetQuery(q)
+          goTo("chat")
+        }}
+        open={demoOpen}
+      />
 
       <GuardrailModal
         onClose={() => setPreferencesOpen(false)}
