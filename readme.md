@@ -134,6 +134,12 @@ docker compose up
 uvicorn main:app --reload
 ```
 
+## API documentation
+
+Once the server is running, interactive API docs are available at:
+
+- **Swagger UI:** [http://localhost:8000/docs](http://localhost:8000/docs)
+
 
 ## Contributors
 

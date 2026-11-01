@@ -29,10 +29,11 @@ async def register_customer(
     )
   except HTTPException as e:
     logging.error(f"Error in user registration: {e}")
-    raise HTTPException(
-      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-      detail="Failed to register user",
-    )
+    raise e
+    # raise HTTPException(
+    #   status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    #   detail="Failed to register user",
+    # )
 
 
 async def authenticate_user(email: str, password: str, db: Session = Depends(get_db)):
