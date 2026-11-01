@@ -52,6 +52,7 @@ from typing import TYPE_CHECKING
   # from ..tools.auth_tools import generate_agent_access_token
 
 
+ENVIRONMENT=os.environ.get("ENVIRONMENT")
 
 
 POSTGRES_USER = os.environ.get("DB_USERNAME")
@@ -60,9 +61,13 @@ POSTGRES_DB = os.environ.get("DB_NAME")
 POSTGRES_HOST = os.environ.get("DB_HOST")
 POSTGRES_PORT = os.environ.get("DB_PORT")
 
-DATABASE_URL = (
-  f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DB}"
+LOCAL_DB = (
+    f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DB}"
 )
+
+REMOTE_DB= ( os.environ.get("REMOTE_DATABASE_URL") )
+
+DATABASE_URL = REMOTE_DB if ENVIRONMENT == "production" else LOCAL_DB
 
 
 connection_kwargs = {
