@@ -14,6 +14,7 @@ import SuccessPage from "./pages/SuccessPage"
 import CancelPage from "./pages/CancelPage"
 import AutonomyPage from "./pages/AutonomyPage"
 import OrdersModal from "./OrdersModal"
+import { formatPennyMessage } from "./utils/formatMarkdown"
 
 export type View =
   | "landing"
@@ -319,6 +320,11 @@ function ChatView({
     event.preventDefault()
     if (!text.trim() && !file) return
 
+    if (!token) {
+      onNotify("Please sign in or register to chat with Penny.", "error")
+      return
+    }
+
     const userQuery = text.trim() || (file ? "Find products matching this photo" : "")
     const currentFile = file
     const currentPreview = previewUrl
@@ -517,7 +523,11 @@ function ChatView({
                     </div>
                   )}
 
-                  <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{msg.content}</p>
+                  {isUser ? (
+                    <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{msg.content}</p>
+                  ) : (
+                    formatPennyMessage(msg.content)
+                  )}
 
                   {hasPayPalLink && (
                     <div style={{ marginTop: 12, borderTop: "1px solid #dcdfd8", paddingTop: 10 }}>
