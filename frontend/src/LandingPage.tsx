@@ -422,7 +422,7 @@ export default function LandingPage({
         </div>
 
         {/* Live Synchronized Control Panel */}
-        <div className="control-panel  rounded-lg">
+        <div className="control-panel rounded-lg">
           <header>
             <span>
               <Shield /> Penny mode
@@ -432,13 +432,8 @@ export default function LandingPage({
             </i>
           </header>
           <div
+            className={`control-mode-option ${mode === "shop-with-me" ? "is-selected" : ""}`}
             onClick={() => onModeChange("shop-with-me")}
-            style={{
-              cursor: "pointer",
-              background: mode === "shop-with-me" ? "#eef6f1" : "transparent",
-              transition: "background 0.15s ease",
-            }}
-            className="p-3 rounded-lg"
           >
             <span>
               <strong>Shop with me (Default)</strong>
@@ -450,13 +445,8 @@ export default function LandingPage({
             <b>{mode === "shop-with-me" ? "SELECTED" : "CLICK TO SELECT"}</b>
           </div>
           <div
+            className={`control-mode-option ${mode === "buy-for-me" ? "is-selected" : ""}`}
             onClick={() => onModeChange("buy-for-me")}
-            style={{
-              cursor: "pointer",
-              background: mode === "buy-for-me" ? "#eef6f1" : "transparent",
-              transition: "background 0.15s ease",
-            }}
-            className="p-3 rounded-lg"
           >
             <span>
               <strong>Buy for me (Autonomous)</strong>
