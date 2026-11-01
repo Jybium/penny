@@ -68,6 +68,14 @@ export type ApiOrder = {
   order_items: ApiOrderItem[]
 }
 
+export type ApiMessage = {
+  id: string
+  chat_room_id: string
+  created_at: string
+  message: string
+  sender: string
+}
+
 const baseUrl = (
   import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
 ).replace(/\/$/, "")
@@ -231,6 +239,16 @@ export const api = {
       }
     }
     return data as ApiOrder
+  },
+
+  async getMessages(token: string): Promise<ApiMessage[]> {
+    const data = await request<ApiMessage[]>("/messages/own", {}, token)
+    if (Array.isArray(data)) return data
+    return []
+  },
+
+  deleteMessages(token: string): Promise<string> {
+    return request<string>("/messages/own", { method: "DELETE" }, token)
   },
 
   subscribeSSE(

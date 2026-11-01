@@ -324,6 +324,32 @@ button:disabled { cursor: wait; opacity: .72; }
   box-shadow: 0 0 0 3px var(--penny-green-soft);
   animation: beaconPulse 2s ease-in-out infinite;
 }
+
+.clear-chat-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: 1px solid #dbe2dc;
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: #7b8a82;
+  font-size: 8.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.clear-chat-btn:hover {
+  background: #fdf2f2;
+  border-color: #f0c4c4;
+  color: #c0392b;
+}
+
+.clear-chat-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .messages { width: min(740px, calc(100% - 48px)); margin: 0 auto; padding: 32px 0 24px; display: flex; flex-direction: column; gap: 18px; }
 .date-divider { border-top: 1px solid #e7e8e3; text-align: center; }
 .date-divider span { padding: 0 10px; position: relative; top: -8px; color: #a1a7a3; background: #fbfbf8; font: 400 8px "DM Mono"; }

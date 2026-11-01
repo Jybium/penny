@@ -46,6 +46,7 @@ type IconName =
   | "settings"
   | "shield"
   | "sparkles"
+  | "trash"
   | "user"
   | "x";
 
@@ -133,6 +134,12 @@ function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
       <>
         <path d="m12 3 1.2 3.3L16.5 8l-3.3 1.2L12 12.5l-1.2-3.3L7.5 8l3.3-1.7L12 3Z" />
         <path d="m18 13 .8 2.2L21 16l-2.2.8L18 19l-.8-2.2L15 16l2.2-.8L18 13Z" />
+      </>
+    ),
+    trash: (
+      <>
+        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        <path d="M10 11v6M14 11v6" />
       </>
     ),
     user: (
@@ -416,6 +423,7 @@ function ChatView({
   onNotify,
   token,
   presetQuery,
+  user,
 }: {
   goTo: (view: View) => void;
   guardrails: Guardrails;
@@ -424,6 +432,7 @@ function ChatView({
   onNotify: (message: string, tone?: ToastItem["tone"]) => void;
   token: string;
   presetQuery?: string;
+  user?: AuthUser | null;
 }) {
   const [text, setText] = useState(presetQuery || "");
   const [file, setFile] = useState<File | null>(null);
@@ -439,12 +448,88 @@ function ChatView({
     },
   ]);
   const [sending, setSending] = useState(false);
+  const [clearing, setClearing] = useState(false);
 
   useEffect(() => {
     if (presetQuery) {
       setText(presetQuery);
     }
   }, [presetQuery]);
+
+  // Fetch persisted messages from GET /messages/own
+  useEffect(() => {
+    if (!token) return;
+    let active = true;
+
+    api
+      .getMessages(token)
+      .then((history) => {
+        if (!active || !Array.isArray(history) || history.length === 0) return;
+
+        // Sort chronologically ascending
+        const sorted = [...history].sort(
+          (a, b) =>
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+        );
+
+        const mapped: ChatMessage[] = sorted.map((item) => {
+          const isUser = user?.id
+            ? item.sender === user.id
+            : item.sender !== "penny" &&
+              !item.sender.toLowerCase().includes("assistant") &&
+              !item.sender.toLowerCase().includes("agent");
+          return {
+            id: item.id || `msg-${Date.now()}-${Math.random()}`,
+            role: isUser ? "user" : "penny",
+            content: item.message,
+          };
+        });
+
+        if (mapped.length > 0) {
+          setChatMessages(mapped);
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not load message history:", err);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [token, user?.id]);
+
+  async function handleClearHistory() {
+    if (!token) {
+      setChatMessages([
+        {
+          id: "intro-penny",
+          role: "penny",
+          content:
+            "What are you looking for today?\nShare your budget, must-haves, or attach a product photo. I’ll search real merchant catalogs, compare options, and prepare your order.",
+        },
+      ]);
+      onNotify("Conversation reset.", "info");
+      return;
+    }
+
+    setClearing(true);
+    try {
+      await api.deleteMessages(token);
+      setChatMessages([
+        {
+          id: "intro-penny",
+          role: "penny",
+          content:
+            "What are you looking for today?\nShare your budget, must-haves, or attach a product photo. I’ll search real merchant catalogs, compare options, and prepare your order.",
+        },
+      ]);
+      onNotify("All conversation history has been cleared.", "success");
+    } catch {
+      onNotify("Could not clear conversation history. Please try again.", "error");
+    } finally {
+      setClearing(false);
+    }
+  }
 
   // Subscribe to GET /agent/sse-stream to populate chat with streamed messages & order events
   useEffect(() => {
@@ -690,7 +775,21 @@ function ChatView({
               </small>
             </div>
           </div>
-          <span className="live-dot">Online</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span className="live-dot">Online</span>
+            {chatMessages.length > 1 && (
+              <button
+                className="clear-chat-btn"
+                disabled={clearing}
+                onClick={handleClearHistory}
+                title="Clear conversation history"
+                type="button"
+              >
+                <Icon name="trash" size={12} />
+                <span>{clearing ? "Clearing..." : "Clear history"}</span>
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="messages">
@@ -1193,6 +1292,7 @@ export default function App() {
           onOpenDemo={() => setDemoOpen(true)}
           presetQuery={demoPresetQuery}
           token={token}
+          user={user}
         />
       )}
 
