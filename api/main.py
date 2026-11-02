@@ -1,4 +1,6 @@
+import os
 import logging
+from dotenv import load_dotenv
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +14,11 @@ from modules.orders.order_router import router as order_router
 from modules.messages.chat_message_router import router as chat_message_router
 
 from fastapi_pagination import add_pagination
+
+load_dotenv(override=True)
+
+
+frontend_url = os.environ.get('FRONTEND_URL')
 
 logging.basicConfig(
     level=logging.INFO,
@@ -36,7 +43,7 @@ add_pagination(app)
 origins = [
     "http://localhost:3000",
     "http://localhost:3001",
-    "https://penny-ui.vercel.app"
+    frontend_url
 ]
 
 app.add_middleware(

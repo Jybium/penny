@@ -22,6 +22,9 @@ PAYPAL_SANDBOX_SECRET=os.environ.get("PAYPAL_BUSINESS_SANDBOX_SECRET_KEY")
 PAYPAL_SANDBOX_API_BASE_URL="https://api-m.sandbox.paypal.com"
 
 
+frontend_url = os.environ.get('FRONTEND_URL')
+
+
 async def get_access_token():
   try:
     response = requests.post(
@@ -66,8 +69,8 @@ async def create_order(amount: float):
         "payment_source": {
           "paypal": {
             "experience_context": {
-              "return_url": "https://princeigwe.medium.com", # customer will be redirected to this link upon successful payment # TODO: replace with actual frontend success url
-              "cancel_url": "https://google.com", # customer will be redirected to this link upon cancellation of payment # TODO: replace with actual frontend cancel url
+              "return_url": f"{frontend_url}/order/success", # customer will be redirected to this link upon successful payment 
+              "cancel_url": f"{frontend_url}/checkout/cancel", # customer will be redirected to this link upon cancellation of payment 
             }
           }
         },

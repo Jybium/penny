@@ -15,6 +15,9 @@ PAYPAL_SANDBOX_CLIENT_ID=os.environ.get("PAYPAL_BUSINESS_SANDBOX_CLIENT_ID")
 PAYPAL_SANDBOX_SECRET=os.environ.get("PAYPAL_BUSINESS_SANDBOX_SECRET_KEY")
 PAYPAL_SANDBOX_API_BASE_URL="https://api-m.sandbox.paypal.com"
 
+frontend_url = os.environ.get('FRONTEND_URL')
+
+
 async def get_access_token():
   try:
     response = requests.post(
@@ -50,8 +53,8 @@ async def generate_paypal_vault_setup_token():
           "paypal": {
             "usage_type": "MERCHANT",
             "experience_context": {
-              "return_url": "https://princeigwe.medium.com", # the redirect-url after a customer approves to generate a vault setup token # TODO: replace with actual frontend url
-              "cancel_url": "https://google.com", # the redirect-url if a customer denies to generate a vault setup token # TODO: replace with actual frontend url
+              "return_url": f"{frontend_url}/autonomy?approved=true", # the redirect-url after a customer approves to generate a vault setup token 
+              "cancel_url": f"{frontend_url}/autonomy?cancelled=true", # the redirect-url if a customer denies to generate a vault setup token 
             }
           }
         }

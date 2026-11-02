@@ -23,7 +23,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 #   db: Session = Depends(get_db)
 # ):
 #   user_info = await get_current_user(token, db)
-#   image_content: str # todo image content should be file content from the multipart form
+#   image_content: str 
 #   return await agent_interface_service.chat_with_agent(
 #     human_msg=body.message, user_thread_id=user_info.id, image_content=image_content
 #   )
