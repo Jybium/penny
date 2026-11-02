@@ -931,6 +931,17 @@ function ChatView({
                             }}
                           />
                         </div>
+                        <div className="bg-white p-1 rounded-full">
+                          <img
+                            alt="PayPal"
+                            src="/paypal.png"
+                            style={{
+                              height: 16,
+                              width: "auto",
+                              objectFit: "contain",
+                            }}
+                          />
+                        </div>
                         Proceed to Checkout <Icon name="arrow" size={14} />
                       </button>
                     </div>
