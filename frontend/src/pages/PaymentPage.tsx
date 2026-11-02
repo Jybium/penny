@@ -183,6 +183,10 @@ export default function PaymentPage({
   }, [token, onNotify]);
 
   function handlePayPalClick() {
+    sessionStorage.setItem("penny_last_settled_order", JSON.stringify(order));
+    if (order.orderId) {
+      sessionStorage.setItem("penny_last_order_id", order.orderId);
+    }
     if (order.paypalApprovalUrl) {
       window.open(order.paypalApprovalUrl, "_blank", "noopener,noreferrer");
       onNotify("Opened PayPal checkout in a new window.");
@@ -197,6 +201,7 @@ export default function PaymentPage({
     try {
       // User has vault payment token, Penny executes autonomous capture
       await new Promise((res) => setTimeout(res, 1200));
+      sessionStorage.setItem("penny_last_settled_order", JSON.stringify(order));
       sessionStorage.setItem(
         "penny_last_order_id",
         order.orderId || "AUTONOMOUS-PAYMENT",
@@ -219,12 +224,12 @@ export default function PaymentPage({
       <div className="payment-shell">
         <section className="payment-main">
           <header className="payment-heading">
-            <span className="paypal-mark" aria-label="PayPal">
-              P
-            </span>
+            <div className="paypal-mark" aria-label="PayPal">
+              <img src="/paypal.png" alt="PayPal" className="paypal-img-mark" />
+            </div>
             <div>
               <p className="overline">CHECKOUT HANDOFF</p>
-              <h1>
+              <h1 className="text-2xl">
                 {order.mode === "buy-for-me"
                   ? "Autonomous Settlement"
                   : "Approve with PayPal"}
@@ -244,7 +249,9 @@ export default function PaymentPage({
                 <Icon name="sparkles" size={18} />
               </span>
               <span className="route-line" />
-              <span className="route-node paypal-node">P</span>
+              <span className="route-node paypal-node">
+                <img src="/paypal.png" alt="PayPal" className="route-paypal-img" />
+              </span>
               <span className="route-line" />
               <span className="route-node">
                 <Icon name="check" size={18} />
@@ -289,10 +296,12 @@ export default function PaymentPage({
                     disabled={isProcessing}
                     onClick={handleAutonomousSettlement}
                   >
-                    <span>P</span>{" "}
-                    {isProcessing
-                      ? "Settling order autonomously..."
-                      : `Approve Autonomous Payment ($${order.totalPrice.toFixed(2)})`}
+                    <img src="/paypal.png" alt="PayPal" className="paypal-btn-img" />
+                    <span>
+                      {isProcessing
+                        ? "Settling order autonomously..."
+                        : `Approve Autonomous Payment ($${order.totalPrice.toFixed(2)})`}
+                    </span>
                   </button>
                 ) : (
                   <div
@@ -327,8 +336,10 @@ export default function PaymentPage({
             ) : (
               <>
                 <button className="paypal-button" onClick={handlePayPalClick}>
-                  <span>P</span> Pay with PayPal Sandbox ($
-                  {order.totalPrice.toFixed(2)})
+                  <img src="/paypal.png" alt="PayPal" className="paypal-btn-img" />
+                  <span>
+                    Pay with PayPal Sandbox (${order.totalPrice.toFixed(2)})
+                  </span>
                 </button>
                 <button
                   className="cancel-payment"
@@ -346,7 +357,7 @@ export default function PaymentPage({
           </div>
         </section>
 
-        <aside className="payment-summary">
+        <aside className="payment-summary sticky    top-20">
           <div className="summary-title">
             <span>ORDER SUMMARY</span>
             <button onClick={() => onNavigate("chat")}>Edit in chat</button>

@@ -197,14 +197,16 @@ const visualSuggestions = [
   },
   {
     title: "Marathon Running Shoes",
-    query: "Help me compare top running shoes for marathons with high arch support",
+    query:
+      "Help me compare top running shoes for marathons with high arch support",
     image:
       "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=240&q=80",
     badge: "High Cushion",
   },
   {
     title: "Ergonomic Mechanical Keyboard",
-    query: "I need an ergonomic mechanical keyboard for typing with quiet switches",
+    query:
+      "I need an ergonomic mechanical keyboard for typing with quiet switches",
     image:
       "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=240&q=80",
     badge: "Tactile",
@@ -247,7 +249,11 @@ function Header({
           type="button"
         >
           <span className="wordmark-icon">
-            <Icon name="sparkles" size={16} />
+            <img
+              src="/penny-logo.png"
+              alt="Penny Logo"
+              className="penny-logo-mark"
+            />
           </span>
           Penny
         </button>
@@ -331,9 +337,7 @@ function Header({
                     <div className="profile-dropdown-name">
                       {user.firstName} {user.lastName}
                     </div>
-                    <div className="profile-dropdown-email">
-                      {user.email}
-                    </div>
+                    <div className="profile-dropdown-email">{user.email}</div>
                   </div>
 
                   <div className="profile-dropdown-mobile-links">
@@ -525,7 +529,10 @@ function ChatView({
       ]);
       onNotify("All conversation history has been cleared.", "success");
     } catch {
-      onNotify("Could not clear conversation history. Please try again.", "error");
+      onNotify(
+        "Could not clear conversation history. Please try again.",
+        "error",
+      );
     } finally {
       setClearing(false);
     }
@@ -766,14 +773,12 @@ function ChatView({
         <div className="conversation-head">
           <div>
             <span className="agent-avatar">
-              <Icon name="sparkles" size={17} />
+              <img
+                src="/penny-logo.png"
+                alt="Penny"
+                className="penny-avatar-img"
+              />
             </span>
-            <div>
-              <strong>Commerce agent</strong>
-              <small>
-                Multimodal Search &bull; LangGraph &bull; PayPal Ready
-              </small>
-            </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span className="live-dot">Online</span>
@@ -799,7 +804,9 @@ function ChatView({
 
           {chatMessages.length <= 1 && (
             <div className="chat-visual-discovery">
-              <span className="chat-discovery-label">POPULAR VISUAL SEARCHES</span>
+              <span className="chat-discovery-label">
+                POPULAR VISUAL SEARCHES
+              </span>
               <div className="chat-visual-tiles">
                 {visualSuggestions.map((item) => (
                   <button
@@ -843,7 +850,11 @@ function ChatView({
               >
                 {!isUser && (
                   <span className="mini-avatar">
-                    <Icon name="sparkles" size={13} />
+                    <img
+                      src="/penny-logo.png"
+                      alt="Penny"
+                      className="penny-avatar-img"
+                    />
                   </span>
                 )}
 
@@ -902,12 +913,24 @@ function ChatView({
                         className="primary-action"
                         onClick={() => goTo("payment")}
                         style={{
-                          padding: "8px 12px",
+                          padding: "8px 14px",
                           width: "auto",
                           display: "inline-flex",
+                          alignItems: "center",
                           gap: 8,
                         }}
                       >
+                        <div className="bg-white p-1 rounded-full">
+                          <img
+                            alt="PayPal"
+                            src="/paypal.png"
+                            style={{
+                              height: 16,
+                              width: "auto",
+                              objectFit: "contain",
+                            }}
+                          />
+                        </div>
                         Proceed to Checkout <Icon name="arrow" size={14} />
                       </button>
                     </div>
@@ -1057,7 +1080,20 @@ function ReviewView({ goTo }: { goTo: (view: View) => void }) {
                 </p>
               </div>
               <div className="merchant-line">
-                <span>Verified PayPal Sandbox Merchant</span>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <img
+                    alt="PayPal"
+                    src="/paypal.png"
+                    style={{ height: 14, width: "auto", objectFit: "contain" }}
+                  />
+                  Verified PayPal Sandbox Merchant
+                </span>
                 <strong>$129.00 USD</strong>
               </div>
             </div>
@@ -1302,7 +1338,13 @@ export default function App() {
         <PaymentPage onNavigate={goTo} onNotify={notify} token={token} />
       )}
 
-      {view === "success" && <SuccessPage onNavigate={goTo} token={token} />}
+      {view === "success" && (
+        <SuccessPage
+          onNavigate={goTo}
+          onOpenOrders={() => setOrdersOpen(true)}
+          token={token}
+        />
+      )}
 
       {view === "cancel" && <CancelPage onNavigate={goTo} />}
 

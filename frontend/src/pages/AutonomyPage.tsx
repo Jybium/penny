@@ -453,10 +453,12 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                   onClick={handleStartSetup}
                   style={{ marginTop: 8 }}
                 >
-                  <span>P</span>{" "}
-                  {setupLoading
-                    ? "Generating Vault Setup Token..."
-                    : "Setup Buy for me (Generate Setup Token)"}
+                  <img src="/paypal.png" alt="PayPal" className="paypal-btn-img" />
+                  <span>
+                    {setupLoading
+                      ? "Generating Vault Setup Token..."
+                      : "Setup Buy for me (Generate Setup Token)"}
+                  </span>
                 </button>
               ) : (
                 <div style={{ display: "grid", gap: 14, marginTop: 14 }}>

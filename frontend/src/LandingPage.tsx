@@ -146,13 +146,14 @@ export default function LandingPage({
           <div className="landing-demo">
             <header>
               <span className="demo-agent">
-                <Sparkles />
+                <img
+                  src="/penny-logo.png"
+                  alt="Penny Logo"
+                  className="penny-logo-mark"
+                />
               </span>
               <div>
-                <strong>Your commerce agent</strong>
-                <small>
-                  Multimodal Search &bull; LangGraph &bull; PayPal Ready
-                </small>
+                <strong>Penny</strong>
               </div>
               <span className="online-tag">
                 <span className="online-beacon" />
@@ -161,8 +162,12 @@ export default function LandingPage({
             </header>
             <div className="landing-demo-body">
               <div className="demo-welcome">
-                <span>
-                  <Sparkles />
+                <span className="demo-welcome-avatar">
+                  <img
+                    src="/penny-logo.png"
+                    alt="Penny Logo"
+                    className="penny-logo-mark"
+                  />
                 </span>
                 <strong>What should Penny find?</strong>
                 <p>
@@ -218,11 +223,17 @@ export default function LandingPage({
 
               {/* Visual Curated Discovery Strip */}
               <div className="hero-product-showcase">
-                <span className="hero-showcase-label">POPULAR AGENT SEARCHES</span>
+                <span className="hero-showcase-label">
+                  POPULAR AGENT SEARCHES
+                </span>
                 <div className="hero-product-pills">
                   <button
                     className="hero-product-pill"
-                    onClick={() => onEnter("Find wireless noise cancelling headphones under $150")}
+                    onClick={() =>
+                      onEnter(
+                        "Find wireless noise cancelling headphones under $150",
+                      )
+                    }
                     type="button"
                   >
                     <img
@@ -236,7 +247,9 @@ export default function LandingPage({
                   </button>
                   <button
                     className="hero-product-pill"
-                    onClick={() => onEnter("Ergonomic mechanical keyboard for typing")}
+                    onClick={() =>
+                      onEnter("Ergonomic mechanical keyboard for typing")
+                    }
                     type="button"
                   >
                     <img
@@ -250,7 +263,9 @@ export default function LandingPage({
                   </button>
                   <button
                     className="hero-product-pill"
-                    onClick={() => onEnter("Running shoes with high arch support")}
+                    onClick={() =>
+                      onEnter("Running shoes with high arch support")
+                    }
                     type="button"
                   >
                     <img
@@ -342,7 +357,9 @@ export default function LandingPage({
                 loading="lazy"
                 src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80"
               />
-              <span className="landing-how-badge">01 &bull; Natural Intent</span>
+              <span className="landing-how-badge">
+                01 &bull; Natural Intent
+              </span>
             </div>
             <b>01</b>
             <i>
@@ -361,7 +378,9 @@ export default function LandingPage({
                 loading="lazy"
                 src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80"
               />
-              <span className="landing-how-badge">02 &bull; Agent Synthesis</span>
+              <span className="landing-how-badge">
+                02 &bull; Agent Synthesis
+              </span>
             </div>
             <b>02</b>
             <i>
@@ -380,7 +399,9 @@ export default function LandingPage({
                 loading="lazy"
                 src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=600&q=80"
               />
-              <span className="landing-how-badge">03 &bull; Guarded Settlement</span>
+              <span className="landing-how-badge">
+                03 &bull; Guarded Settlement
+              </span>
             </div>
             <b>03</b>
             <i>
@@ -416,7 +437,12 @@ export default function LandingPage({
               <Shield /> Full transparency on reasoning and merchant pricing
             </li>
             <li>
-              <Card /> PayPal Sandbox protection on all test transactions
+              <img
+                src="/paypal.png"
+                alt="PayPal"
+                style={{ height: 14, width: "auto", objectFit: "contain" }}
+              />
+              PayPal Sandbox protection on all test transactions
             </li>
           </ul>
         </div>
@@ -442,7 +468,9 @@ export default function LandingPage({
                 checkout.
               </small>
             </span>
-            <b>{mode === "shop-with-me" ? "SELECTED" : "CLICK TO SELECT"}</b>
+            <b className="whitespace-nowrap ml-3">
+              {mode === "shop-with-me" ? "SELECTED" : "CLICK TO SELECT"}
+            </b>
           </div>
           <div
             className={`control-mode-option ${mode === "buy-for-me" ? "is-selected" : ""}`}
@@ -455,7 +483,9 @@ export default function LandingPage({
                 token.
               </small>
             </span>
-            <b>{mode === "buy-for-me" ? "SELECTED" : "CLICK TO SELECT"}</b>
+            <b className="whitespace-nowrap ml-3">
+              {mode === "buy-for-me" ? "SELECTED" : "CLICK TO SELECT"}
+            </b>
           </div>
         </div>
       </section>
@@ -529,8 +559,7 @@ export default function LandingPage({
               <Check />
               <span>
                 <strong>Live Order Tracking &amp; History</strong>
-                Penny streams real-time updates and records completed
-                orders
+                Penny streams real-time updates and records completed orders
               </span>
             </li>
           </ul>
@@ -545,12 +574,15 @@ export default function LandingPage({
           <header>
             <div>
               <span className="automation-pulse" />
+              <img
+                src="/paypal.png"
+                alt="PayPal"
+                className="landing-paypal-badge-img"
+              />
               <span>
                 <strong>Autonomous Checkout Engine</strong>
-                <small>PayPal Vault &bull; Tokenized Settlement</small>
               </span>
             </div>
-            <b>LIVE GUARD</b>
           </header>
 
           <div className="automation-limit">
@@ -610,7 +642,9 @@ export default function LandingPage({
             </div>
             <span>
               <strong>Guaranteed User Control</strong>
-              <small>Penny acts strictly within your pre-authorized limits</small>
+              <small>
+                Penny acts strictly within your pre-authorized limits
+              </small>
             </span>
           </footer>
         </div>
