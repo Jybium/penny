@@ -172,12 +172,13 @@ function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
 }
 
 function viewFromPath(pathname: string): View {
-  if (pathname === "/chat") return "chat";
-  if (pathname === "/review") return "review";
-  if (pathname === "/checkout") return "payment";
-  if (pathname === "/order/success") return "success";
-  if (pathname === "/checkout/cancel") return "cancel";
-  if (pathname === "/autonomy") return "autonomy";
+  const clean = pathname.replace(/\/+$/, "").toLowerCase() || "/";
+  if (clean === "/chat") return "chat";
+  if (clean === "/review") return "review";
+  if (clean === "/checkout") return "payment";
+  if (clean === "/order/success" || clean === "/orders/success" || clean.startsWith("/order/success")) return "success";
+  if (clean === "/checkout/cancel") return "cancel";
+  if (clean === "/autonomy" || clean.startsWith("/autonomy")) return "autonomy";
   return "landing";
 }
 

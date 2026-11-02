@@ -16,6 +16,8 @@ export const router = createBrowserRouter([
       { path: "checkout", Component: RouteMarker },
       { path: "checkout/cancel", Component: RouteMarker },
       { path: "order/success", Component: RouteMarker },
+      { path: "orders/success", Component: RouteMarker },
+      { path: "order/*", Component: RouteMarker },
       { path: "autonomy", Component: RouteMarker },
       { path: "*", Component: RouteMarker },
     ],

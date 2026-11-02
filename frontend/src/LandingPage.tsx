@@ -714,6 +714,95 @@ export default function LandingPage({
           </button>
         </div>
       </footer>
+
+      {/* Landing Footer */}
+      <footer className="landing-footer-main">
+        <div className="landing-footer-top">
+          <div className="footer-brand-col">
+            <button
+              className="wordmark footer-wordmark"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              type="button"
+            >
+              <span className="wordmark-icon">
+                <img
+                  alt="Penny Logo"
+                  className="penny-logo-mark"
+                  src="/penny-logo.png"
+                />
+              </span>
+              <span>Penny</span>
+            </button>
+            <p className="footer-tagline">
+              Agentic commerce with human judgment. Multimodal search, live
+              merchant verification, and non-custodial PayPal order settlement.
+            </p>
+            <div className="footer-status-pill">
+              <span className="online-beacon" />
+              <span>LIVE AGENT SYSTEM &bull; ONLINE</span>
+            </div>
+          </div>
+
+          <div className="footer-links-col">
+            <strong>Architecture</strong>
+            <a href="#how">Intent to Purchase</a>
+            <a href="#control">Your Control &amp; Consent</a>
+            <a href="#autonomy">Autonomous Modes</a>
+            <button
+              className="footer-link-btn"
+              onClick={onOpenDemo}
+              type="button"
+            >
+              Interactive Architecture Demo &rarr;
+            </button>
+          </div>
+
+          <div className="footer-links-col">
+            <strong>Safety &amp; Privacy</strong>
+            <span>Non-Custodial Tokenization</span>
+            <span>Zero Stored Card Data</span>
+            <span>PayPal Sandbox Protection</span>
+            <span>Live Merchant Inventory Only</span>
+          </div>
+
+          <div className="footer-cta-col">
+            <strong>Start Shopping</strong>
+            <p>
+              Experience seamless conversational commerce powered by live
+              catalog search and PayPal.
+            </p>
+            <button
+              className="footer-start-btn"
+              onClick={() => onEnter()}
+              type="button"
+            >
+              <span>{user ? "Continue to Chat" : "Try Penny Now"}</span>
+              <Arrow />
+            </button>
+          </div>
+        </div>
+
+        <div className="landing-footer-bottom">
+          <p>&copy; {new Date().getFullYear()} Penny. Agentic Commerce Platform.</p>
+          <div className="footer-badges">
+            <span className="footer-partner-badge">
+              <img
+                alt="PayPal"
+                className="footer-paypal-img"
+                src="/paypal.png"
+              />
+              <span>PayPal Verified Checkout</span>
+            </span>
+          </div>
+          <button
+            className="footer-back-to-top"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            type="button"
+          >
+            Back to top &uarr;
+          </button>
+        </div>
+      </footer>
     </main>
   );
 }
