@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { paypalLogo } from "./assets";
 
 type StepId = "search" | "decide" | "settle";
 
@@ -313,7 +314,7 @@ export default function DemoModal({ open, onClose, onTryQuery }: Props) {
               <div className="demo-vault-card">
                 <div className="demo-vault-header">
                   <div className="demo-paypal-pill">
-                    <img src="/paypal.png" alt="PayPal" className="demo-paypal-img" />
+                    <img src={paypalLogo} alt="PayPal" className="demo-paypal-img" />
                     <strong>PayPal Non-Custodial Vault</strong>
                   </div>
                   <span className="demo-vault-active-badge">✓ Active &amp; Guarded</span>

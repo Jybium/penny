@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, ApiOrder, VaultTokenResponse } from "../api";
+import { paypalLogo } from "../assets";
 
 type IconName =
   | "arrow"
@@ -225,7 +226,7 @@ export default function PaymentPage({
         <section className="payment-main">
           <header className="payment-heading">
             <div className="paypal-mark" aria-label="PayPal">
-              <img src="/paypal.png" alt="PayPal" className="paypal-img-mark" />
+              <img src={paypalLogo} alt="PayPal" className="paypal-img-mark" />
             </div>
             <div>
               <p className="overline">CHECKOUT HANDOFF</p>
@@ -250,7 +251,7 @@ export default function PaymentPage({
               </span>
               <span className="route-line" />
               <span className="route-node paypal-node">
-                <img src="/paypal.png" alt="PayPal" className="route-paypal-img" />
+                <img src={paypalLogo} alt="PayPal" className="route-paypal-img" />
               </span>
               <span className="route-line" />
               <span className="route-node">
@@ -296,7 +297,7 @@ export default function PaymentPage({
                     disabled={isProcessing}
                     onClick={handleAutonomousSettlement}
                   >
-                    <img src="/paypal.png" alt="PayPal" className="paypal-btn-img" />
+                    <img src={paypalLogo} alt="PayPal" className="paypal-btn-img" />
                     <span>
                       {isProcessing
                         ? "Settling order autonomously..."
@@ -336,7 +337,7 @@ export default function PaymentPage({
             ) : (
               <>
                 <button className="paypal-button" onClick={handlePayPalClick}>
-                  <img src="/paypal.png" alt="PayPal" className="paypal-btn-img" />
+                  <img src={paypalLogo} alt="PayPal" className="paypal-btn-img" />
                   <span>
                     Pay with PayPal Sandbox (${order.totalPrice.toFixed(2)})
                   </span>

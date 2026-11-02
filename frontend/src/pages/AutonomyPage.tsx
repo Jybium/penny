@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import { api, VaultTokenResponse } from "../api";
+import { paypalLogo } from "../assets";
 
 type Props = {
   token: string;
@@ -293,9 +294,6 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                   <span className="automation-pulse" />
                   <span>
                     <strong>Buy for me Mode: Active</strong>
-                    <small className="ml-2">
-                      PayPal Vault payment token is connected and active
-                    </small>
                   </span>
                 </div>
                 <b>TOKENIZED</b>
@@ -305,7 +303,7 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                 <span>
                   <small>AUTONOMOUS SETTLEMENT STATUS</small>
                   <strong>Active</strong>
-                  <em>Penny will settle orders autonomously</em>
+                  {/* <em>Penny will settle orders autonomously</em> */}
                 </span>
                 <span style={{ fontSize: "10px", color: "var(--penny-green)" }}>
                   Verified &bull; Non-Custodial
@@ -359,10 +357,6 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                   </span>
                   <span>
                     <strong>Switch back to Shop for me</strong>
-                    <small className="ml-2">
-                      Delete the vault token to require manual checkout on
-                      PayPal
-                    </small>
                   </span>
                 </div>
 
@@ -453,7 +447,11 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                   onClick={handleStartSetup}
                   style={{ marginTop: 8 }}
                 >
-                  <img src="/paypal.png" alt="PayPal" className="paypal-btn-img" />
+                  <img
+                    src={paypalLogo}
+                    alt="PayPal"
+                    className="paypal-btn-img"
+                  />
                   <span>
                     {setupLoading
                       ? "Generating Vault Setup Token..."

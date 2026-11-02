@@ -18,6 +18,7 @@ import CancelPage from "./pages/CancelPage";
 import AutonomyPage from "./pages/AutonomyPage";
 import OrdersModal from "./OrdersModal";
 import { formatPennyMessage } from "./utils/formatMarkdown";
+import { pennyLogo, paypalLogo } from "./assets";
 
 export type View =
   | "landing"
@@ -251,7 +252,7 @@ function Header({
         >
           <span className="wordmark-icon">
             <img
-              src="/penny-logo.png"
+              src={pennyLogo}
               alt="Penny Logo"
               className="penny-logo-mark"
             />
@@ -775,7 +776,7 @@ function ChatView({
           <div>
             <span className="agent-avatar">
               <img
-                src="/penny-logo.png"
+                src={pennyLogo}
                 alt="Penny"
                 className="penny-avatar-img"
               />
@@ -852,7 +853,7 @@ function ChatView({
                 {!isUser && (
                   <span className="mini-avatar">
                     <img
-                      src="/penny-logo.png"
+                      src={pennyLogo}
                       alt="Penny"
                       className="penny-avatar-img"
                     />
@@ -924,18 +925,7 @@ function ChatView({
                         <div className="bg-white p-1 rounded-full">
                           <img
                             alt="PayPal"
-                            src="/paypal.png"
-                            style={{
-                              height: 16,
-                              width: "auto",
-                              objectFit: "contain",
-                            }}
-                          />
-                        </div>
-                        <div className="bg-white p-1 rounded-full">
-                          <img
-                            alt="PayPal"
-                            src="/paypal.png"
+                            src={paypalLogo}
                             style={{
                               height: 16,
                               width: "auto",
@@ -1101,7 +1091,7 @@ function ReviewView({ goTo }: { goTo: (view: View) => void }) {
                 >
                   <img
                     alt="PayPal"
-                    src="/paypal.png"
+                    src={paypalLogo}
                     style={{ height: 14, width: "auto", objectFit: "contain" }}
                   />
                   Verified PayPal Sandbox Merchant

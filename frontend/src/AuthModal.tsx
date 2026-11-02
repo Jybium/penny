@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react"
+import { pennyLogo } from "./assets"
 
 export type AuthMode = "signin" | "signup"
 
@@ -83,7 +84,7 @@ export default function AuthModal({
       >
         <div className="auth-aside">
           <span className="auth-mark">
-            <img src="/penny-logo.png" alt="Penny Logo" className="penny-logo-mark" />
+            <img src={pennyLogo} alt="Penny Logo" className="penny-logo-mark" />
           </span>
           <p>PENNY</p>
           <h2>Shopping decisions, made with an agent you can trust.</h2>

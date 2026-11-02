@@ -1,5 +1,6 @@
 import { useState, type ReactNode, type FormEvent } from "react";
 import type { AuthUser } from "./AuthModal";
+import { pennyLogo, paypalLogo } from "./assets";
 
 type Props = {
   user: AuthUser | null;
@@ -147,7 +148,7 @@ export default function LandingPage({
             <header>
               <span className="demo-agent">
                 <img
-                  src="/penny-logo.png"
+                  src={pennyLogo}
                   alt="Penny Logo"
                   className="penny-logo-mark"
                 />
@@ -167,7 +168,7 @@ export default function LandingPage({
               <div className="demo-welcome">
                 <span className="demo-welcome-avatar">
                   <img
-                    src="/penny-logo.png"
+                    src={pennyLogo}
                     alt="Penny Logo"
                     className="penny-logo-mark"
                   />
@@ -441,7 +442,7 @@ export default function LandingPage({
             </li>
             <li>
               <img
-                src="/paypal.png"
+                src={paypalLogo}
                 alt="PayPal"
                 style={{ height: 14, width: "auto", objectFit: "contain" }}
               />
@@ -578,7 +579,7 @@ export default function LandingPage({
             <div>
               <span className="automation-pulse" />
               <img
-                src="/paypal.png"
+                src={paypalLogo}
                 alt="PayPal"
                 className="landing-paypal-badge-img"
               />
@@ -666,69 +667,7 @@ export default function LandingPage({
                 <img
                   alt="Penny Logo"
                   className="penny-logo-mark"
-                  src="/penny-logo.png"
-                />
-              </span>
-              <span>Penny</span>
-            </button>
-            <p className="footer-tagline">
-              Agentic commerce with human judgment. Multimodal search, live
-              merchant verification, and non-custodial PayPal order settlement.
-            </p>
-          </div>
-
-          <div className="footer-links-col">
-            <strong>Architecture</strong>
-            <a href="#how">Intent to Purchase</a>
-            <a href="#control">Your Control &amp; Consent</a>
-            <a href="#autonomy">Autonomous Modes</a>
-            <button
-              className="footer-link-btn"
-              onClick={onOpenDemo}
-              type="button"
-            >
-              Interactive Architecture Demo &rarr;
-            </button>
-          </div>
-
-          <div className="footer-cta-col">
-            <strong>Start Shopping</strong>
-            <p>
-              Experience seamless conversational commerce powered by live
-              catalog search and PayPal.
-            </p>
-          </div>
-        </div>
-
-        <div className="landing-footer-bottom">
-          <p>
-            &copy; {new Date().getFullYear()} Penny. Agentic Commerce Platform.
-          </p>
-
-          <button
-            className="footer-back-to-top"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            type="button"
-          >
-            Back to top &uarr;
-          </button>
-        </div>
-      </footer>
-
-      {/* Landing Footer */}
-      <footer className="landing-footer-main">
-        <div className="landing-footer-top">
-          <div className="footer-brand-col">
-            <button
-              className="wordmark footer-wordmark"
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              type="button"
-            >
-              <span className="wordmark-icon">
-                <img
-                  alt="Penny Logo"
-                  className="penny-logo-mark"
-                  src="/penny-logo.png"
+                  src={pennyLogo}
                 />
               </span>
               <span>Penny</span>

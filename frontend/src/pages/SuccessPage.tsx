@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import { api, ApiOrder, ApiOrderItem } from "../api";
+import { paypalLogo } from "../assets";
 
 type Props = {
   token: string;
@@ -392,7 +393,7 @@ export default function SuccessPage({ token, onNavigate, onOpenOrders }: Props) 
           <img
             alt="PayPal"
             className="success-paypal-img"
-            src="/paypal.png"
+            src={paypalLogo}
           />
           <span>Non-custodial purchase secured by Penny AI &amp; PayPal</span>
         </div>
