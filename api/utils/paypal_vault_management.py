@@ -41,6 +41,9 @@ async def generate_paypal_vault_setup_token():
     if not access_token:
       return None
     
+    return_url = os.environ.get("PAYPAL_VAULT_RETURN_URL", f"{FRONTEND_URL}/autonomy?approved=true")
+    cancel_url = os.environ.get("PAYPAL_VAULT_CANCEL_URL", f"{FRONTEND_URL}/autonomy?cancelled=true")
+
     response = requests.post(
       url=f"{PAYPAL_SANDBOX_API_BASE_URL}/v3/vault/setup-tokens",
       headers={
@@ -167,4 +170,3 @@ if __name__ == "__main__":
   vault_setup_token = "8J029613N2479672X"
   # paypal_vault_payment_token_response = asyncio.run(generate_paypal_vault_payment_token(vault_setup_token))
   delete_paypal_vault_payment_token_response = asyncio.run(delete_paypal_vault_payment_token(vault_setup_token))
-

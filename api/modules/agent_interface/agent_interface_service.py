@@ -17,6 +17,14 @@ async def chat_with_agent(human_msg: str, user_thread_id: str, image_content: st
       human_msg = "User sent an empty message with image"
     await save_message(user_id=user_thread_id, sender=user_thread_id, message=human_msg, db=db)
   ai_response = await ai.invoke(human_msg, user_thread_id, image_content)
+  try:
+    await publish_sse({
+      "user_id": str(user_thread_id),
+      "message": human_msg,
+      "penny": ai_response,
+    })
+  except Exception:
+    pass
   return {"user_id": user_thread_id, "message": human_msg, "penny": ai_response}
 
 
