@@ -430,6 +430,7 @@ function ChatView({
   token,
   presetQuery,
   user,
+  onOpenOrders,
 }: {
   goTo: (view: View) => void;
   guardrails: Guardrails;
@@ -439,11 +440,13 @@ function ChatView({
   token: string;
   presetQuery?: string;
   user?: AuthUser | null;
+  onOpenOrders?: () => void;
 }) {
   const [text, setText] = useState(presetQuery || "");
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
@@ -461,6 +464,10 @@ function ChatView({
       setText(presetQuery);
     }
   }, [presetQuery]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages, sending]);
 
   // Fetch persisted messages from GET /messages/own
   useEffect(() => {
@@ -838,10 +845,38 @@ function ChatView({
 
           {chatMessages.map((msg) => {
             const isUser = msg.role === "user";
-            const hasPayPalLink =
+            const contentLower = msg.content.toLowerCase();
+
+            // Detect if this message confirms order settlement, capture, or completed payment
+            const isOrderSettled =
               !isUser &&
+              (contentLower.includes("captured") ||
+                contentLower.includes("payment complete") ||
+                contentLower.includes("payment received") ||
+                contentLower.includes("order settled") ||
+                contentLower.includes("order confirmed") ||
+                contentLower.includes("order placed") ||
+                contentLower.includes("successfully paid") ||
+                contentLower.includes("purchase complete") ||
+                contentLower.includes("payment success") ||
+                contentLower.includes("transaction id"));
+
+            // Only show checkout button if it's genuinely a pending checkout and NOT captured
+            const hasCheckoutPrompt =
+              !isUser &&
+              !isOrderSettled &&
               (msg.content.includes("sandbox.paypal.com") ||
-                msg.content.toLowerCase().includes("paypal"));
+                contentLower.includes("checkoutnow") ||
+                contentLower.includes("payer-action") ||
+                contentLower.includes("proceed to checkout") ||
+                contentLower.includes("approve this order") ||
+                contentLower.includes("complete checkout") ||
+                (contentLower.includes("paypal") &&
+                  (contentLower.includes("approve") ||
+                    contentLower.includes("checkout") ||
+                    contentLower.includes("payment link") ||
+                    contentLower.includes("authorize") ||
+                    contentLower.includes("ready to purchase"))));
 
             return (
               <div
@@ -903,7 +938,7 @@ function ChatView({
                     formatPennyMessage(msg.content)
                   )}
 
-                  {hasPayPalLink && (
+                  {hasCheckoutPrompt && (
                     <div
                       style={{
                         marginTop: 12,
@@ -937,6 +972,40 @@ function ChatView({
                       </button>
                     </div>
                   )}
+
+                  {isOrderSettled && (
+                    <div
+                      style={{
+                        marginTop: 12,
+                        borderTop: "1px solid #dcdfd8",
+                        paddingTop: 10,
+                        display: "flex",
+                        gap: 8,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <button
+                        className="primary-action"
+                        onClick={() => {
+                          if (onOpenOrders) {
+                            onOpenOrders();
+                          } else {
+                            goTo("success");
+                          }
+                        }}
+                        style={{
+                          padding: "8px 14px",
+                          width: "auto",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <Icon name="check" size={14} />
+                        View Order &amp; Receipt
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -955,9 +1024,11 @@ function ChatView({
               </div>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
 
-        <form className="composer" onSubmit={sendMessage}>
+        <div className="composer-wrapper">
+          <form className="composer" onSubmit={sendMessage}>
           {file && (
             <div className="file-chip">
               <Icon name="sparkles" size={12} />
@@ -1015,6 +1086,7 @@ function ChatView({
               : "Buy for me: Penny completes checkout"}
           </p>
         </form>
+      </div>
       </section>
     </main>
   );
@@ -1328,6 +1400,7 @@ export default function App() {
           onCustomize={() => setPreferencesOpen(true)}
           onNotify={notify}
           onOpenDemo={() => setDemoOpen(true)}
+          onOpenOrders={() => setOrdersOpen(true)}
           presetQuery={demoPresetQuery}
           token={token}
           user={user}

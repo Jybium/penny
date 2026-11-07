@@ -185,6 +185,7 @@ export default function PaymentPage({
 
   function handlePayPalClick() {
     sessionStorage.setItem("penny_last_settled_order", JSON.stringify(order));
+    sessionStorage.removeItem("penny_pending_order");
     if (order.orderId) {
       sessionStorage.setItem("penny_last_order_id", order.orderId);
     }
@@ -203,6 +204,7 @@ export default function PaymentPage({
       // User has vault payment token, Penny executes autonomous capture
       await new Promise((res) => setTimeout(res, 1200));
       sessionStorage.setItem("penny_last_settled_order", JSON.stringify(order));
+      sessionStorage.removeItem("penny_pending_order");
       sessionStorage.setItem(
         "penny_last_order_id",
         order.orderId || "AUTONOMOUS-PAYMENT",

@@ -53,6 +53,7 @@ export default function SuccessPage({ token, onNavigate, onOpenOrders }: Props) 
 
   // Fetch real order from backend
   useEffect(() => {
+    sessionStorage.removeItem("penny_pending_order");
     if (!token) return;
     let active = true;
     setLoading(true);
