@@ -565,6 +565,7 @@ function ChatView({
   ]);
   const [sending, setSending] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(Boolean(token));
 
   useEffect(() => {
     if (presetQuery) {
@@ -574,12 +575,16 @@ function ChatView({
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages, sending]);
+  }, [chatMessages, sending, loadingHistory]);
 
   // Fetch persisted messages from GET /messages/own
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      setLoadingHistory(false);
+      return;
+    }
     let active = true;
+    setLoadingHistory(true);
 
     api
       .getMessages(token)
@@ -611,6 +616,9 @@ function ChatView({
       })
       .catch((err) => {
         console.warn("Could not load message history:", err);
+      })
+      .finally(() => {
+        if (active) setLoadingHistory(false);
       });
 
     return () => {
@@ -889,7 +897,9 @@ function ChatView({
             </span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span className="live-dot">Online</span>
+            <span className={sending ? "live-dot live-dot-researching" : "live-dot"}>
+              {sending ? "Penny Researching..." : "Online"}
+            </span>
             {chatMessages.length > 1 && (
               <button
                 className="clear-chat-btn"
@@ -909,6 +919,26 @@ function ChatView({
           <div className="date-divider">
             <span>Today</span>
           </div>
+
+          {loadingHistory && (
+            <div className="chat-skeleton-container" aria-label="Loading messages...">
+              <div className="chat-skeleton-badge">
+                <span className="button-spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} />
+                <span>Syncing conversation history...</span>
+              </div>
+              <div className="chat-skeleton-row">
+                <div className="skeleton-avatar" />
+                <div className="skeleton-bubble skeleton-bubble-agent" style={{ width: "70%", height: 54 }} />
+              </div>
+              <div className="chat-skeleton-row chat-skeleton-user">
+                <div className="skeleton-bubble skeleton-bubble-user" style={{ width: "48%", height: 38 }} />
+              </div>
+              <div className="chat-skeleton-row">
+                <div className="skeleton-avatar" />
+                <div className="skeleton-bubble skeleton-bubble-agent" style={{ width: "82%", height: 68 }} />
+              </div>
+            </div>
+          )}
 
           {chatMessages.length <= 1 && (
             <div className="chat-visual-discovery">
@@ -1115,11 +1145,19 @@ function ChatView({
               <span className="mini-avatar">
                 <Icon name="sparkles" size={13} />
               </span>
-              <div className="message agent-message thinking-message">
-                <span />
-                <span />
-                <span />
-                Penny is researching
+              <div className="message agent-message thinking-card">
+                <div className="thinking-header">
+                  <div className="thinking-dots">
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                  <strong>Penny is researching verified merchants...</strong>
+                </div>
+                <p className="thinking-subtext">
+                  Comparing prices, real-time inventory, and PayPal checkout routes.
+                </p>
+                <div className="thinking-shimmer-bar" />
               </div>
             </div>
           )}
