@@ -1811,16 +1811,11 @@ export default function App() {
       />
 
       <GuardrailModal
+        hasVaultToken={hasVaultToken}
         onClose={() => setPreferencesOpen(false)}
         onSave={(settings) => {
-          setGuardrails(settings);
-          sessionStorage.setItem("penny_mode", settings.mode);
           setPreferencesOpen(false);
-          notify(
-            `${
-              settings.mode === "shop-with-me" ? "Shop with me" : "Buy for me"
-            } mode saved.`,
-          );
+          handleModeChange(settings.mode);
         }}
         open={preferencesOpen}
         settings={guardrails}

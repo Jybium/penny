@@ -58,14 +58,17 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
         if (active) setLoading(false);
       });
 
-    // If user approved on PayPal and returned with ?approved=true
-    const isApprovedParam = searchParams.get("approved") === "true";
-    const savedTokenId = sessionStorage.getItem("penny_vault_setup_token_id");
-    if (isApprovedParam && savedTokenId && !vaultToken) {
-      onNotify(
-        "Detected PayPal approval return. Ready to complete activation.",
-        "info",
-      );
+    // If user approved on PayPal and returned with ?approved=true or approval_token_id
+    const isApprovedParam =
+      searchParams.get("approved") === "true" ||
+      searchParams.get("approval_token_id") !== null;
+    const tokenToExchange =
+      searchParams.get("approval_token_id") ||
+      searchParams.get("token") ||
+      sessionStorage.getItem("penny_vault_setup_token_id");
+
+    if (isApprovedParam && tokenToExchange && !vaultToken) {
+      handleExchangeToken(tokenToExchange);
     }
 
     return () => {
@@ -94,12 +97,8 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
         setSetupTokenId(id);
         sessionStorage.setItem("penny_vault_setup_token_id", id);
 
-        // Open PayPal page for user to approve faster payments
-        window.open(link, "_blank", "noopener,noreferrer");
-        onNotify(
-          "PayPal approval window opened. Once approved, click 'Complete Activation' below.",
-          "info",
-        );
+        // Redirect to PayPal approval page
+        window.location.href = link;
       } else {
         onNotify(
           "Could not retrieve PayPal vault setup link from API.",
@@ -119,8 +118,9 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
   }
 
   // Step 2: Pass setup_token_id to POST /vault/setup-token-exchange in request body
-  async function handleExchangeToken() {
+  async function handleExchangeToken(explicitToken?: string) {
     const tokenToExchange =
+      explicitToken ||
       setupTokenId.trim() ||
       sessionStorage.getItem("penny_vault_setup_token_id");
     if (!tokenToExchange) {
