@@ -8,6 +8,7 @@ from database_config import get_db
 from .enums.gender import Gender
 from .enums.role import Role
 from .models.user_model import User
+from modules.messages.chat_room_service import create_chat_room
 
 
 async def create_user(
@@ -35,6 +36,9 @@ async def create_user(
     )
     db.add(new_user)
     db.commit()
+
+    # creating a chat room for the new user
+    await create_chat_room(user_id=new_user.id, db=db)
     return new_user
   except HTTPException as e:
     logging.error(f"Error creating user: {e}")

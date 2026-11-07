@@ -31,7 +31,11 @@ REMOTE_DB= ( os.environ.get("REMOTE_DATABASE_URL") )
 
 DATABASE_URL = REMOTE_DB if ENVIRONMENT == "production" else LOCAL_DB
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True, # tests each connection before use, reconnects if dead
+    pool_recycle=1800   # replace connections older than 30 minutes
+)
 
 SessionLocal = sessionmaker(
     autocommit=False,

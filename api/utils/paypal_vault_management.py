@@ -14,7 +14,9 @@ load_dotenv(override=True)
 PAYPAL_SANDBOX_CLIENT_ID=os.environ.get("PAYPAL_BUSINESS_SANDBOX_CLIENT_ID")
 PAYPAL_SANDBOX_SECRET=os.environ.get("PAYPAL_BUSINESS_SANDBOX_SECRET_KEY")
 PAYPAL_SANDBOX_API_BASE_URL="https://api-m.sandbox.paypal.com"
-FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:8443").rstrip("/")
+
+frontend_url = os.environ.get('FRONTEND_URL')
+
 
 async def get_access_token():
   try:
@@ -39,9 +41,6 @@ async def generate_paypal_vault_setup_token():
     if not access_token:
       return None
     
-    return_url = os.environ.get("PAYPAL_VAULT_RETURN_URL", f"{FRONTEND_URL}/autonomy?approved=true")
-    cancel_url = os.environ.get("PAYPAL_VAULT_CANCEL_URL", f"{FRONTEND_URL}/autonomy?cancelled=true")
-
     response = requests.post(
       url=f"{PAYPAL_SANDBOX_API_BASE_URL}/v3/vault/setup-tokens",
       headers={
@@ -54,8 +53,8 @@ async def generate_paypal_vault_setup_token():
           "paypal": {
             "usage_type": "MERCHANT",
             "experience_context": {
-              "return_url": return_url,
-              "cancel_url": cancel_url,
+              "return_url": f"{frontend_url}/autonomy?approved=true", # the redirect-url after a customer approves to generate a vault setup token 
+              "cancel_url": f"{frontend_url}/autonomy?cancelled=true", # the redirect-url if a customer denies to generate a vault setup token 
             }
           }
         }

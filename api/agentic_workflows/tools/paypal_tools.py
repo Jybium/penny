@@ -20,7 +20,9 @@ load_dotenv(override=True)
 PAYPAL_SANDBOX_CLIENT_ID=os.environ.get("PAYPAL_BUSINESS_SANDBOX_CLIENT_ID")
 PAYPAL_SANDBOX_SECRET=os.environ.get("PAYPAL_BUSINESS_SANDBOX_SECRET_KEY")
 PAYPAL_SANDBOX_API_BASE_URL="https://api-m.sandbox.paypal.com"
-FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:8443").rstrip("/")
+
+
+frontend_url = os.environ.get('FRONTEND_URL')
 
 
 async def get_access_token():
@@ -45,9 +47,6 @@ async def create_order(amount: float):
     if not access_token:
       return None
     
-    return_url = os.environ.get("PAYPAL_ORDER_RETURN_URL", f"{FRONTEND_URL}/order/success")
-    cancel_url = os.environ.get("PAYPAL_ORDER_CANCEL_URL", f"{FRONTEND_URL}/checkout/cancel")
-
     response = requests.post(
       url=f"{PAYPAL_SANDBOX_API_BASE_URL}/v2/checkout/orders",
       headers={
@@ -70,8 +69,8 @@ async def create_order(amount: float):
         "payment_source": {
           "paypal": {
             "experience_context": {
-              "return_url": return_url,
-              "cancel_url": cancel_url,
+              "return_url": f"{frontend_url}/order/success", # customer will be redirected to this link upon successful payment 
+              "cancel_url": f"{frontend_url}/checkout/cancel", # customer will be redirected to this link upon cancellation of payment 
             }
           }
         },

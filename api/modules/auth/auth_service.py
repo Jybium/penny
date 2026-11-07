@@ -22,7 +22,7 @@ async def register_customer(
     return await user_service.create_user(
       first_name=first_name,
       last_name=last_name,
-      email=email,
+      email=email.lower(),
       password=hashed_password,
       gender=gender,
       db=db,
@@ -38,7 +38,7 @@ async def register_customer(
 
 async def authenticate_user(email: str, password: str, db: Session = Depends(get_db)):
   try:
-    user = await user_service.get_user_by_email(email=email, db=db)
+    user = await user_service.get_user_by_email(email=email.lower(), db=db)
     cipher = CryptContext(schemes="sha256_crypt")
     if not user or not cipher.verify(password, user.password):
       raise HTTPException(

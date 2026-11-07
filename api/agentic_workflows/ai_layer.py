@@ -1,4 +1,7 @@
 import logging
+from modules.messages.chat_message_service import save_message
+from database_config import SessionLocal
+
 
 from .agents.state import state_run
 
@@ -24,6 +27,10 @@ class AI_Layer:
     else:
       # it's a final response.
       last_ai_message_content = state["messages"][-1].content
+
+      # save the last ai message to the database for ui
+      with SessionLocal() as db:
+        await save_message(user_id=user_thread_id, sender="Penny", message=last_ai_message_content, db=db)
       return last_ai_message_content
 
 
