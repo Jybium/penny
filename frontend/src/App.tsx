@@ -1043,10 +1043,16 @@ function ChatView({
               !isOrderSettled &&
               hasCheckoutUrl;
 
+            const hasProducts =
+              !isUser &&
+              /^(?:(\d+)\.|\-|\*)\s+\*\*([^*]+)\*\*/m.test(msg.content);
+
             return (
               <div
                 className={
-                  isUser ? "message user-message" : "agent-message-row"
+                  isUser
+                    ? "message user-message"
+                    : `agent-message-row${hasProducts ? " has-products-row" : ""}`
                 }
                 key={msg.id}
               >
@@ -1060,7 +1066,13 @@ function ChatView({
                   </span>
                 )}
 
-                <div className={isUser ? "" : "message agent-message"}>
+                <div
+                  className={
+                    isUser
+                      ? ""
+                      : `message agent-message${hasProducts ? " has-products-card" : ""}`
+                  }
+                >
                   {msg.imageUrl && (
                     <div
                       style={{
@@ -1437,6 +1449,7 @@ export default function App() {
     () => sessionStorage.getItem("penny_access_token") || "",
   );
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const [hasVaultToken, setHasVaultToken] = useState(false);
   const [guardrails, setGuardrails] = useState<Guardrails>(() => ({
     mode:
       sessionStorage.getItem("penny_mode") === "buy-for-me"
@@ -1459,12 +1472,114 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [pageTitle]);
 
-  // Subscribe to real-time agent SSE stream for live order telemetry
+  // Check backend vault token on auth state change to enforce strict permissions
+  useEffect(() => {
+    if (!token) {
+      setHasVaultToken(false);
+      setGuardrails({ mode: "shop-with-me" });
+      sessionStorage.setItem("penny_mode", "shop-with-me");
+      return;
+    }
+
+    let active = true;
+    api
+      .getVault(token)
+      .then((vault) => {
+        if (!active) return;
+        if (vault) {
+          setHasVaultToken(true);
+          const savedMode = sessionStorage.getItem("penny_mode");
+          const mode = savedMode === "buy-for-me" ? "buy-for-me" : "shop-with-me";
+          setGuardrails({ mode });
+        } else {
+          setHasVaultToken(false);
+          // Without a vault token, strictly enforce Shop with me mode
+          setGuardrails({ mode: "shop-with-me" });
+          sessionStorage.setItem("penny_mode", "shop-with-me");
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setHasVaultToken(false);
+          setGuardrails({ mode: "shop-with-me" });
+          sessionStorage.setItem("penny_mode", "shop-with-me");
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [token]);
+
+  // Handle return redirect from PayPal Vault authorization (e.g. ?approved=true)
   useEffect(() => {
     if (!token) return;
-    const unsubscribe = api.subscribeSSE((data) => {
+
+    const params = new URLSearchParams(window.location.search);
+    const isApproved =
+      params.get("approved") === "true" ||
+      params.get("approval_token_id") !== null;
+
+    const setupTokenId =
+      params.get("approval_token_id") ||
+      params.get("token") ||
+      sessionStorage.getItem("penny_vault_setup_token_id");
+
+    if (isApproved && setupTokenId) {
+      api
+        .exchangeVaultSetupToken(setupTokenId, token)
+        .then(() => {
+          setHasVaultToken(true);
+          setGuardrails({ mode: "buy-for-me" });
+          sessionStorage.setItem("penny_mode", "buy-for-me");
+          sessionStorage.removeItem("penny_vault_setup_token_id");
+          notify(
+            "PayPal Vault authorized! Switched to 'Buy for me' mode.",
+            "success",
+          );
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname,
+          );
+        })
+        .catch((err) => {
+          console.warn("Could not exchange vault setup token on return:", err);
+          notify("Failed to complete PayPal Vault authorization.", "error");
+        });
+    }
+  }, [token]);
+
+  // Subscribe to real-time agent SSE stream for live order & vault telemetry
+  useEffect(() => {
+    if (!token) return;
+    const unsubscribe = api.subscribeSSE(async (data) => {
       if (data.order_id) {
         notify(`Order update: ${data.order_id}`, "info");
+      }
+
+      // Vault setup approval token event from SSE
+      const incomingSetupToken =
+        data.setup_token ||
+        data.vault_setup_token_id ||
+        data.approval_token_id ||
+        (data.event === "vault_approved" &&
+          (data.token || sessionStorage.getItem("penny_vault_setup_token_id")));
+
+      if (incomingSetupToken) {
+        try {
+          await api.exchangeVaultSetupToken(incomingSetupToken, token);
+          setHasVaultToken(true);
+          setGuardrails({ mode: "buy-for-me" });
+          sessionStorage.setItem("penny_mode", "buy-for-me");
+          sessionStorage.removeItem("penny_vault_setup_token_id");
+          notify(
+            "PayPal Vault approved via live stream! 'Buy for me' mode activated.",
+            "success",
+          );
+        } catch (err) {
+          console.warn("Could not exchange vault setup token from SSE:", err);
+        }
       }
     });
     return () => {
@@ -1508,13 +1623,72 @@ export default function App() {
     goTo("landing");
   }
 
-  function handleModeChange(nextMode: "shop-with-me" | "buy-for-me") {
-    setGuardrails({ mode: nextMode });
-    sessionStorage.setItem("penny_mode", nextMode);
-    notify(
-      `${nextMode === "shop-with-me" ? "Shop with me" : "Buy for me"} mode active.`,
-      "info",
-    );
+  async function handleModeChange(nextMode: "shop-with-me" | "buy-for-me") {
+    if (nextMode === "buy-for-me") {
+      // If user already has a valid vault token, simply switch mode
+      if (hasVaultToken) {
+        setGuardrails({ mode: "buy-for-me" });
+        sessionStorage.setItem("penny_mode", "buy-for-me");
+        notify("Buy for me mode active with verified PayPal vault.", "success");
+        return;
+      }
+
+      // No vault token: require authentication first
+      if (!token) {
+        notify(
+          "Please sign in first to authorize PayPal Vault payments.",
+          "error",
+        );
+        openAuth("signin");
+        return;
+      }
+
+      // Trigger PayPal setup token endpoint and redirect
+      try {
+        notify("Initiating PayPal Vault authorization...", "info");
+        const res = await api.createVaultSetupToken(token);
+        const link = res.paypal_response?.payer_vault_setup_approval_link;
+        const setupId = res.paypal_response?.vault_setup_token_id;
+
+        if (!link || !setupId) {
+          throw new Error("Could not retrieve PayPal Vault setup approval link");
+        }
+
+        sessionStorage.setItem("penny_vault_setup_token_id", setupId);
+
+        // Redirect to PayPal approval page
+        window.location.href = link;
+      } catch (err: unknown) {
+        notify(
+          err instanceof Error
+            ? err.message
+            : "Failed to initiate PayPal Vault authorization.",
+          "error",
+        );
+      }
+    } else {
+      // User switches back to "Shop for me" mode -> delete the sensitive vault token from the backend
+      setGuardrails({ mode: "shop-with-me" });
+      sessionStorage.setItem("penny_mode", "shop-with-me");
+      sessionStorage.removeItem("penny_vault_setup_token_id");
+
+      if (token && hasVaultToken) {
+        try {
+          await api.deleteVault(token);
+          setHasVaultToken(false);
+          notify(
+            "PayPal vault token deleted securely. Switched back to Shop for me mode.",
+            "success",
+          );
+        } catch (err) {
+          console.warn("Could not delete vault token:", err);
+          notify("Switched back to Shop for me mode.", "info");
+        }
+      } else {
+        setHasVaultToken(false);
+        notify("Shop with me mode active.", "info");
+      }
+    }
   }
 
   function notify(message: string, tone: ToastItem["tone"] = "success") {

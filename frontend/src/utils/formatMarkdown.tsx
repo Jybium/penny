@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react"
+import { ReactNode, useEffect, useRef, useState } from "react"
 
 export type ParsedProduct = {
   index?: string
@@ -83,6 +83,76 @@ export function ProductCard({ product }: { product: ParsedProduct }) {
 }
 
 /**
+ * Horizontal scrolling carousel for Penny search results with smooth nav arrows
+ */
+export function ProductCarousel({ products }: { products: ParsedProduct[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const updateScrollState = () => {
+    const el = scrollRef.current
+    if (!el) return
+    setCanScrollLeft(el.scrollLeft > 8)
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 8)
+  }
+
+  useEffect(() => {
+    updateScrollState()
+    const el = scrollRef.current
+    if (!el) return
+    el.addEventListener("scroll", updateScrollState, { passive: true })
+    window.addEventListener("resize", updateScrollState)
+    return () => {
+      el.removeEventListener("scroll", updateScrollState)
+      window.removeEventListener("resize", updateScrollState)
+    }
+  }, [products])
+
+  const scroll = (direction: "left" | "right") => {
+    if (!scrollRef.current) return
+    const offset = direction === "left" ? -240 : 240
+    scrollRef.current.scrollBy({ left: offset, behavior: "smooth" })
+  }
+
+  return (
+    <div className="penny-carousel-wrapper">
+      {products.length > 1 && canScrollLeft && (
+        <button
+          aria-label="Previous products"
+          className="penny-carousel-arrow penny-carousel-prev"
+          onClick={() => scroll("left")}
+          type="button"
+        >
+          <svg fill="none" height="14" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" width="14">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+      )}
+
+      <div className="penny-products-container" ref={scrollRef}>
+        {products.map((p, idx) => (
+          <ProductCard key={`${p.title}-${idx}`} product={p} />
+        ))}
+      </div>
+
+      {products.length > 1 && canScrollRight && (
+        <button
+          aria-label="Next products"
+          className="penny-carousel-arrow penny-carousel-next"
+          onClick={() => scroll("right")}
+          type="button"
+        >
+          <svg fill="none" height="14" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" width="14">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+      )}
+    </div>
+  )
+}
+
+/**
  * Formats Markdown text into clean, modern React elements with product cards,
  * tables, lists, and inline media.
  */
@@ -103,11 +173,10 @@ export function formatPennyMessage(text: string): ReactNode {
   function flushProducts() {
     if (pendingProducts.length > 0) {
       elements.push(
-        <div className="penny-products-container" key={`products-${elements.length}`}>
-          {pendingProducts.map((p, idx) => (
-            <ProductCard key={`${p.title}-${idx}`} product={p} />
-          ))}
-        </div>,
+        <ProductCarousel
+          key={`products-${elements.length}`}
+          products={pendingProducts}
+        />,
       )
       pendingProducts = []
     }
