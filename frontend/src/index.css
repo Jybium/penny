@@ -2394,6 +2394,96 @@ button:disabled { cursor: wait; opacity: .72; }
   border-radius: 14px;
 }
 
+.dynamic-success-card.lean-success-card {
+  width: min(480px, 100%) !important;
+  padding: 34px 28px !important;
+  text-align: center !important;
+  margin: 0 auto;
+}
+
+.lean-success-card .result-icon {
+  margin: 0 auto 14px;
+}
+
+.lean-success-card .success-heading {
+  margin: 0 0 8px !important;
+  font-size: 24px !important;
+  letter-spacing: -0.03em !important;
+  text-align: center;
+}
+
+.lean-success-card .result-copy {
+  margin: 0 auto 18px !important;
+  text-align: center;
+  max-width: 380px;
+  color: #617268;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.lean-success-card .dynamic-order-panel {
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  background: #fbfcfb;
+}
+
+.lean-success-card .total-confirm-row {
+  border-top: 1px solid #e5ebe6;
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.order-total-amount {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--penny-green);
+  letter-spacing: -0.02em;
+}
+
+.order-items-compact-list {
+  background: #ffffff;
+  border: 1px solid #e1e7e2;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.order-items-compact-header {
+  display: flex;
+  justify-content: space-between;
+  font: 700 8px "DM Mono", monospace;
+  color: #83948a;
+  letter-spacing: 0.05em;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #edf2ee;
+}
+
+.order-item-compact-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #2e3e34;
+}
+
+.order-item-compact-name {
+  color: #3e5045;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 12px;
+}
+
+.order-item-compact-price {
+  font-weight: 700;
+  color: #172a1f;
+  flex-shrink: 0;
+}
+
 .success-head-badge {
   display: inline-flex;
   align-items: center;

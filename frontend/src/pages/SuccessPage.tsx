@@ -26,7 +26,11 @@ type StoredOrder = {
   mode?: "shop-with-me" | "buy-for-me";
 };
 
-export default function SuccessPage({ token, onNavigate, onOpenOrders }: Props) {
+export default function SuccessPage({
+  token,
+  onNavigate,
+  onOpenOrders,
+}: Props) {
   const [searchParams] = useSearchParams();
   const rawQueryOrderId =
     searchParams.get("order_id") ||
@@ -53,19 +57,24 @@ export default function SuccessPage({ token, onNavigate, onOpenOrders }: Props) 
   const [isCapturing, setIsCapturing] = useState(false);
 
   async function handleContinueWithPenny() {
-    if (!token) {
+    const activeToken =
+      token || sessionStorage.getItem("penny_access_token") || "";
+
+    if (!activeToken) {
       onNavigate("chat");
       return;
     }
 
     setIsCapturing(true);
     try {
-      const response = await api.chat("capture payment for the order", token);
+      const response = await api.chat(
+        "capture payment for the order",
+        activeToken,
+      );
       const pennyText =
         typeof response === "string"
           ? response
-          : response?.penny ||
-            "Your payment has been captured successfully.";
+          : response?.penny || "Your payment has been captured successfully.";
 
       sessionStorage.setItem(
         "penny_pending_chat_injection",
@@ -156,9 +165,7 @@ export default function SuccessPage({ token, onNavigate, onOpenOrders }: Props) 
     "ORD-849201";
 
   const effectiveTotal =
-    activeOrder?.paid_amount ??
-    storedOrder?.totalPrice ??
-    129.0;
+    activeOrder?.paid_amount ?? storedOrder?.totalPrice ?? 129.0;
 
   const isAutonomous =
     activeOrder?.is_autonomous ??
@@ -201,9 +208,7 @@ export default function SuccessPage({ token, onNavigate, onOpenOrders }: Props) 
       return storedOrder.items.map((it, idx) => ({
         id: `stored-${idx}`,
         description:
-          it.product_description ||
-          it.description ||
-          "Curated Penny Selection",
+          it.product_description || it.description || "Curated Penny Selection",
         quantity: it.quantity || 1,
         unitPrice: it.unit_price || it.unitPrice || effectiveTotal,
       }));
@@ -212,8 +217,7 @@ export default function SuccessPage({ token, onNavigate, onOpenOrders }: Props) 
     return [
       {
         id: "default-1",
-        description:
-          "Penny Autonomous Recommendation (Live Merchant Fulfillment)",
+        description: "Penny Autonomous Recommendation",
         quantity: 1,
         unitPrice: effectiveTotal,
       },
@@ -230,8 +234,8 @@ export default function SuccessPage({ token, onNavigate, onOpenOrders }: Props) 
 
   return (
     <main className="result-page page-enter">
-      <div className="result-card dynamic-success-card">
-        {/* Animated Order Icon */}
+      <div className="result-card dynamic-success-card lean-success-card">
+        {/* Order Success Checkmark Icon */}
         <span className="result-icon">
           <svg fill="none" height="28" viewBox="0 0 24 24" width="28">
             <path
@@ -244,18 +248,13 @@ export default function SuccessPage({ token, onNavigate, onOpenOrders }: Props) 
           </svg>
         </span>
 
-        <div className="success-head-badge">
-          <span className="online-beacon" />
-          <span>ORDER CONFIRMED &bull; MERCHANT NOTIFIED</span>
-        </div>
-
         <h1 className="success-heading">Payment approved.</h1>
         <p className="result-copy">
-          Your payment has been successfully authorized and confirmed by Penny.
-          Live merchant specifications have been dispatched for immediate packing and dispatch.
+          Your payment has been authorized with PayPal. Continue with Penny to
+          capture payment and return to chat.
         </p>
 
-        {/* Dynamic Order Meta Panel */}
+        {/* Lean Receipt Summary Box */}
         <div className="order-confirmation dynamic-order-panel">
           <div className="order-confirm-row">
             <span>Order Reference</span>
@@ -272,115 +271,34 @@ export default function SuccessPage({ token, onNavigate, onOpenOrders }: Props) 
             </div>
           </div>
 
-          <div className="order-confirm-row">
-            <span>Placed On</span>
-            <strong>{effectiveDate}</strong>
-          </div>
-
-          <div className="order-confirm-row">
-            <span>Settlement Mode</span>
-            <strong className="order-mode-tag">
-              {isAutonomous
-                ? "Autonomous (PayPal Vault)"
-                : "Manual (PayPal Checkout)"}
+          <div className="order-confirm-row total-confirm-row">
+            <span>Total Settled Amount</span>
+            <strong className="order-total-amount">
+              ${effectiveTotal.toFixed(2)} USD
             </strong>
-          </div>
-
-          <div className="order-confirm-row">
-            <span>Payment Status</span>
-            <strong className="order-status-tag">● CONFIRMED &bull; SETTLED</strong>
           </div>
         </div>
 
-        {/* Dynamic Ordered Items Breakdown */}
-        <div className="order-items-breakdown">
-          <div className="order-items-header">
-            <span>PURCHASED SPECIFICATION ({displayItems.length} ITEM{displayItems.length > 1 ? "S" : ""})</span>
-            <span>LINE TOTAL</span>
-          </div>
-
-          <div className="order-items-list">
+        {/* Compact Items List */}
+        {displayItems.length > 0 && (
+          <div className="order-items-compact-list">
+            <div className="order-items-compact-header">
+              <span>ITEM</span>
+              <span>TOTAL</span>
+            </div>
             {displayItems.map((item) => (
-              <div className="order-item-card" key={item.id}>
-                <div className="order-item-icon-box">
-                  <svg fill="none" height="18" viewBox="0 0 24 24" width="18">
-                    <path
-                      d="M5 8h14l-1 12H6L5 8Z"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="1.8"
-                    />
-                    <path
-                      d="M9 9V6a3 3 0 0 1 6 0v3"
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="1.8"
-                    />
-                  </svg>
-                </div>
-                <div className="order-item-details">
-                  <strong className="order-item-title">
-                    {item.description}
-                  </strong>
-                  <div className="order-item-sub">
-                    <span className="order-qty-pill">Qty: {item.quantity}</span>
-                    <span className="order-unit-price">
-                      ${item.unitPrice.toFixed(2)} each
-                    </span>
-                  </div>
-                </div>
-                <strong className="order-item-total">
+              <div className="order-item-compact-row" key={item.id}>
+                <span className="order-item-compact-name">
+                  {item.quantity > 1 ? `${item.quantity}× ` : ""}
+                  {item.description}
+                </span>
+                <strong className="order-item-compact-price">
                   ${(item.quantity * item.unitPrice).toFixed(2)}
                 </strong>
               </div>
             ))}
           </div>
-
-          {/* Pricing Ledger */}
-          <div className="order-pricing-ledger">
-            <div className="ledger-row">
-              <span>Item Subtotal</span>
-              <span>${effectiveTotal.toFixed(2)}</span>
-            </div>
-            <div className="ledger-row">
-              <span>Agent Handling &amp; Expedited Delivery</span>
-              <span className="free-badge">FREE (Penny Guaranteed)</span>
-            </div>
-            <div className="ledger-row">
-              <span>Sales Tax &amp; Fees</span>
-              <span>$0.00</span>
-            </div>
-            <div className="ledger-row total-row">
-              <strong>Total Settled Amount</strong>
-              <strong>${effectiveTotal.toFixed(2)} USD</strong>
-            </div>
-          </div>
-        </div>
-
-        {/* 4-Step Fulfillment Tracker */}
-        <div aria-label="Fulfillment progress" className="tracking-steps">
-          <div className="done">
-            <span>1</span>
-            <b>Authorized</b>
-          </div>
-          <i />
-          <div className="active">
-            <span>2</span>
-            <b>Processing</b>
-          </div>
-          <i />
-          <div>
-            <span>3</span>
-            <b>Shipped</b>
-          </div>
-          <i />
-          <div>
-            <span>4</span>
-            <b>Delivered</b>
-          </div>
-        </div>
+        )}
 
         {/* Action Group */}
         <div className="success-action-group">
@@ -390,17 +308,23 @@ export default function SuccessPage({ token, onNavigate, onOpenOrders }: Props) 
             onClick={handleContinueWithPenny}
             type="button"
           >
-            {isCapturing ? "Capturing payment with Penny..." : "Continue with Penny"}
-            {!isCapturing && (
-              <svg fill="none" height="16" viewBox="0 0 24 24" width="16">
-                <path
-                  d="M5 12h14M13 6l6 6-6 6"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.8"
-                />
-              </svg>
+            {isCapturing ? (
+              <>
+                <span className="button-spinner" /> Capturing payment with Penny...
+              </>
+            ) : (
+              <>
+                Continue with Penny{" "}
+                <svg fill="none" height="16" viewBox="0 0 24 24" width="16">
+                  <path
+                    d="M5 12h14M13 6l6 6-6 6"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.8"
+                  />
+                </svg>
+              </>
             )}
           </button>
 
@@ -413,24 +337,6 @@ export default function SuccessPage({ token, onNavigate, onOpenOrders }: Props) 
               View in Order History
             </button>
           )}
-
-          <button
-            className="print-receipt-btn"
-            onClick={() => window.print()}
-            type="button"
-          >
-            Print Receipt
-          </button>
-        </div>
-
-        {/* PayPal Non-Custodial Trust Badge */}
-        <div className="result-trust" style={{ justifyContent: "center" }}>
-          <img
-            alt="PayPal"
-            className="success-paypal-img"
-            src={paypalLogo}
-          />
-          <span>Non-custodial purchase secured by Penny AI &amp; PayPal</span>
         </div>
       </div>
     </main>
