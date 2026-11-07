@@ -626,6 +626,48 @@ function ChatView({
     };
   }, [token, user?.id]);
 
+  // Inject any pending interaction (e.g. from Order Success "Continue with Penny" capture)
+  useEffect(() => {
+    if (!loadingHistory) {
+      const raw = sessionStorage.getItem("penny_pending_chat_injection");
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed?.userMessage && parsed?.pennyReply) {
+            setChatMessages((prev) => {
+              if (
+                prev.some(
+                  (m) =>
+                    m.role === "penny" &&
+                    m.content.trim() === parsed.pennyReply.trim(),
+                )
+              ) {
+                return prev;
+              }
+              return [
+                ...prev,
+                {
+                  id: `user-injected-${Date.now()}`,
+                  role: "user",
+                  content: parsed.userMessage,
+                },
+                {
+                  id: `penny-injected-${Date.now() + 1}`,
+                  role: "penny",
+                  content: parsed.pennyReply,
+                },
+              ];
+            });
+          }
+        } catch {
+          // ignore
+        } finally {
+          sessionStorage.removeItem("penny_pending_chat_injection");
+        }
+      }
+    }
+  }, [loadingHistory]);
+
   async function handleClearHistory() {
     if (!token) {
       setChatMessages([
@@ -990,22 +1032,16 @@ function ChatView({
                 contentLower.includes("payment success") ||
                 contentLower.includes("transaction id"));
 
-            // Only show checkout button if it's genuinely a pending checkout and NOT captured
+            // Only show checkout button if it's genuinely a pending checkout, has an explicit checkout URL, and is NOT captured
+            const hasCheckoutUrl =
+              msg.content.includes("sandbox.paypal.com") ||
+              contentLower.includes("paypal.com/checkoutnow") ||
+              contentLower.includes("paypal.com/checkout");
+
             const hasCheckoutPrompt =
               !isUser &&
               !isOrderSettled &&
-              (msg.content.includes("sandbox.paypal.com") ||
-                contentLower.includes("checkoutnow") ||
-                contentLower.includes("payer-action") ||
-                contentLower.includes("proceed to checkout") ||
-                contentLower.includes("approve this order") ||
-                contentLower.includes("complete checkout") ||
-                (contentLower.includes("paypal") &&
-                  (contentLower.includes("approve") ||
-                    contentLower.includes("checkout") ||
-                    contentLower.includes("payment link") ||
-                    contentLower.includes("authorize") ||
-                    contentLower.includes("ready to purchase"))));
+              hasCheckoutUrl;
 
             return (
               <div

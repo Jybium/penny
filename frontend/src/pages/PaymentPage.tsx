@@ -284,7 +284,11 @@ export default function PaymentPage({
           <div className="handoff-card">
             <div className="handoff-route" aria-hidden="true">
               <span className="route-node current">
-                <Icon name="sparkles" size={18} />
+                <img
+                  alt="Penny Logo"
+                  className="penny-logo-mark"
+                  src={pennyLogo}
+                />
               </span>
               <span className="route-line" />
               <span className="route-node paypal-node">
@@ -296,11 +300,7 @@ export default function PaymentPage({
               </span>
               <span className="route-line" />
               <span className="route-node">
-                <img
-                  alt="Penny Logo"
-                  className="penny-logo-mark"
-                  src={pennyLogo}
-                />
+                <Icon name="check" size={18} />
               </span>
             </div>
             <div className="handoff-labels">

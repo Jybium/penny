@@ -50,6 +50,37 @@ export default function SuccessPage({ token, onNavigate, onOpenOrders }: Props) 
 
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+
+  async function handleContinueWithPenny() {
+    if (!token) {
+      onNavigate("chat");
+      return;
+    }
+
+    setIsCapturing(true);
+    try {
+      const response = await api.chat("capture payment for the order", token);
+      const pennyText =
+        typeof response === "string"
+          ? response
+          : response?.penny ||
+            "Your payment has been captured successfully.";
+
+      sessionStorage.setItem(
+        "penny_pending_chat_injection",
+        JSON.stringify({
+          userMessage: "capture payment for the order",
+          pennyReply: pennyText,
+        }),
+      );
+    } catch (err) {
+      console.warn("Could not capture payment via agent:", err);
+    } finally {
+      setIsCapturing(false);
+      onNavigate("chat");
+    }
+  }
 
   // Fetch real order from backend
   useEffect(() => {
@@ -355,19 +386,22 @@ export default function SuccessPage({ token, onNavigate, onOpenOrders }: Props) 
         <div className="success-action-group">
           <button
             className="continue-button primary-btn"
-            onClick={() => onNavigate("chat")}
+            disabled={isCapturing}
+            onClick={handleContinueWithPenny}
             type="button"
           >
-            Start another search with Penny{" "}
-            <svg fill="none" height="16" viewBox="0 0 24 24" width="16">
-              <path
-                d="M5 12h14M13 6l6 6-6 6"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.8"
-              />
-            </svg>
+            {isCapturing ? "Capturing payment with Penny..." : "Continue with Penny"}
+            {!isCapturing && (
+              <svg fill="none" height="16" viewBox="0 0 24 24" width="16">
+                <path
+                  d="M5 12h14M13 6l6 6-6 6"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.8"
+                />
+              </svg>
+            )}
           </button>
 
           {onOpenOrders && (

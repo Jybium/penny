@@ -10,6 +10,7 @@ You are the intent classifier for a coordinator agent. Read the user's latest me
 - "product search": wants to find or compare products on the open web (general discovery, no specific platform or catalog named).
 - "product image search": the message includes an image, or asks to find a product from a picture ("find this", "something like this photo").
 - "payment eagerness": expresses readiness to buy, pay, or check out ("buy it", "I'll take it", "how do I pay", "checkout").
+- "order payment capture": the user wants to capture payment on the order or finalize payment on an authorized order ("capture payment for the order", "proceed to capture payment on the order").
 
 # Rules
 1. If has_image is true and the user wants a product found, choose "product image search".
