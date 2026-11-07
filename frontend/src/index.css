@@ -1679,21 +1679,25 @@ button:disabled { cursor: wait; opacity: .72; }
   width: 100%;
   max-width: 100%;
   margin: 14px 0 16px;
+  overflow: visible;
 }
 
 .penny-products-container {
-  display: flex;
-  flex-direction: row;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
   align-items: stretch;
   gap: 14px;
   max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
+  width: 100%;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
   padding: 6px 6px 14px 2px;
   scrollbar-width: thin;
   scrollbar-color: #cbd5ce #f0f4f1;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
 }
 
 .penny-products-container::-webkit-scrollbar {
@@ -1746,11 +1750,12 @@ button:disabled { cursor: wait; opacity: .72; }
 }
 
 .penny-product-card {
-  display: flex;
-  flex-direction: column;
-  width: 224px;
-  min-width: 224px;
-  max-width: 224px;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 224px !important;
+  min-width: 224px !important;
+  max-width: 224px !important;
+  flex: 0 0 224px !important;
   padding: 12px;
   background: #ffffff;
   border: 1px solid #dbe2dc;
@@ -1758,8 +1763,9 @@ button:disabled { cursor: wait; opacity: .72; }
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.22s ease;
   overflow: hidden;
-  flex-shrink: 0;
+  flex-shrink: 0 !important;
   scroll-snap-align: start;
+  box-sizing: border-box;
   animation: cardFadePop 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .penny-product-card:nth-child(1) { animation-delay: 0.04s; }

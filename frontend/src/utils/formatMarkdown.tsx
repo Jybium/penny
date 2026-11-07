@@ -168,9 +168,18 @@ export function formatPennyMessage(text: string): ReactNode {
   let inBulletList = false
   let bulletItems: ReactNode[] = []
 
+  let currentProduct: ParsedProduct | null = null
   let pendingProducts: ParsedProduct[] = []
 
+  function commitCurrentProduct() {
+    if (currentProduct) {
+      pendingProducts.push(currentProduct)
+      currentProduct = null
+    }
+  }
+
   function flushProducts() {
+    commitCurrentProduct()
     if (pendingProducts.length > 0) {
       elements.push(
         <ProductCarousel
@@ -261,6 +270,58 @@ export function formatPennyMessage(text: string): ReactNode {
     }
   }
 
+  function extractProductMetadata(text: string, product: ParsedProduct) {
+    // 1. Image
+    const imgMatch = text.match(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/)
+    if (imgMatch) {
+      if (!product.imageUrl) {
+        product.imageAlt = imgMatch[1]
+        product.imageUrl = imgMatch[2]
+      }
+      text = text.replace(imgMatch[0], "").trim()
+    }
+
+    // 2. Price
+    const priceMatch = text.match(/(\$[\d,]+(?:\.\d{2})?)/)
+    if (priceMatch && !product.price) {
+      product.price = priceMatch[1]
+    }
+
+    // 3. In stock
+    if (/\b(instock|in\s+stock)\b/i.test(text)) {
+      product.inStock = true
+    }
+
+    // 4. Rating
+    const ratingMatch = text.match(/(?:rated\s+|★\s*|\b)([\d.]+(?:\s*(?:from|out of|\/)\s*[\w\d\s]+)?(?:\s*★|\s*stars)?)/i)
+    if (ratingMatch && !product.rating && (text.includes("★") || text.toLowerCase().includes("rated") || text.toLowerCase().includes("star"))) {
+      product.rating = ratingMatch[1].trim()
+    }
+
+    // 5. Retailer
+    const retailerMatch = text.match(/(?:at|available at|store:?|from:?)\s+([A-Z0-9][\w\s&'.]{1,30}?)(?=\s*\([iI]n\s*[sS]tock|\s*;|\s*$|\s*rated|\s*—|\s*–)/i)
+    if (retailerMatch && !product.retailer) {
+      product.retailer = retailerMatch[1].trim().replace(/\.$/, "")
+    }
+
+    // 6. Remaining descriptive text
+    let extra = text
+      .replace(/^[-*•]\s*/, "")
+      .replace(/^(?:price|store|retailer|rating|features?|details?):\s*/i, "")
+      .replace(/^[—–-]\s*/, "")
+      .trim()
+
+    if (product.price) extra = extra.replace(product.price, "").trim()
+    if (product.retailer) {
+      extra = extra.replace(new RegExp(`(?:at|available at|store:?|from:?)\\s+${product.retailer.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"), "").trim()
+    }
+    extra = extra.replace(/\(?in\s*stock\)?/gi, "").replace(/;?\s*rated[^;.]*[;.]?/gi, "").replace(/^[,\s;—–-]+|[,\s;—–-]+$/g, "").trim()
+
+    if (extra.length > 2) {
+      product.extra = product.extra ? `${product.extra} • ${extra}` : extra
+    }
+  }
+
   for (let i = 0; i < rawLines.length; i++) {
     const line = rawLines[i]
     const trimmed = line.trim()
@@ -277,81 +338,65 @@ export function formatPennyMessage(text: string): ReactNode {
       flushTable()
     }
 
-    // 2. Product Detection: Numbered (1. **...**) or Bullet (- **...**)
-    const productMatch = trimmed.match(/^(?:(\d+)\.|\-|\*)\s+\*\*([^*]+)\*\*(.*)$/)
-    if (productMatch) {
+    // 2. Product Header Detection
+    // Matches numbered or bulleted bold titles: 1. **Sony** ... or - **Bose** ... or 1. Sony ($349 at Amazon)
+    const productHeaderMatch =
+      trimmed.match(/^(?:(\d+)[\.\)]|\-|\*)\s+\*\*([^*]+)\*\*(.*)$/) ||
+      trimmed.match(/^(\d+)[\.\)]\s+([A-Z0-9][\w\s\-\.\'\&]{3,60}?)(?:\s*[-–—:]\s*|\s+)(\$[\d,]+.*)$/)
+
+    if (productHeaderMatch) {
       flushList()
-      const index = productMatch[1]
-      const title = productMatch[2].trim()
-      let details = productMatch[3].trim()
+      commitCurrentProduct() // push previous product to pendingProducts
 
-      // Lookahead for image markdown on same line, or next lines
-      let imageUrl: string | undefined
-      let imageAlt: string | undefined
+      const index = productHeaderMatch[1] || `${pendingProducts.length + 1}`
+      const title = productHeaderMatch[2].trim()
+      const remaining = (productHeaderMatch[3] || "").trim()
 
-      const inlineImg = details.match(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/)
-      if (inlineImg) {
-        imageAlt = inlineImg[1]
-        imageUrl = inlineImg[2]
-        details = details.replace(inlineImg[0], "").trim()
-      } else {
-        // Look ahead in subsequent lines for the image
-        let nextIdx = i + 1
-        while (nextIdx < rawLines.length && !rawLines[nextIdx].trim()) {
-          nextIdx++
-        }
-        if (nextIdx < rawLines.length) {
-          const nextTrimmed = rawLines[nextIdx].trim()
-          const nextImg = nextTrimmed.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)$/)
-          if (nextImg) {
-            imageAlt = nextImg[1]
-            imageUrl = nextImg[2]
-            i = nextIdx // consume the image line
-          }
-        }
-      }
-
-      // Parse metadata from details:
-      // Price
-      const priceMatch = details.match(/(\$[\d,]+(?:\.\d{2})?)/)
-      const price = priceMatch ? priceMatch[1] : undefined
-
-      // InStock
-      const inStock = /\b(instock|in\s+stock)\b/i.test(details)
-
-      // Rating
-      const ratingMatch = details.match(/rated\s+([\d.]+(?:\s*(?:from|out of|\/)\s*[\w\d\s]+)?)/i)
-      const rating = ratingMatch ? ratingMatch[1].trim() : undefined
-
-      // Retailer
-      const retailerMatch = details.match(/(?:at|available at)\s+([^()]+?)(?=\s*\([iI]n\s*[sS]tock|\s*;|\s*$|\s*rated)/i)
-      const retailer = retailerMatch ? retailerMatch[1].trim().replace(/\.$/, "") : undefined
-
-      // Extra description / notes
-      let extra = details
-        .replace(/^—\s*/, "")
-        .replace(/^[–-]\s*/, "")
-        .trim()
-
-      if (price) extra = extra.replace(price, "").trim()
-      if (retailer) extra = extra.replace(new RegExp(`(?:at|available at)\\s+${retailer.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"), "").trim()
-      extra = extra.replace(/\(?in\s*stock\)?/gi, "").replace(/;?\s*rated[^;.]*[;.]?/gi, "").replace(/^[,\s;—–-]+|[,\s;—–-]+$/g, "").trim()
-
-      pendingProducts.push({
+      const newProduct: ParsedProduct = {
         index,
         title,
-        price,
-        retailer,
-        inStock,
-        rating,
-        extra: extra.length > 2 ? extra : undefined,
-        imageUrl,
-        imageAlt,
-      })
+      }
+      extractProductMetadata(remaining, newProduct)
+      currentProduct = newProduct
       continue
     }
 
-    // 3. Standalone Image Detection: ![alt](url)
+    // 3. If currently accumulating a product, check continuation lines
+    if (currentProduct) {
+      // Empty line between product content or between products -> keep in product mode!
+      if (!trimmed) {
+        continue
+      }
+
+      // Standalone image for the current product
+      const standaloneImg = trimmed.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)$/)
+      if (standaloneImg) {
+        if (!currentProduct.imageUrl) {
+          currentProduct.imageAlt = standaloneImg[1]
+          currentProduct.imageUrl = standaloneImg[2]
+          continue
+        }
+      }
+
+      // Check if this line is an exit line from the product list:
+      // Headings, tables, or conclusive prompts
+      const isExitLine =
+        /^#{1,6}\s+/.test(trimmed) ||
+        /^[-*_]{3,}$/.test(trimmed) ||
+        /^(?:which\s+(?:one|of\s+these)|would\s+you\s+like|let\s+me\s+know|shall\s+i|to\s+proceed|to\s+purchase|you\s+can\s+approve|click\s+below|here\s+is\s+the\s+link)/i.test(trimmed)
+
+      if (isExitLine) {
+        commitCurrentProduct()
+        flushProducts()
+        // and fall through to render heading/paragraph
+      } else {
+        // Line is part of the current product! (Description, bullet attribute, price, etc.)
+        extractProductMetadata(trimmed, currentProduct)
+        continue
+      }
+    }
+
+    // 4. Standalone Image (when not in a product)
     const standaloneImg = trimmed.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)$/)
     if (standaloneImg) {
       flushProducts()
@@ -371,10 +416,15 @@ export function formatPennyMessage(text: string): ReactNode {
       continue
     }
 
-    // If we have pending products and this line is NOT a product, flush the products grid
+    // If we have pending products and reached non-product lines, flush
     flushProducts()
 
-    // 4. Bullet list detection
+    // 5. Empty line
+    if (!trimmed) {
+      continue
+    }
+
+    // 6. Bullet list
     if (/^[-*•]\s+/.test(trimmed)) {
       inBulletList = true
       const content = trimmed.replace(/^[-*•]\s+/, "")
@@ -388,7 +438,7 @@ export function formatPennyMessage(text: string): ReactNode {
       flushList()
     }
 
-    // 5. Headings
+    // 7. Headings
     if (/^###\s+/.test(trimmed)) {
       elements.push(
         <h4
@@ -412,7 +462,7 @@ export function formatPennyMessage(text: string): ReactNode {
       continue
     }
 
-    // 6. Horizontal rule
+    // 8. Horizontal rule
     if (/^[-*_]{3,}$/.test(trimmed)) {
       elements.push(
         <hr
@@ -427,12 +477,7 @@ export function formatPennyMessage(text: string): ReactNode {
       continue
     }
 
-    // 7. Empty line
-    if (!trimmed) {
-      continue
-    }
-
-    // 8. Standard paragraph
+    // 9. Standard paragraph
     elements.push(
       <p key={`p-${i}`} style={{ margin: "6px 0", lineHeight: 1.55 }}>
         {renderInline(trimmed)}
