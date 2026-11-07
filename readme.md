@@ -1,8 +1,6 @@
 ## Penny
  
-Penny is an AI shopping agent. You tell her what you want, with text or a photo, and she searches real products, shows you options, and helps you pay through PayPal.
- 
-Most people don't trust an AI with their wallet. Penny solves that by letting you choose how much she does. She can stop at the research and let you pay yourself, or she can complete the purchase for you once you've set that up.
+Not everyone wants an AI holding their wallet. Penny finds products from text or photos. You pay on PayPal yourself, or let her check out with a payment method you can revoke anytime.
 
 ## Penny modes
  
