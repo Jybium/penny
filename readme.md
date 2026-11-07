@@ -107,6 +107,7 @@ After items are aggregated, the **auto payment decision** step checks whether th
 ```bash
 git clone https://github.com/Princeigwe/penny
 cd penny
+cd api
  
 python -m venv env
 source env/bin/activate
