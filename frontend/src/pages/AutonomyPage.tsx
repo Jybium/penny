@@ -401,7 +401,11 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                     fontWeight: "bold",
                   }}
                 >
-                  P
+                  <img
+                    src={paypalLogo}
+                    alt="PayPal"
+                    className="paypal-btn-img"
+                  />
                 </span>
                 <div>
                   <h3 style={{ margin: 0, fontSize: 16 }}>

@@ -123,38 +123,36 @@ export default function PaymentPage({
   const [checkingVault, setCheckingVault] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Fallback order state from sessionStorage if not directly passed
-  const order: PendingOrder =
-    pendingOrder ||
-    (() => {
-      const saved = sessionStorage.getItem("penny_pending_order");
-      if (saved) {
-        try {
-          return JSON.parse(saved) as PendingOrder;
-        } catch {
-          // ignore
-        }
+  // Fallback order state from sessionStorage or API
+  const [order, setOrder] = useState<PendingOrder>(() => {
+    if (pendingOrder) return pendingOrder;
+    const saved = sessionStorage.getItem("penny_pending_order");
+    if (saved) {
+      try {
+        return JSON.parse(saved) as PendingOrder;
+      } catch {
+        // ignore
       }
-      return {
-        orderId: "ORD-" + Math.floor(100000 + Math.random() * 900000),
-        paypalApprovalUrl:
-          "https://www.sandbox.paypal.com/checkoutnow?token=EC-SIMULATED",
-        totalPrice: 129.0,
-        currency: "USD",
-        items: [
-          {
-            description:
-              "Smart Noise-Cancelling Headphones (Penny Recommendation)",
-            quantity: 1,
-            unitPrice: 129.0,
-          },
-        ],
-        mode:
-          (sessionStorage.getItem("penny_mode") as
-            | "shop-with-me"
-            | "buy-for-me") || "shop-with-me",
-      };
-    })();
+    }
+    return {
+      orderId: "ORD-" + Math.floor(100000 + Math.random() * 900000),
+      paypalApprovalUrl:
+        "https://www.sandbox.paypal.com/checkoutnow?token=EC-SIMULATED",
+      totalPrice: 0.0,
+      currency: "USD",
+      items: [
+        {
+          description: "Penny Curated Item",
+          quantity: 1,
+          unitPrice: 0.0,
+        },
+      ],
+      mode:
+        (sessionStorage.getItem("penny_mode") as
+          | "shop-with-me"
+          | "buy-for-me") || "shop-with-me",
+    };
+  });
 
   useEffect(() => {
     if (!token) return;
@@ -169,6 +167,43 @@ export default function PaymentPage({
       .finally(() => {
         if (active) setCheckingVault(false);
       });
+
+    // Try to hydrate with the user's latest real order if available and current order is dummy
+    api
+      .getOrders(token)
+      .then((orders) => {
+        if (!active || !orders || orders.length === 0) return;
+        const latest = orders[0];
+        if (latest && latest.paid_amount > 0) {
+          setOrder((prev) => {
+            if (prev.totalPrice === 0 || prev.totalPrice === 129) {
+              return {
+                orderId: latest.paypal_order_id || latest.id,
+                paypalApprovalUrl: prev.paypalApprovalUrl,
+                totalPrice: latest.paid_amount,
+                currency: "USD",
+                items:
+                  latest.order_items && latest.order_items.length > 0
+                    ? latest.order_items.map((it) => ({
+                        description: it.product_description,
+                        quantity: it.quantity,
+                        unitPrice: it.unit_price,
+                      }))
+                    : [
+                        {
+                          description: "Penny Verified Order",
+                          quantity: 1,
+                          unitPrice: latest.paid_amount,
+                        },
+                      ],
+                mode: latest.is_autonomous ? "buy-for-me" : "shop-with-me",
+              };
+            }
+            return prev;
+          });
+        }
+      })
+      .catch(() => undefined);
 
     // Subscribe to SSE stream for order updates
     const unsubscribe = api.subscribeSSE((data) => {

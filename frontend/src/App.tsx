@@ -421,6 +421,113 @@ function Header({
   );
 }
 
+function parsePendingOrderFromReply(
+  reply: string,
+  approvalUrl: string,
+  mode: "shop-with-me" | "buy-for-me",
+) {
+  // 1. Try to extract total price from message
+  let parsedTotal: number | null = null;
+  const totalMatch =
+    reply.match(
+      /(?:total(?:\s+price)?|amount|subtotal)[:\s]*\$?\s*([0-9]+(?:\.[0-9]{1,2})?)/i,
+    ) ||
+    reply.match(/(?:price)[:\s]*\$?\s*([0-9]+(?:\.[0-9]{1,2})?)/i) ||
+    reply.match(/\$\s*([0-9]+(?:\.[0-9]{1,2})?)/i);
+
+  if (totalMatch) {
+    const val = parseFloat(totalMatch[1]);
+    if (!isNaN(val) && val > 0) {
+      parsedTotal = val;
+    }
+  }
+
+  // 2. Try to extract line items from bullet points
+  const items: Array<{ description: string; quantity: number; unitPrice: number }> = [];
+  const lines = reply.split("\n");
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("-") || trimmed.startsWith("*")) {
+      if (
+        !trimmed.toLowerCase().includes("http") &&
+        !trimmed.toLowerCase().includes("paypal") &&
+        !trimmed.toLowerCase().includes("status:")
+      ) {
+        const descMatch =
+          trimmed.match(/(?:description|item)[:\s]*([^,\n]+)/i) ||
+          trimmed.match(/^[-*]\s*(\*\*)?([^*\n,]+)/);
+        const qtyMatch = trimmed.match(/quantity[:\s]*(\d+)/i);
+        const priceMatch =
+          trimmed.match(
+            /(?:unit\s*price|price)[:\s]*\$?\s*([0-9]+(?:\.[0-9]{1,2})?)/i,
+          ) || trimmed.match(/\$\s*([0-9]+(?:\.[0-9]{1,2})?)/);
+
+        if (descMatch) {
+          const desc = descMatch[1]
+            ? descMatch[1].replace(/^\*+|\*+$/g, "").trim()
+            : "";
+          if (
+            desc &&
+            !desc.toLowerCase().startsWith("total") &&
+            !desc.toLowerCase().startsWith("order summary") &&
+            desc.length > 2
+          ) {
+            const qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
+            const price = priceMatch
+              ? parseFloat(priceMatch[1])
+              : (parsedTotal || 0);
+            items.push({
+              description: desc,
+              quantity: isNaN(qty) ? 1 : qty,
+              unitPrice: isNaN(price) ? (parsedTotal || 0) : price,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  // Fallback if no items extracted: look for bolded product titles or product mentions
+  if (items.length === 0) {
+    const boldMatches = [...reply.matchAll(/\*\*([^*]+)\*\*/g)];
+    const candidate = boldMatches.find(
+      (m) =>
+        !m[1].toLowerCase().includes("total") &&
+        !m[1].toLowerCase().includes("order") &&
+        !m[1].toLowerCase().includes("summary") &&
+        !m[1].toLowerCase().includes("paypal") &&
+        m[1].trim().length > 2,
+    );
+    const title = candidate ? candidate[1].trim() : "Penny Verified Item";
+    items.push({
+      description: title,
+      quantity: 1,
+      unitPrice: parsedTotal || 0,
+    });
+  }
+
+  const finalTotal =
+    parsedTotal ??
+    (items.reduce((sum, it) => sum + it.unitPrice * it.quantity, 0) || 0);
+
+  const tokenMatch = approvalUrl.match(/token=([a-zA-Z0-9_-]+)/);
+  const orderId = tokenMatch
+    ? `PAYPAL-${tokenMatch[1].slice(-8).toUpperCase()}`
+    : `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
+
+  return {
+    orderId,
+    paypalApprovalUrl: approvalUrl,
+    totalPrice: finalTotal,
+    currency: "USD",
+    items: items.map((it) => ({
+      ...it,
+      unitPrice: it.unitPrice || finalTotal,
+    })),
+    mode,
+  };
+}
+
 function ChatView({
   goTo,
   guardrails,
@@ -692,22 +799,14 @@ function ChatView({
         /https?:\/\/[^\s)]*sandbox\.paypal\.com[^\s)]*/i,
       );
       if (paypalMatch) {
-        const pending = {
-          paypalApprovalUrl: paypalMatch[0],
-          totalPrice: 129.0,
-          currency: "USD",
-          items: [
-            {
-              description: "Penny Curated Order",
-              quantity: 1,
-              unitPrice: 129.0,
-            },
-          ],
-          mode: guardrails.mode,
-        };
+        const pending = parsePendingOrderFromReply(
+          pennyText,
+          paypalMatch[0],
+          guardrails.mode,
+        );
         sessionStorage.setItem("penny_pending_order", JSON.stringify(pending));
         onNotify(
-          "PayPal order generated! You can now proceed to checkout.",
+          `PayPal order prepared ($${pending.totalPrice.toFixed(2)})! You can now proceed to checkout.`,
           "info",
         );
       }
@@ -1093,6 +1192,26 @@ function ChatView({
 }
 
 function ReviewView({ goTo }: { goTo: (view: View) => void }) {
+  const pendingOrder = (() => {
+    try {
+      const saved = sessionStorage.getItem("penny_pending_order");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const itemTitle =
+    pendingOrder?.items?.[0]?.description ||
+    "Smart Noise-Cancelling Headphones (Penny Recommendation)";
+  const displayTotal =
+    pendingOrder?.totalPrice !== undefined && pendingOrder.totalPrice > 0
+      ? `$${pendingOrder.totalPrice.toFixed(2)} USD`
+      : "$129.00 USD";
+  const displaySubtotal =
+    pendingOrder?.totalPrice !== undefined && pendingOrder.totalPrice > 0
+      ? `$${pendingOrder.totalPrice.toFixed(2)}`
+      : "$129.00";
   return (
     <main className="review-page page-enter">
       <button className="back-button" onClick={() => goTo("chat")}>
@@ -1137,8 +1256,8 @@ function ReviewView({ goTo }: { goTo: (view: View) => void }) {
               </div>
             </div>
             <div className="decision-info">
-              <span className="brand-name">AUDIO PRO</span>
-              <h2>Noise-Cancelling Over-Ear Headphones</h2>
+              <span className="brand-name">PENNY VERIFIED</span>
+              <h2>{itemTitle}</h2>
               <p className="product-meta">
                 Model NC-800 &bull; 40hr Battery &bull; Multipoint Bluetooth
               </p>
@@ -1168,7 +1287,7 @@ function ReviewView({ goTo }: { goTo: (view: View) => void }) {
                   />
                   Verified PayPal Sandbox Merchant
                 </span>
-                <strong>$129.00 USD</strong>
+                <strong>{displayTotal}</strong>
               </div>
             </div>
           </article>
@@ -1179,7 +1298,7 @@ function ReviewView({ goTo }: { goTo: (view: View) => void }) {
           <div className="summary-lines">
             <div>
               <span>Subtotal</span>
-              <strong>$129.00</strong>
+              <strong>{displaySubtotal}</strong>
             </div>
             <div>
               <span>Estimated Shipping</span>
@@ -1191,7 +1310,7 @@ function ReviewView({ goTo }: { goTo: (view: View) => void }) {
             </div>
             <div className="summary-total">
               <strong>Total</strong>
-              <strong>$129.00 USD</strong>
+              <strong>{displayTotal}</strong>
             </div>
           </div>
 
