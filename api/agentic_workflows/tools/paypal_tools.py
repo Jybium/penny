@@ -47,9 +47,6 @@ async def create_order(amount: float):
     if not access_token:
       return None
     
-    return_url = os.environ.get("PAYPAL_ORDER_RETURN_URL", f"{FRONTEND_URL}/order/success")
-    cancel_url = os.environ.get("PAYPAL_ORDER_CANCEL_URL", f"{FRONTEND_URL}/checkout/cancel")
-
     response = requests.post(
       url=f"{PAYPAL_SANDBOX_API_BASE_URL}/v2/checkout/orders",
       headers={
