@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, ApiOrder, VaultTokenResponse } from "../api";
-import { paypalLogo } from "../assets";
+import { pennyLogo, paypalLogo } from "../assets";
 
 type IconName =
   | "arrow"
@@ -288,11 +288,19 @@ export default function PaymentPage({
               </span>
               <span className="route-line" />
               <span className="route-node paypal-node">
-                <img src={paypalLogo} alt="PayPal" className="route-paypal-img" />
+                <img
+                  src={paypalLogo}
+                  alt="PayPal"
+                  className="route-paypal-img"
+                />
               </span>
               <span className="route-line" />
               <span className="route-node">
-                <Icon name="check" size={18} />
+                <img
+                  alt="Penny Logo"
+                  className="penny-logo-mark"
+                  src={pennyLogo}
+                />
               </span>
             </div>
             <div className="handoff-labels">
@@ -334,7 +342,11 @@ export default function PaymentPage({
                     disabled={isProcessing}
                     onClick={handleAutonomousSettlement}
                   >
-                    <img src={paypalLogo} alt="PayPal" className="paypal-btn-img" />
+                    <img
+                      src={paypalLogo}
+                      alt="PayPal"
+                      className="paypal-btn-img"
+                    />
                     <span>
                       {isProcessing
                         ? "Settling order autonomously..."
@@ -374,7 +386,11 @@ export default function PaymentPage({
             ) : (
               <>
                 <button className="paypal-button" onClick={handlePayPalClick}>
-                  <img src={paypalLogo} alt="PayPal" className="paypal-btn-img" />
+                  <img
+                    src={paypalLogo}
+                    alt="PayPal"
+                    className="paypal-btn-img"
+                  />
                   <span>
                     Pay with PayPal Sandbox (${order.totalPrice.toFixed(2)})
                   </span>

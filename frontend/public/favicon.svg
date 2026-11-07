@@ -1,5 +1,11 @@
-<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="32" height="32" rx="9" fill="#154d36"/>
-  <path d="M16 5L18.6 13.4L27 16L18.6 18.6L16 27L13.4 18.6L5 16L13.4 13.4L16 5Z" fill="#F4C453"/>
-  <path d="M23 6L24.2 9.8L28 11L24.2 12.2L23 16L21.8 12.2L18 11L21.8 9.8L23 6Z" fill="#F4C453" opacity="0.85"/>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="circleClip">
+      <circle cx="32" cy="32" r="32"/>
+    </clipPath>
+  </defs>
+  <circle cx="32" cy="32" r="32" fill="#154d36"/>
+  <g clip-path="url(#circleClip)">
+    <image href="https://files.catbox.moe/qynojd.png" x="4" y="4" width="56" height="56" preserveAspectRatio="xMidYMid meet"/>
+  </g>
 </svg>
