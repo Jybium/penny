@@ -298,13 +298,21 @@ export function formatPennyMessage(text: string): ReactNode {
       product.rating = ratingMatch[1].trim()
     }
 
-    // 5. Retailer
-    const retailerMatch = text.match(/(?:at|available at|store:?|from:?)\s+([A-Z0-9][\w\s&'.]{1,30}?)(?=\s*\([iI]n\s*[sS]tock|\s*;|\s*$|\s*rated|\s*—|\s*–)/i)
+    // 5. Retailer (e.g. at snipesusa.com, jdsports.com or from fleetfeet.com)
+    const retailerMatch = text.match(/(?:at|available at|store:?|from:?)\s+([A-Z0-9][\w\s&'.-]{1,35}?)(?=\s*,|\s+and\b|\s*\([iI]n\s*[sS]tock|\s*;|\s*$|\s*rated|\s*—|\s*–)/i)
     if (retailerMatch && !product.retailer) {
       product.retailer = retailerMatch[1].trim().replace(/\.$/, "")
     }
 
-    // 6. Remaining descriptive text
+    // 6. Brand (e.g. (Nike) or (New Balance))
+    const brandMatch = text.match(/^\s*\(([^)]+)\)/)
+    let brand = ""
+    if (brandMatch) {
+      brand = brandMatch[1].trim()
+      text = text.replace(brandMatch[0], "").trim()
+    }
+
+    // 7. Remaining descriptive text
     let extra = text
       .replace(/^[-*•]\s*/, "")
       .replace(/^(?:price|store|retailer|rating|features?|details?):\s*/i, "")
@@ -317,14 +325,98 @@ export function formatPennyMessage(text: string): ReactNode {
     }
     extra = extra.replace(/\(?in\s*stock\)?/gi, "").replace(/;?\s*rated[^;.]*[;.]?/gi, "").replace(/^[,\s;—–-]+|[,\s;—–-]+$/g, "").trim()
 
+    if (brand) {
+      extra = extra ? `${brand} • ${extra}` : brand
+    }
+
     if (extra.length > 2) {
       product.extra = product.extra ? `${product.extra} • ${extra}` : extra
     }
   }
 
+  function parseProductHeader(trimmed: string, nextLine?: string): { index?: string; title: string; remaining: string } | null {
+    if (
+      trimmed.startsWith("#") ||
+      trimmed.startsWith(">") ||
+      trimmed.startsWith("|") ||
+      trimmed.startsWith("```") ||
+      /^[-*_]{3,}$/.test(trimmed)
+    ) {
+      return null
+    }
+
+    // Pattern A: Bold title (with optional leading number or bullet)
+    // e.g. "1. **Nike Vomero** (Nike) — $240.00 at ..." or "**Nike Vomero** - $240"
+    const boldMatch = trimmed.match(/^(?:(?:(\d+)[\.\)]|[-*•])\s+)?\*\*([^*]+)\*\*(.*)$/)
+    if (boldMatch) {
+      const rawIndex = boldMatch[1]
+      const rawTitle = boldMatch[2].trim()
+      const remaining = (boldMatch[3] || "").trim()
+
+      const isKeyword = /^(?:note|summary|details|features|disclaimer|important|warning|recommendation|tips?):?$/i.test(rawTitle)
+      if (!isKeyword) {
+        const hasPrice = /\$[\d,]+/.test(remaining)
+        const hasStore = /(?:at|from|store|retailer)\s+[A-Za-z0-9]/i.test(remaining)
+        const nextIsImage = nextLine && /^!\[[^\]]*\]\(https?:\/\/[^\s)]+\)/.test(nextLine.trim())
+        if (rawIndex || hasPrice || hasStore || nextIsImage || remaining.includes("—") || remaining.includes("–") || remaining.includes("- $")) {
+          return { index: rawIndex, title: rawTitle, remaining }
+        }
+      }
+    }
+
+    // Pattern B: Plain or unbolded title with brand and price separator
+    // e.g. "Nike Vomero Premium NYC Marathon 2026 (Nike) — $240.00 at snipesusa.com..."
+    // or "FuelCell Supercomp Elite v3 (New Balance) — $245.00 at fleetfeet.com..."
+    const unboldMatch = trimmed.match(
+      /^(?:(?:(\d+)[\.\)]|[-*•])\s+)?([A-Z0-9][\w\s\-\.\'\&]{2,70}?)(?:\s*\(([^)]+)\))?\s*(?:[-–—:]\s*|\s+)(\$[\d,]+(?:\.\d{2})?.*)$/,
+    )
+    if (unboldMatch) {
+      const rawIndex = unboldMatch[1]
+      const rawTitle = unboldMatch[2].trim()
+      const brand = unboldMatch[3] ? unboldMatch[3].trim() : ""
+      const remainingWithPrice = (unboldMatch[4] || "").trim()
+      const remaining = brand ? `(${brand}) ${remainingWithPrice}` : remainingWithPrice
+
+      return { index: rawIndex, title: rawTitle, remaining }
+    }
+
+    // Pattern C: Title followed by price in parentheses
+    // e.g. "Sony WH-1000XM5 ($349 at Amazon)" or "1. Nike Pegasus ($130)"
+    const parenPriceMatch = trimmed.match(
+      /^(?:(?:(\d+)[\.\)]|[-*•])\s+)?([A-Z0-9][\w\s\-\.\'\&]{2,70}?)\s*\(\s*(\$[\d,]+(?:[^\)]*))\)(.*)$/,
+    )
+    if (parenPriceMatch) {
+      const rawIndex = parenPriceMatch[1]
+      const rawTitle = parenPriceMatch[2].trim()
+      const pricePart = parenPriceMatch[3].trim()
+      const extraPart = (parenPriceMatch[4] || "").trim()
+      return { index: rawIndex, title: rawTitle, remaining: `${pricePart} ${extraPart}`.trim() }
+    }
+
+    // Pattern D: Line has price ($XX) and next line is an image, starting with capital letter
+    if (nextLine && /^!\[[^\]]*\]\(https?:\/\/[^\s)]+\)/.test(nextLine.trim())) {
+      const dollarIdx = trimmed.indexOf("$")
+      if (dollarIdx > 3 && !trimmed.startsWith("http")) {
+        const beforeDollar = trimmed.slice(0, dollarIdx).replace(/[-–—:]\s*$/, "").trim()
+        const afterDollar = trimmed.slice(dollarIdx).trim()
+        const titleMatch = beforeDollar.match(/^(?:(?:(\d+)[\.\)]|[-*•])\s+)?(.+)$/)
+        if (titleMatch && titleMatch[2].length >= 3 && titleMatch[2].length <= 80) {
+          return {
+            index: titleMatch[1],
+            title: titleMatch[2].replace(/\*\*([^*]+)\*\*/g, "$1").trim(),
+            remaining: afterDollar,
+          }
+        }
+      }
+    }
+
+    return null
+  }
+
   for (let i = 0; i < rawLines.length; i++) {
     const line = rawLines[i]
     const trimmed = line.trim()
+    const nextLine = rawLines[i + 1]?.trim()
 
     // 1. Table Detection
     if (trimmed.startsWith("|") && trimmed.endsWith("|")) {
@@ -339,18 +431,15 @@ export function formatPennyMessage(text: string): ReactNode {
     }
 
     // 2. Product Header Detection
-    // Matches numbered or bulleted bold titles: 1. **Sony** ... or - **Bose** ... or 1. Sony ($349 at Amazon)
-    const productHeaderMatch =
-      trimmed.match(/^(?:(\d+)[\.\)]|\-|\*)\s+\*\*([^*]+)\*\*(.*)$/) ||
-      trimmed.match(/^(\d+)[\.\)]\s+([A-Z0-9][\w\s\-\.\'\&]{3,60}?)(?:\s*[-–—:]\s*|\s+)(\$[\d,]+.*)$/)
+    const productHeaderMatch = parseProductHeader(trimmed, nextLine)
 
     if (productHeaderMatch) {
       flushList()
       commitCurrentProduct() // push previous product to pendingProducts
 
-      const index = productHeaderMatch[1] || `${pendingProducts.length + 1}`
-      const title = productHeaderMatch[2].trim()
-      const remaining = (productHeaderMatch[3] || "").trim()
+      const index = productHeaderMatch.index || `${pendingProducts.length + 1}`
+      const title = productHeaderMatch.title.trim()
+      const remaining = productHeaderMatch.remaining.trim()
 
       const newProduct: ParsedProduct = {
         index,
@@ -399,6 +488,27 @@ export function formatPennyMessage(text: string): ReactNode {
     // 4. Standalone Image (when not in a product)
     const standaloneImg = trimmed.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)$/)
     if (standaloneImg) {
+      // Check if pendingProducts has a product without an image
+      if (pendingProducts.length > 0 && !pendingProducts[pendingProducts.length - 1].imageUrl) {
+        pendingProducts[pendingProducts.length - 1].imageAlt = standaloneImg[1]
+        pendingProducts[pendingProducts.length - 1].imageUrl = standaloneImg[2]
+        continue
+      }
+
+      // Check if there are other images nearby or pending products: group them horizontally into products!
+      const hasAdjacentImg = (nextLine && /^!\[[^\]]*\]\(https?:\/\/[^\s)]+\)/.test(nextLine)) ||
+                            (i > 0 && /^!\[[^\]]*\]\(https?:\/\/[^\s)]+\)/.test(rawLines[i - 1].trim()))
+
+      if (pendingProducts.length > 0 || hasAdjacentImg) {
+        currentProduct = {
+          index: `${pendingProducts.length + 1}`,
+          title: standaloneImg[1] || `Product ${pendingProducts.length + 1}`,
+          imageUrl: standaloneImg[2],
+          imageAlt: standaloneImg[1],
+        }
+        continue
+      }
+
       flushProducts()
       flushList()
       elements.push(
