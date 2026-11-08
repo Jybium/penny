@@ -35,27 +35,6 @@ async def create_order(
 ):
   try:
     tag = make_order_tag(order_items[0]["product_description"]) if order_items else None
-    # order = Order(
-    #   user_id=user_id,
-    #   paid_amount=paid_amount,
-    #   paypal_order_id=paypal_order_id,
-    #   is_autonomous=is_autonomous
-    # )
-    # db.add(order)
-    # db.commit()
-
-    # order_items_objects = []
-    # for item in order_items:
-    #   order_item = Order_Item(
-    #     order_id=order.id,
-    #     product_description=item["product_description"],
-    #     quantity=item["quantity"],
-    #     unit_price=item["unit_price"]
-    #   )
-    #   order_items_objects.append(order_item)
-    # order.order_items = order_items_objects
-    # db.commit()
-    # db.refresh(order)
     order = Order(
       user_id=user_id,
       paid_amount=paid_amount,
