@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class Order_Response_Dto(BaseModel):
     id: UUID = Field(description="ID of the order")
     paid_amount: float = Field(description="Amount paid for the order")
+    tag: str = Field(..., description="Tag description of the order")
     paypal_order_id: str = Field(description="PayPal order ID associated with this order")
     is_autonomous: bool = Field(description="Whether the order was placed autonomously by the agent")
     created_at: datetime
