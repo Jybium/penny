@@ -16,6 +16,7 @@ class Order(Base):
   __tablename__ = "orders"
 
   id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+  tag: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
   paid_amount: Mapped[float] = mapped_column(Float, nullable=False)
   paypal_order_id: Mapped[str] = mapped_column(String(100), nullable=False)
   is_autonomous: Mapped[bool] = mapped_column(Boolean,  default=False) ## this field indicates whether the order was created autonomously by an agent or manually by the user
