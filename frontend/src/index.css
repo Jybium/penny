@@ -1945,6 +1945,221 @@ button:disabled { cursor: wait; opacity: .72; }
 }
 
 /* ============================================================
+   SLEEK MODERN RECEIPT CARD IN CHAT
+   ============================================================ */
+.penny-receipt-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #dce4dd;
+  border-radius: 14px;
+  padding: 22px 20px;
+  margin: 12px 0 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.penny-receipt-top-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #1b5338, #2e7a52, #52b885);
+}
+
+.penny-receipt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.penny-receipt-badge {
+  font: 700 9px/1 "DM Mono", monospace;
+  letter-spacing: 0.12em;
+  color: #2e5941;
+  text-transform: uppercase;
+  background: #eef5f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #d4e5da;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.penny-receipt-status-pill {
+  font: 700 9px/1 "DM Mono", monospace;
+  letter-spacing: 0.06em;
+  color: #146132;
+  background: #e3f6ea;
+  border: 1px solid #b7e8c6;
+  padding: 4px 9px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.penny-receipt-hero {
+  margin-bottom: 16px;
+}
+
+.penny-receipt-hero-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #728279;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.penny-receipt-hero-amount {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--penny-green, #1b5338);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.penny-receipt-hero-sub {
+  font-size: 11px;
+  color: #64756d;
+  margin-top: 4px;
+}
+
+.penny-receipt-separator {
+  border-top: 1.5px dashed #dce4dd;
+  margin: 16px 0;
+}
+
+.penny-receipt-section-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #84938b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 12px 0 8px;
+}
+
+.penny-receipt-item {
+  background: #f8faf8;
+  border: 1px solid #e7ece8;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.penny-receipt-item-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1a2922;
+  line-height: 1.35;
+}
+
+.penny-receipt-item-meta {
+  font-size: 10.5px;
+  color: #6b7c73;
+  margin-top: 3px;
+  font-family: "DM Mono", monospace;
+}
+
+.penny-receipt-item-price {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1a2922;
+  white-space: nowrap;
+}
+
+.penny-receipt-breakdown {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0;
+  font-size: 11.5px;
+}
+
+.penny-receipt-row {
+  display: flex;
+  justify-content: space-between;
+  color: #52635a;
+}
+
+.penny-receipt-row.total-row {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--penny-green, #1b5338);
+  border-top: 1px solid #e3e9e4;
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.penny-receipt-shipping {
+  background: #f9fbf9;
+  border: 1px solid #e4eae5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #3c4d44;
+  margin-top: 8px;
+}
+
+.penny-receipt-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #edf2ee;
+  flex-wrap: wrap;
+}
+
+.penny-receipt-btn-primary {
+  background: var(--penny-green, #1b5338);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.penny-receipt-btn-primary:hover {
+  background: #14402a;
+  transform: translateY(-1px);
+}
+
+.penny-receipt-btn-secondary {
+  background: #ffffff;
+  color: #283b31;
+  border: 1px solid #d4ded7;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.penny-receipt-btn-secondary:hover {
+  background: #f7faf8;
+  border-color: #2e5941;
+  color: #2e5941;
+}
+
+/* ============================================================
    BEAUTIFICATION & PRODUCT IMAGERY ENHANCEMENTS
    ============================================================ */
 

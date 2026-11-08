@@ -152,12 +152,613 @@ export function ProductCarousel({ products }: { products: ParsedProduct[] }) {
   )
 }
 
+export type ParsedReceipt = {
+  headline?: string
+  status?: string
+  totalAmount?: string
+  items: Array<{
+    name: string
+    quantity?: string | number
+    unitPrice?: string
+    total?: string
+  }>
+  paymentDetails: {
+    amountCaptured?: string
+    fee?: string
+    netAmount?: string
+    status?: string
+    protection?: string
+  }
+  shipping?: {
+    recipient?: string
+    address?: string
+  }
+  notes?: string
+}
+
+function escapeReceiptHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+}
+
+function generateReceiptHtml(receipt: ParsedReceipt): string {
+  const dateStr = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+  const receiptId = `PNY-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Penny Official Receipt - ${escapeReceiptHtml(receipt.totalAmount || "Settlement")}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f4f7f5;
+      color: #172a20;
+      padding: 40px 16px;
+      display: flex;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    .receipt-container {
+      background: #ffffff;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 16px;
+      border: 1px solid #dce4dd;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+    .top-accent {
+      height: 6px;
+      background: linear-gradient(90deg, #1b5338, #2e7a52, #52b885);
+    }
+    .receipt-body {
+      padding: 32px 28px;
+    }
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .brand-logo {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #1b5338;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-pill {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      background: #e3f6ea;
+      color: #126337;
+      border: 1px solid #b7e8c6;
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .hero-box {
+      text-align: center;
+      padding: 20px 0;
+      background: #f9fbf9;
+      border-radius: 12px;
+      border: 1px solid #edf2ee;
+      margin-bottom: 24px;
+    }
+    .hero-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6b7c73;
+      margin-bottom: 6px;
+    }
+    .hero-amount {
+      font-size: 34px;
+      font-weight: 800;
+      color: #1b5338;
+      letter-spacing: -0.03em;
+    }
+    .hero-sub {
+      font-size: 12px;
+      color: #728279;
+      margin-top: 4px;
+    }
+    .perforated-line {
+      border-top: 2px dashed #dce4dd;
+      margin: 22px 0;
+    }
+    .section-title {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #829288;
+      margin-bottom: 10px;
+    }
+    .item-card {
+      background: #ffffff;
+      border: 1px solid #e5ebe6;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .item-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #16261d;
+      line-height: 1.35;
+    }
+    .item-sub {
+      font-size: 11.5px;
+      color: #687970;
+      margin-top: 3px;
+    }
+    .item-val {
+      font-size: 14px;
+      font-weight: 800;
+      color: #16261d;
+      white-space: nowrap;
+    }
+    .ledger {
+      margin-top: 14px;
+    }
+    .ledger-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      padding: 6px 0;
+      color: #55665d;
+    }
+    .ledger-row.total-row {
+      font-size: 14px;
+      font-weight: 800;
+      color: #1b5338;
+      border-top: 1.5px solid #e2e8e3;
+      padding-top: 10px;
+      margin-top: 6px;
+    }
+    .shipping-box {
+      background: #f9fbf9;
+      border: 1px solid #e7ede8;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #384940;
+      margin-top: 8px;
+    }
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #8c9b93;
+      margin-top: 26px;
+      padding-top: 18px;
+      border-top: 1px solid #edf2ee;
+      line-height: 1.6;
+    }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .receipt-container { border: none; box-shadow: none; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="receipt-container">
+    <div class="top-accent"></div>
+    <div class="receipt-body">
+      <div class="header-row">
+        <div class="brand-logo">
+          <span>PENNY OFFICIAL RECEIPT</span>
+        </div>
+        <div class="status-pill">&#10003; ${escapeReceiptHtml(receipt.status || "Completed")}</div>
+      </div>
+
+      <div class="hero-box">
+        <div class="hero-label">Total Amount Settled</div>
+        <div class="hero-amount">${escapeReceiptHtml(receipt.totalAmount || "$0.00")}</div>
+        <div class="hero-sub">Paid via PayPal Vault &bull; ${escapeReceiptHtml(dateStr)}</div>
+      </div>
+
+      ${receipt.items.length > 0 ? `
+        <div class="section-title">Items Ordered</div>
+        ${receipt.items.map(it => `
+          <div class="item-card">
+            <div>
+              <div class="item-title">${escapeReceiptHtml(it.name)}</div>
+              <div class="item-sub">Qty: ${escapeReceiptHtml(String(it.quantity || 1))}${it.unitPrice ? ` &bull; Unit: ${escapeReceiptHtml(it.unitPrice)}` : ""}</div>
+            </div>
+            <div class="item-val">${escapeReceiptHtml(it.total || it.unitPrice || "")}</div>
+          </div>
+        `).join("")}
+      ` : ""}
+
+      <div class="perforated-line"></div>
+
+      <div class="section-title">Payment Breakdown</div>
+      <div class="ledger">
+        <div class="ledger-row">
+          <span>Payment Status</span>
+          <span style="font-weight: 600; color: #166534;">${escapeReceiptHtml(receipt.paymentDetails.status || "Completed")}</span>
+        </div>
+        ${receipt.paymentDetails.amountCaptured ? `
+          <div class="ledger-row">
+            <span>Amount Captured</span>
+            <span style="font-weight: 600;">${escapeReceiptHtml(receipt.paymentDetails.amountCaptured)}</span>
+          </div>
+        ` : ""}
+        ${receipt.paymentDetails.fee ? `
+          <div class="ledger-row">
+            <span>PayPal Processing Fee</span>
+            <span>${escapeReceiptHtml(receipt.paymentDetails.fee)}</span>
+          </div>
+        ` : ""}
+        ${receipt.paymentDetails.netAmount ? `
+          <div class="ledger-row">
+            <span>Net Amount Received</span>
+            <span>${escapeReceiptHtml(receipt.paymentDetails.netAmount)}</span>
+          </div>
+        ` : ""}
+        <div class="ledger-row total-row">
+          <span>Total Settled</span>
+          <span>${escapeReceiptHtml(receipt.totalAmount || "$0.00")}</span>
+        </div>
+      </div>
+
+      ${receipt.shipping?.address ? `
+        <div class="perforated-line"></div>
+        <div class="section-title">Shipping & Delivery</div>
+        <div class="shipping-box">
+          ${receipt.shipping.recipient ? `<div style="font-weight: 700; margin-bottom: 2px;">${escapeReceiptHtml(receipt.shipping.recipient)}</div>` : ""}
+          <div>${escapeReceiptHtml(receipt.shipping.address)}</div>
+          ${receipt.paymentDetails.protection ? `<div style="margin-top: 6px; font-size: 11px; color: #166534;">&#10003; ${escapeReceiptHtml(receipt.paymentDetails.protection)}</div>` : ""}
+        </div>
+      ` : ""}
+
+      <div class="footer">
+        Penny Autonomous Agent &bull; Non-Custodial Vault Payment<br>
+        Reference ID: <strong>${escapeReceiptHtml(receiptId)}</strong><br>
+        Thank you for shopping with Penny.
+      </div>
+    </div>
+  </div>
+</body>
+</html>`
+}
+
+export function downloadReceiptHtml(receipt: ParsedReceipt) {
+  const html = generateReceiptHtml(receipt)
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = `penny-receipt-${Date.now()}.html`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+export function printReceipt(receipt: ParsedReceipt) {
+  const html = generateReceiptHtml(receipt)
+  const win = window.open("", "_blank", "width=600,height=750")
+  if (win) {
+    win.document.open()
+    win.document.write(html)
+    win.document.close()
+    setTimeout(() => {
+      win.focus()
+      win.print()
+    }, 250)
+  }
+}
+
+export function PennyReceiptCard({ receipt }: { receipt: ParsedReceipt }) {
+  const [downloaded, setDownloaded] = useState(false)
+
+  const handleDownload = () => {
+    downloadReceiptHtml(receipt)
+    setDownloaded(true)
+    setTimeout(() => setDownloaded(false), 2500)
+  }
+
+  const handlePrint = () => {
+    printReceipt(receipt)
+  }
+
+  return (
+    <div className="penny-receipt-card">
+      <div className="penny-receipt-top-stripe" />
+
+      {/* Header */}
+      <div className="penny-receipt-header">
+        <div className="penny-receipt-badge">
+          <svg fill="none" height="12" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="12">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" x2="8" y1="13" y2="13" />
+            <line x1="16" x2="8" y1="17" y2="17" />
+          </svg>
+          OFFICIAL RECEIPT
+        </div>
+        <div className="penny-receipt-status-pill">
+          <svg fill="currentColor" height="10" viewBox="0 0 20 20" width="10">
+            <path
+              clipRule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              fillRule="evenodd"
+            />
+          </svg>
+          {receipt.status || "Completed"}
+        </div>
+      </div>
+
+      {/* Hero total */}
+      <div className="penny-receipt-hero">
+        <div className="penny-receipt-hero-label">Total Amount Settled</div>
+        <div className="penny-receipt-hero-amount">{receipt.totalAmount || "$0.00"}</div>
+        <div className="penny-receipt-hero-sub">
+          Payment captured via PayPal Vault • Non-custodial settlement
+        </div>
+      </div>
+
+      <div className="penny-receipt-separator" />
+
+      {/* Items */}
+      {receipt.items.length > 0 && (
+        <div>
+          <div className="penny-receipt-section-title">Items Ordered</div>
+          {receipt.items.map((item, idx) => (
+            <div className="penny-receipt-item" key={idx}>
+              <div>
+                <div className="penny-receipt-item-title">{item.name}</div>
+                <div className="penny-receipt-item-meta">
+                  Qty: {item.quantity || 1}
+                  {item.unitPrice ? ` • Unit price: ${item.unitPrice}` : ""}
+                </div>
+              </div>
+              <div className="penny-receipt-item-price">
+                {item.total || item.unitPrice || ""}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Financial breakdown */}
+      <div className="penny-receipt-section-title">Payment Breakdown</div>
+      <div className="penny-receipt-breakdown">
+        {receipt.paymentDetails.amountCaptured && (
+          <div className="penny-receipt-row">
+            <span>Amount Captured</span>
+            <span style={{ fontWeight: 600 }}>{receipt.paymentDetails.amountCaptured}</span>
+          </div>
+        )}
+        {receipt.paymentDetails.fee && (
+          <div className="penny-receipt-row">
+            <span>PayPal Fee</span>
+            <span>{receipt.paymentDetails.fee}</span>
+          </div>
+        )}
+        {receipt.paymentDetails.netAmount && (
+          <div className="penny-receipt-row">
+            <span>Net Received</span>
+            <span>{receipt.paymentDetails.netAmount}</span>
+          </div>
+        )}
+        <div className="penny-receipt-row total-row">
+          <span>Settled Total</span>
+          <span>{receipt.totalAmount || "$0.00"}</span>
+        </div>
+      </div>
+
+      {/* Shipping details */}
+      {receipt.shipping?.address && (
+        <>
+          <div className="penny-receipt-separator" />
+          <div className="penny-receipt-section-title">Shipping & Delivery</div>
+          <div className="penny-receipt-shipping">
+            {receipt.shipping.recipient && (
+              <div style={{ fontWeight: 700, marginBottom: 2, color: "#16261d" }}>
+                {receipt.shipping.recipient}
+              </div>
+            )}
+            <div>{receipt.shipping.address}</div>
+            {receipt.paymentDetails.protection && (
+              <div style={{ marginTop: 6, fontSize: 10.5, color: "#166534", fontWeight: 600 }}>
+                ✓ {receipt.paymentDetails.protection}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Downloadable / Print Action Buttons */}
+      <div className="penny-receipt-actions">
+        <button
+          className="penny-receipt-btn-primary"
+          onClick={handleDownload}
+          type="button"
+        >
+          <svg fill="none" height="13" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" width="13">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          {downloaded ? "Receipt Downloaded!" : "Download Receipt"}
+        </button>
+
+        <button
+          className="penny-receipt-btn-secondary"
+          onClick={handlePrint}
+          type="button"
+        >
+          <svg fill="none" height="13" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" width="13">
+            <polyline points="6 9 6 2 18 2 18 9" />
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+            <rect height="8" width="12" x="6" y="14" />
+          </svg>
+          Print / PDF
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export function parseReceiptFromText(text: string): ParsedReceipt | null {
+  const hasOrderSummary = /order\s+summary/i.test(text)
+  const hasPaymentDetails = /payment\s+details|amount\s+captured/i.test(text)
+  const hasPaymentSuccess = /payment\s+(?:has\s+been\s+)?captured\s+successfully/i.test(text)
+
+  if (!((hasOrderSummary && hasPaymentDetails) || (hasPaymentSuccess && hasPaymentDetails))) {
+    return null
+  }
+
+  // 1. Headline
+  let headline = ""
+  const headlineMatch = text.match(/^(?:.*?(?:payment\s+(?:has\s+been\s+)?captured\s+successfully|order\s+confirmed|payment\s+complete)[^\n]*)/i)
+  if (headlineMatch) {
+    headline = headlineMatch[0].replace(/[#*_]/g, "").trim()
+  }
+
+  // 2. Items
+  const items: ParsedReceipt["items"] = []
+  const itemRegex = /(?:[-*•]\s*)?(?:Item|Product):\s*(?:[*_]{2})?([^*\n]+?)(?:[*_]{2})?(?=\s*(?:\n|Quantity|Unit price|\$|$))/gi
+  let m: RegExpExecArray | null
+  while ((m = itemRegex.exec(text)) !== null) {
+    const name = m[1].trim()
+    if (name) {
+      items.push({ name })
+    }
+  }
+
+  if (items.length === 0) {
+    const summaryBlockMatch = text.match(/order\s+summary[:\s]*\n+([^\n]+)/i)
+    if (summaryBlockMatch) {
+      const candidate = summaryBlockMatch[1].replace(/^[-*•]\s*/, "").replace(/[#*_]/g, "").trim()
+      if (candidate && !/^(?:quantity|unit\s+price|order\s+total|subtotal):/i.test(candidate)) {
+        items.push({ name: candidate })
+      }
+    }
+  }
+
+  const qtyMatch = text.match(/Quantity:\s*(\d+)/i)
+  const unitPriceMatch = text.match(/Unit\s+price:\s*(\$[\d,]+(?:\.\d{2})?)/i)
+  const orderTotalMatch = text.match(/(?:Order\s+total|Total\s+amount|Total):\s*(\$[\d,]+(?:\.\d{2})?(?:\s*[A-Z]{3})?)/i)
+
+  if (items.length > 0) {
+    if (qtyMatch) items[0].quantity = qtyMatch[1]
+    if (unitPriceMatch) items[0].unitPrice = unitPriceMatch[1]
+    if (orderTotalMatch) items[0].total = orderTotalMatch[1]
+  }
+
+  // 3. Total Amount
+  const totalAmount =
+    orderTotalMatch?.[1] ||
+    text.match(/Amount\s+captured:\s*(\$[\d,]+(?:\.\d{2})?(?:\s*[A-Z]{3})?)/i)?.[1] ||
+    unitPriceMatch?.[1] ||
+    "$0.00"
+
+  // 4. Payment Details
+  const statusMatch = text.match(/Status:\s*([A-Za-z]+)/i)
+  const capMatch = text.match(/Amount\s+captured:\s*(\$[\d,]+(?:\.\d{2})?(?:\s*[A-Z]{3})?)/i)
+  const feeMatch = text.match(/(?:PayPal\s+fee|Fee):\s*(\$[\d,]+(?:\.\d{2})?(?:\s*[-—]\s*[A-Z]{3})?)/i)
+  const netMatch = text.match(/Net\s+amount(?:\s+received)?:\s*(\$[\d,]+(?:\.\d{2})?(?:\s*[-—]\s*[A-Z]{3})?)/i)
+  const protMatch = text.match(/Seller\s+protection:\s*([^•\n]+)/i)
+
+  const paymentDetails = {
+    amountCaptured: capMatch ? capMatch[1] : totalAmount,
+    fee: feeMatch ? feeMatch[1] : undefined,
+    netAmount: netMatch ? netMatch[1] : undefined,
+    status: statusMatch ? statusMatch[1] : "Completed",
+    protection: protMatch ? protMatch[1].trim() : undefined,
+  }
+
+  // 5. Shipping
+  let shipping: ParsedReceipt["shipping"] = undefined
+  const shipMatch = text.match(/(?:\*?Shipping\s+to\*?[:\s*]*)([^•\n]+(?:•\s*[^•\n]+)*)/i)
+  if (shipMatch) {
+    const rawSegments = shipMatch[1]
+      .split("•")
+      .map((s) => s.replace(/[*_]/g, "").trim())
+      .filter((s) => s.length > 0 && !s.toLowerCase().includes("payment was made") && !s.toLowerCase().includes("no further action") && !s.toLowerCase().includes("questions"))
+
+    if (rawSegments.length >= 2) {
+      shipping = {
+        recipient: rawSegments[0],
+        address: rawSegments.slice(1).join(", "),
+      }
+    } else if (rawSegments.length === 1) {
+      shipping = {
+        address: rawSegments[0],
+      }
+    }
+  }
+
+  // 6. Notes
+  let notes = ""
+  const noteMatch = text.match(/(?:The payment was made through PayPal[^\n]*|No further action is needed[^\n]*|If you have questions[^\n]*)/i)
+  if (noteMatch) {
+    notes = noteMatch[0].replace(/^[•\s*-]+/, "").trim()
+  }
+
+  return {
+    headline: headline || "Your payment has been captured successfully.",
+    status: paymentDetails.status,
+    totalAmount,
+    items,
+    paymentDetails,
+    shipping,
+    notes,
+  }
+}
+
 /**
  * Formats Markdown text into clean, modern React elements with product cards,
  * tables, lists, and inline media.
  */
 export function formatPennyMessage(text: string): ReactNode {
   if (!text) return null
+
+  // 0. Order / Payment Receipt Check
+  const receipt = parseReceiptFromText(text)
+  if (receipt) {
+    return (
+      <div className="formatted-penny-content">
+        {receipt.headline && (
+          <p style={{ margin: "4px 0 10px", fontSize: 13, fontWeight: 600, color: "#1a2922" }}>
+            {receipt.headline}
+          </p>
+        )}
+        <PennyReceiptCard receipt={receipt} />
+        {receipt.notes && (
+          <p style={{ margin: "12px 0 4px", fontSize: 11.5, color: "#64756d", lineHeight: 1.5 }}>
+            {receipt.notes}
+          </p>
+        )}
+      </div>
+    )
+  }
 
   const rawLines = text.split("\n")
   const elements: ReactNode[] = []
@@ -181,6 +782,38 @@ export function formatPennyMessage(text: string): ReactNode {
   function flushProducts() {
     commitCurrentProduct()
     if (pendingProducts.length > 0) {
+      // Safety check: ensure at least one item has an image or a verified retailer or brand!
+      // If none have an image and none have a retailer, they are ledger/receipt items or standard bullets!
+      const hasRealProduct = pendingProducts.some(
+        (p) => Boolean(p.imageUrl || p.retailer) && !NON_PRODUCT_REGEX.test(p.title.trim()),
+      )
+
+      if (!hasRealProduct) {
+        // Fallback to standard bullet list
+        elements.push(
+          <ul
+            key={`list-${elements.length}`}
+            style={{
+              margin: "8px 0 12px 18px",
+              paddingLeft: 0,
+              display: "grid",
+              gap: 6,
+            }}
+          >
+            {pendingProducts.map((p, idx) => (
+              <li key={`np-${idx}`} style={{ lineHeight: 1.55 }}>
+                <strong>{p.title}</strong>
+                {p.price && <span>: {p.price}</span>}
+                {p.retailer && <span> at {p.retailer}</span>}
+                {p.extra && <span> — {p.extra}</span>}
+              </li>
+            ))}
+          </ul>,
+        )
+        pendingProducts = []
+        return
+      }
+
       elements.push(
         <ProductCarousel
           key={`products-${elements.length}`}
@@ -334,6 +967,9 @@ export function formatPennyMessage(text: string): ReactNode {
     }
   }
 
+  const NON_PRODUCT_REGEX =
+    /^(?:unit\s+price|order\s+total|amount(?:\s+captured|\s+paid|\s+due|\s+refunded)?|captured\s+amount|subtotal|total(?:\s+amount)?|grand\s+total|tax(?:es)?|sales\s+tax|shipping(?:(?:\s+and|\s*&)?\s*handling)?|discount|fees?|service\s+fee|payment(?:\s+details|\s+method|\s+status|\s+capture|\s+summary)?|status|order\s+(?:id|number|reference|summary|status)|capture\s+(?:id|status)|balance|transaction(?:\s+id)?|refund|authorized(?:\s+amount)?|price|cost|estimate|summary|details|note|notes|tip|warning|disclaimer|item\s+total):?$/i
+
   function parseProductHeader(trimmed: string, nextLine?: string): { index?: string; title: string; remaining: string } | null {
     if (
       trimmed.startsWith("#") ||
@@ -352,6 +988,10 @@ export function formatPennyMessage(text: string): ReactNode {
       const rawIndex = boldMatch[1]
       const rawTitle = boldMatch[2].trim()
       const remaining = (boldMatch[3] || "").trim()
+
+      if (NON_PRODUCT_REGEX.test(rawTitle)) {
+        return null
+      }
 
       const isKeyword = /^(?:note|summary|details|features|disclaimer|important|warning|recommendation|tips?):?$/i.test(rawTitle)
       if (!isKeyword) {
@@ -373,6 +1013,11 @@ export function formatPennyMessage(text: string): ReactNode {
     if (unboldMatch) {
       const rawIndex = unboldMatch[1]
       const rawTitle = unboldMatch[2].trim()
+
+      if (NON_PRODUCT_REGEX.test(rawTitle)) {
+        return null
+      }
+
       const brand = unboldMatch[3] ? unboldMatch[3].trim() : ""
       const remainingWithPrice = (unboldMatch[4] || "").trim()
       const remaining = brand ? `(${brand}) ${remainingWithPrice}` : remainingWithPrice
@@ -388,6 +1033,11 @@ export function formatPennyMessage(text: string): ReactNode {
     if (parenPriceMatch) {
       const rawIndex = parenPriceMatch[1]
       const rawTitle = parenPriceMatch[2].trim()
+
+      if (NON_PRODUCT_REGEX.test(rawTitle)) {
+        return null
+      }
+
       const pricePart = parenPriceMatch[3].trim()
       const extraPart = (parenPriceMatch[4] || "").trim()
       return { index: rawIndex, title: rawTitle, remaining: `${pricePart} ${extraPart}`.trim() }
@@ -401,10 +1051,13 @@ export function formatPennyMessage(text: string): ReactNode {
         const afterDollar = trimmed.slice(dollarIdx).trim()
         const titleMatch = beforeDollar.match(/^(?:(?:(\d+)[\.\)]|[-*•])\s+)?(.+)$/)
         if (titleMatch && titleMatch[2].length >= 3 && titleMatch[2].length <= 80) {
-          return {
-            index: titleMatch[1],
-            title: titleMatch[2].replace(/\*\*([^*]+)\*\*/g, "$1").trim(),
-            remaining: afterDollar,
+          const rawTitle = titleMatch[2].replace(/\*\*([^*]+)\*\*/g, "$1").trim()
+          if (!NON_PRODUCT_REGEX.test(rawTitle)) {
+            return {
+              index: titleMatch[1],
+              title: rawTitle,
+              remaining: afterDollar,
+            }
           }
         }
       }
@@ -472,7 +1125,7 @@ export function formatPennyMessage(text: string): ReactNode {
       const isExitLine =
         /^#{1,6}\s+/.test(trimmed) ||
         /^[-*_]{3,}$/.test(trimmed) ||
-        /^(?:which\s+(?:one|of\s+these)|would\s+you\s+like|let\s+me\s+know|shall\s+i|to\s+proceed|to\s+purchase|you\s+can\s+approve|click\s+below|here\s+is\s+the\s+link)/i.test(trimmed)
+        /^(?:which\s+(?:one|of\s+these)|would\s+you\s+like|let\s+me\s+know|shall\s+i|to\s+proceed|to\s+purchase|you\s+can\s+approve|click\s+below|here\s+is\s+the\s+link|payment\s+details|payment\s+capture|order\s+details|order\s+summary|status:)/i.test(trimmed)
 
       if (isExitLine) {
         commitCurrentProduct()
@@ -499,10 +1152,11 @@ export function formatPennyMessage(text: string): ReactNode {
       const hasAdjacentImg = (nextLine && /^!\[[^\]]*\]\(https?:\/\/[^\s)]+\)/.test(nextLine)) ||
                             (i > 0 && /^!\[[^\]]*\]\(https?:\/\/[^\s)]+\)/.test(rawLines[i - 1].trim()))
 
-      if (pendingProducts.length > 0 || hasAdjacentImg) {
+      const imgCaption = (standaloneImg[1] || "").trim()
+      if ((pendingProducts.length > 0 || hasAdjacentImg) && !NON_PRODUCT_REGEX.test(imgCaption)) {
         currentProduct = {
           index: `${pendingProducts.length + 1}`,
-          title: standaloneImg[1] || `Product ${pendingProducts.length + 1}`,
+          title: imgCaption || `Product ${pendingProducts.length + 1}`,
           imageUrl: standaloneImg[2],
           imageAlt: standaloneImg[1],
         }

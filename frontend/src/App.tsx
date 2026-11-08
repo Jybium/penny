@@ -177,7 +177,12 @@ function viewFromPath(pathname: string): View {
   if (clean === "/chat") return "chat";
   if (clean === "/review") return "review";
   if (clean === "/checkout") return "payment";
-  if (clean === "/order/success" || clean === "/orders/success" || clean.startsWith("/order/success")) return "success";
+  if (
+    clean === "/order/success" ||
+    clean === "/orders/success" ||
+    clean.startsWith("/order/success")
+  )
+    return "success";
   if (clean === "/checkout/cancel") return "cancel";
   if (clean === "/autonomy" || clean.startsWith("/autonomy")) return "autonomy";
   return "landing";
@@ -251,11 +256,7 @@ function Header({
           type="button"
         >
           <span className="wordmark-icon">
-            <img
-              src={pennyLogo}
-              alt="Penny Logo"
-              className="penny-logo-mark"
-            />
+            <img src={pennyLogo} alt="Penny Logo" className="penny-logo-mark" />
           </span>
           Penny
         </button>
@@ -443,7 +444,11 @@ function parsePendingOrderFromReply(
   }
 
   // 2. Try to extract line items from bullet points
-  const items: Array<{ description: string; quantity: number; unitPrice: number }> = [];
+  const items: Array<{
+    description: string;
+    quantity: number;
+    unitPrice: number;
+  }> = [];
   const lines = reply.split("\n");
   for (const line of lines) {
     const trimmed = line.trim();
@@ -475,11 +480,11 @@ function parsePendingOrderFromReply(
             const qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
             const price = priceMatch
               ? parseFloat(priceMatch[1])
-              : (parsedTotal || 0);
+              : parsedTotal || 0;
             items.push({
               description: desc,
               quantity: isNaN(qty) ? 1 : qty,
-              unitPrice: isNaN(price) ? (parsedTotal || 0) : price,
+              unitPrice: isNaN(price) ? parsedTotal || 0 : price,
             });
           }
         }
@@ -931,15 +936,13 @@ function ChatView({
         <div className="conversation-head">
           <div>
             <span className="agent-avatar">
-              <img
-                src={pennyLogo}
-                alt="Penny"
-                className="penny-avatar-img"
-              />
+              <img src={pennyLogo} alt="Penny" className="penny-avatar-img" />
             </span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span className={sending ? "live-dot live-dot-researching" : "live-dot"}>
+            <span
+              className={sending ? "live-dot live-dot-researching" : "live-dot"}
+            >
               {sending ? "Penny Researching..." : "Online"}
             </span>
             {chatMessages.length > 1 && (
@@ -963,21 +966,36 @@ function ChatView({
           </div>
 
           {loadingHistory && (
-            <div className="chat-skeleton-container" aria-label="Loading messages...">
+            <div
+              className="chat-skeleton-container"
+              aria-label="Loading messages..."
+            >
               <div className="chat-skeleton-badge">
-                <span className="button-spinner" style={{ width: 12, height: 12, borderWidth: 1.5 }} />
+                <span
+                  className="button-spinner"
+                  style={{ width: 12, height: 12, borderWidth: 1.5 }}
+                />
                 <span>Syncing conversation history...</span>
               </div>
               <div className="chat-skeleton-row">
                 <div className="skeleton-avatar" />
-                <div className="skeleton-bubble skeleton-bubble-agent" style={{ width: "70%", height: 54 }} />
+                <div
+                  className="skeleton-bubble skeleton-bubble-agent"
+                  style={{ width: "70%", height: 54 }}
+                />
               </div>
               <div className="chat-skeleton-row chat-skeleton-user">
-                <div className="skeleton-bubble skeleton-bubble-user" style={{ width: "48%", height: 38 }} />
+                <div
+                  className="skeleton-bubble skeleton-bubble-user"
+                  style={{ width: "48%", height: 38 }}
+                />
               </div>
               <div className="chat-skeleton-row">
                 <div className="skeleton-avatar" />
-                <div className="skeleton-bubble skeleton-bubble-agent" style={{ width: "82%", height: 68 }} />
+                <div
+                  className="skeleton-bubble skeleton-bubble-agent"
+                  style={{ width: "82%", height: 68 }}
+                />
               </div>
             </div>
           )}
@@ -1039,9 +1057,7 @@ function ChatView({
               contentLower.includes("paypal.com/checkout");
 
             const hasCheckoutPrompt =
-              !isUser &&
-              !isOrderSettled &&
-              hasCheckoutUrl;
+              !isUser && !isOrderSettled && hasCheckoutUrl;
 
             const hasProducts =
               !isUser &&
@@ -1089,7 +1105,7 @@ function ChatView({
                         style={{
                           display: "block",
                           width: "100%",
-                          height: "auto",
+                          height: "400px",
                         }}
                       />
                       {msg.fileName && (
@@ -1203,7 +1219,8 @@ function ChatView({
                   <strong>Penny is researching verified merchants...</strong>
                 </div>
                 <p className="thinking-subtext">
-                  Comparing prices, real-time inventory, and PayPal checkout routes.
+                  Comparing prices, real-time inventory, and PayPal checkout
+                  routes.
                 </p>
                 <div className="thinking-shimmer-bar" />
               </div>
@@ -1214,64 +1231,64 @@ function ChatView({
 
         <div className="composer-wrapper">
           <form className="composer" onSubmit={sendMessage}>
-          {file && (
-            <div className="file-chip">
-              <Icon name="sparkles" size={12} />
-              <span>{file.name}</span>
-              <button
-                aria-label="Remove attachment"
-                onClick={handleRemoveFile}
-                type="button"
-              >
-                <Icon name="x" size={12} />
-              </button>
-            </div>
-          )}
-
-          <input
-            aria-label="Message your commerce agent"
-            onChange={(event) => setText(event.target.value)}
-            placeholder={
-              file
-                ? "Add specifics (budget, color, sizing) or press Enter to search photo..."
-                : "Ask Penny to search, compare, or attach a photo..."
-            }
-            value={text}
-          />
-
-          <label
-            className="file-button"
-            title="Attach a product photo or screenshot (JPEG, PNG, WEBP)"
-          >
-            <input
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleFileChange}
-              ref={fileInputRef}
-              type="file"
-            />
-            <Icon name="plus" size={16} />
-          </label>
-
-          <button
-            aria-label="Send message"
-            className="send-button"
-            disabled={sending || (!text.trim() && !file)}
-            type="submit"
-          >
-            {sending ? (
-              <span className="button-spinner" />
-            ) : (
-              <Icon name="send" size={17} />
+            {file && (
+              <div className="file-chip">
+                <Icon name="sparkles" size={12} />
+                <span>{file.name}</span>
+                <button
+                  aria-label="Remove attachment"
+                  onClick={handleRemoveFile}
+                  type="button"
+                >
+                  <Icon name="x" size={12} />
+                </button>
+              </div>
             )}
-          </button>
-          <p>
-            <Icon name="shield" size={12} />{" "}
-            {guardrails.mode === "shop-with-me"
-              ? "Shop with me: you complete checkout"
-              : "Buy for me: Penny completes checkout"}
-          </p>
-        </form>
-      </div>
+
+            <input
+              aria-label="Message your commerce agent"
+              onChange={(event) => setText(event.target.value)}
+              placeholder={
+                file
+                  ? "Add specifics (budget, color, sizing) or press Enter to search photo..."
+                  : "Ask Penny to search, compare, or attach a photo..."
+              }
+              value={text}
+            />
+
+            <label
+              className="file-button"
+              title="Attach a product photo or screenshot (JPEG, PNG, WEBP)"
+            >
+              <input
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleFileChange}
+                ref={fileInputRef}
+                type="file"
+              />
+              <Icon name="plus" size={16} />
+            </label>
+
+            <button
+              aria-label="Send message"
+              className="send-button"
+              disabled={sending || (!text.trim() && !file)}
+              type="submit"
+            >
+              {sending ? (
+                <span className="button-spinner" />
+              ) : (
+                <Icon name="send" size={17} />
+              )}
+            </button>
+            <p>
+              <Icon name="shield" size={12} />{" "}
+              {guardrails.mode === "shop-with-me"
+                ? "Shop with me: you complete checkout"
+                : "Buy for me: Penny completes checkout"}
+            </p>
+          </form>
+        </div>
       </section>
     </main>
   );
@@ -1489,7 +1506,8 @@ export default function App() {
         if (vault) {
           setHasVaultToken(true);
           const savedMode = sessionStorage.getItem("penny_mode");
-          const mode = savedMode === "buy-for-me" ? "buy-for-me" : "shop-with-me";
+          const mode =
+            savedMode === "buy-for-me" ? "buy-for-me" : "shop-with-me";
           setGuardrails({ mode });
         } else {
           setHasVaultToken(false);
@@ -1651,7 +1669,9 @@ export default function App() {
         const setupId = res.paypal_response?.vault_setup_token_id;
 
         if (!link || !setupId) {
-          throw new Error("Could not retrieve PayPal Vault setup approval link");
+          throw new Error(
+            "Could not retrieve PayPal Vault setup approval link",
+          );
         }
 
         sessionStorage.setItem("penny_vault_setup_token_id", setupId);
