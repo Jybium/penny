@@ -254,52 +254,6 @@ export default function SuccessPage({
           capture payment and return to chat.
         </p>
 
-        {/* Lean Receipt Summary Box */}
-        <div className="order-confirmation dynamic-order-panel">
-          <div className="order-confirm-row">
-            <span>Order Reference</span>
-            <div className="order-ref-wrap">
-              <strong className="order-ref-text">{effectiveOrderId}</strong>
-              <button
-                className="order-copy-btn"
-                onClick={handleCopyReference}
-                title="Copy order reference"
-                type="button"
-              >
-                {copied ? "✓ Copied" : "Copy"}
-              </button>
-            </div>
-          </div>
-
-          <div className="order-confirm-row total-confirm-row">
-            <span>Total Settled Amount</span>
-            <strong className="order-total-amount">
-              ${effectiveTotal.toFixed(2)} USD
-            </strong>
-          </div>
-        </div>
-
-        {/* Compact Items List */}
-        {displayItems.length > 0 && (
-          <div className="order-items-compact-list">
-            <div className="order-items-compact-header">
-              <span>ITEM</span>
-              <span>TOTAL</span>
-            </div>
-            {displayItems.map((item) => (
-              <div className="order-item-compact-row" key={item.id}>
-                <span className="order-item-compact-name">
-                  {item.quantity > 1 ? `${item.quantity}× ` : ""}
-                  {item.description}
-                </span>
-                <strong className="order-item-compact-price">
-                  ${(item.quantity * item.unitPrice).toFixed(2)}
-                </strong>
-              </div>
-            ))}
-          </div>
-        )}
-
         {/* Action Group */}
         <div className="success-action-group">
           <button
@@ -310,7 +264,8 @@ export default function SuccessPage({
           >
             {isCapturing ? (
               <>
-                <span className="button-spinner" /> Capturing payment with Penny...
+                <span className="button-spinner" /> Capturing payment with
+                Penny...
               </>
             ) : (
               <>
