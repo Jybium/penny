@@ -561,7 +561,7 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                     <button
                       className="primary-action"
                       disabled={exchangeLoading}
-                      onClick={handleExchangeToken}
+                      onClick={() => handleExchangeToken()}
                     >
                       {exchangeLoading
                         ? "Exchanging Setup Token with Penny API..."

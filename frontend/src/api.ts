@@ -56,6 +56,12 @@ export type SSEEventData = {
   penny?: string;
   content?: string;
   text?: string;
+  setup_token?: string;
+  vault_setup_token_id?: string;
+  approval_token_id?: string;
+  event?: string;
+  token?: string;
+  [key: string]: unknown;
 };
 
 export type ApiOrder = {
