@@ -153,6 +153,7 @@ export function ProductCarousel({ products }: { products: ParsedProduct[] }) {
 }
 
 export type ParsedReceipt = {
+  kind?: "invoice" | "receipt"
   headline?: string
   status?: string
   totalAmount?: string
@@ -475,6 +476,7 @@ export function printReceipt(receipt: ParsedReceipt) {
 
 export function PennyReceiptCard({ receipt }: { receipt: ParsedReceipt }) {
   const [downloaded, setDownloaded] = useState(false)
+  const isInvoice = receipt.kind === "invoice"
 
   const handleDownload = () => {
     downloadReceiptHtml(receipt)
@@ -487,38 +489,54 @@ export function PennyReceiptCard({ receipt }: { receipt: ParsedReceipt }) {
   }
 
   return (
-    <div className="penny-receipt-card">
-      <div className="penny-receipt-top-stripe" />
+    <div className={isInvoice ? "penny-invoice-card" : "penny-receipt-card"}>
+      <div className={isInvoice ? "penny-invoice-top-stripe" : "penny-receipt-top-stripe"} />
 
       {/* Header */}
       <div className="penny-receipt-header">
-        <div className="penny-receipt-badge">
+        <div className={isInvoice ? "penny-invoice-badge" : "penny-receipt-badge"}>
           <svg fill="none" height="12" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="12">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <polyline points="14 2 14 8 20 8" />
             <line x1="16" x2="8" y1="13" y2="13" />
             <line x1="16" x2="8" y1="17" y2="17" />
           </svg>
-          OFFICIAL RECEIPT
+          {isInvoice ? "ORDER INVOICE" : "OFFICIAL RECEIPT"}
         </div>
-        <div className="penny-receipt-status-pill">
-          <svg fill="currentColor" height="10" viewBox="0 0 20 20" width="10">
-            <path
-              clipRule="evenodd"
-              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-              fillRule="evenodd"
-            />
-          </svg>
-          {receipt.status || "Completed"}
+        <div className={isInvoice ? "penny-invoice-status-pill" : "penny-receipt-status-pill"}>
+          {isInvoice ? (
+            <>
+              <svg fill="none" height="11" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="11">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              Pending Payment
+            </>
+          ) : (
+            <>
+              <svg fill="currentColor" height="10" viewBox="0 0 20 20" width="10">
+                <path
+                  clipRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  fillRule="evenodd"
+                />
+              </svg>
+              {receipt.status || "Completed"}
+            </>
+          )}
         </div>
       </div>
 
       {/* Hero total */}
       <div className="penny-receipt-hero">
-        <div className="penny-receipt-hero-label">Total Amount Settled</div>
+        <div className="penny-receipt-hero-label">
+          {isInvoice ? "Total Amount Due" : "Total Amount Settled"}
+        </div>
         <div className="penny-receipt-hero-amount">{receipt.totalAmount || "$0.00"}</div>
         <div className="penny-receipt-hero-sub">
-          Payment captured via PayPal Vault • Non-custodial settlement
+          {isInvoice
+            ? "Review order items below before proceeding to checkout"
+            : "Payment captured via PayPal Vault • Non-custodial settlement"}
         </div>
       </div>
 
@@ -546,34 +564,51 @@ export function PennyReceiptCard({ receipt }: { receipt: ParsedReceipt }) {
       )}
 
       {/* Financial breakdown */}
-      <div className="penny-receipt-section-title">Payment Breakdown</div>
+      <div className="penny-receipt-section-title">
+        {isInvoice ? "Invoice Summary" : "Payment Breakdown"}
+      </div>
       <div className="penny-receipt-breakdown">
-        {receipt.paymentDetails.amountCaptured && (
-          <div className="penny-receipt-row">
-            <span>Amount Captured</span>
-            <span style={{ fontWeight: 600 }}>{receipt.paymentDetails.amountCaptured}</span>
-          </div>
+        {isInvoice ? (
+          <>
+            <div className="penny-receipt-row">
+              <span>Payment Status</span>
+              <span style={{ fontWeight: 600, color: "#b45309" }}>Payment Required</span>
+            </div>
+            <div className="penny-receipt-row total-row">
+              <span>Total to Pay</span>
+              <span>{receipt.totalAmount || "$0.00"}</span>
+            </div>
+          </>
+        ) : (
+          <>
+            {receipt.paymentDetails?.amountCaptured && (
+              <div className="penny-receipt-row">
+                <span>Amount Captured</span>
+                <span style={{ fontWeight: 600 }}>{receipt.paymentDetails.amountCaptured}</span>
+              </div>
+            )}
+            {receipt.paymentDetails?.fee && (
+              <div className="penny-receipt-row">
+                <span>PayPal Fee</span>
+                <span>{receipt.paymentDetails.fee}</span>
+              </div>
+            )}
+            {receipt.paymentDetails?.netAmount && (
+              <div className="penny-receipt-row">
+                <span>Net Received</span>
+                <span>{receipt.paymentDetails.netAmount}</span>
+              </div>
+            )}
+            <div className="penny-receipt-row total-row">
+              <span>Settled Total</span>
+              <span>{receipt.totalAmount || "$0.00"}</span>
+            </div>
+          </>
         )}
-        {receipt.paymentDetails.fee && (
-          <div className="penny-receipt-row">
-            <span>PayPal Fee</span>
-            <span>{receipt.paymentDetails.fee}</span>
-          </div>
-        )}
-        {receipt.paymentDetails.netAmount && (
-          <div className="penny-receipt-row">
-            <span>Net Received</span>
-            <span>{receipt.paymentDetails.netAmount}</span>
-          </div>
-        )}
-        <div className="penny-receipt-row total-row">
-          <span>Settled Total</span>
-          <span>{receipt.totalAmount || "$0.00"}</span>
-        </div>
       </div>
 
-      {/* Shipping details */}
-      {receipt.shipping?.address && (
+      {/* Shipping details (only on receipt if available) */}
+      {!isInvoice && receipt.shipping?.address && (
         <>
           <div className="penny-receipt-separator" />
           <div className="penny-receipt-section-title">Shipping & Delivery</div>
@@ -584,7 +619,7 @@ export function PennyReceiptCard({ receipt }: { receipt: ParsedReceipt }) {
               </div>
             )}
             <div>{receipt.shipping.address}</div>
-            {receipt.paymentDetails.protection && (
+            {receipt.paymentDetails?.protection && (
               <div style={{ marginTop: 6, fontSize: 10.5, color: "#166534", fontWeight: 600 }}>
                 ✓ {receipt.paymentDetails.protection}
               </div>
@@ -593,52 +628,85 @@ export function PennyReceiptCard({ receipt }: { receipt: ParsedReceipt }) {
         </>
       )}
 
-      {/* Downloadable / Print Action Buttons */}
-      <div className="penny-receipt-actions">
-        <button
-          className="penny-receipt-btn-primary"
-          onClick={handleDownload}
-          type="button"
-        >
-          <svg fill="none" height="13" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" width="13">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
-          {downloaded ? "Receipt Downloaded!" : "Download Receipt"}
-        </button>
+      {/* Downloadable / Print Action Buttons - ONLY on confirmed Receipt! */}
+      {!isInvoice && (
+        <div className="penny-receipt-actions">
+          <button
+            className="penny-receipt-btn-primary"
+            onClick={handleDownload}
+            type="button"
+          >
+            <svg fill="none" height="13" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" width="13">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            {downloaded ? "Receipt Downloaded!" : "Download Receipt"}
+          </button>
 
-        <button
-          className="penny-receipt-btn-secondary"
-          onClick={handlePrint}
-          type="button"
-        >
-          <svg fill="none" height="13" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" width="13">
-            <polyline points="6 9 6 2 18 2 18 9" />
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-            <rect height="8" width="12" x="6" y="14" />
-          </svg>
-          Print / PDF
-        </button>
-      </div>
+          <button
+            className="penny-receipt-btn-secondary"
+            onClick={handlePrint}
+            type="button"
+          >
+            <svg fill="none" height="13" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" width="13">
+              <polyline points="6 9 6 2 18 2 18 9" />
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+              <rect height="8" width="12" x="6" y="14" />
+            </svg>
+            Print / PDF
+          </button>
+        </div>
+      )}
     </div>
   )
 }
 
 export function parseReceiptFromText(text: string): ParsedReceipt | null {
-  const hasOrderSummary = /order\s+summary/i.test(text)
+  const contentLower = text.toLowerCase()
+
+  const hasOrderSummary = /order\s+summary|order\s+details|items?\s+ordered/i.test(text)
+  const hasItems = /(?:item|product):\s*/i.test(text)
+  const hasUnitPrice = /unit\s+price:/i.test(text)
+  const hasOrderTotal = /(?:order\s+total|total\s+amount|total):\s*\$[\d,]+/i.test(text)
   const hasPaymentDetails = /payment\s+details|amount\s+captured/i.test(text)
   const hasPaymentSuccess = /payment\s+(?:has\s+been\s+)?captured\s+successfully/i.test(text)
 
-  if (!((hasOrderSummary && hasPaymentDetails) || (hasPaymentSuccess && hasPaymentDetails))) {
+  if (!((hasOrderSummary && (hasItems || hasUnitPrice || hasOrderTotal || hasPaymentDetails)) || hasPaymentSuccess)) {
     return null
   }
 
+  // Determine if this is an already-paid Receipt vs an unpaid Invoice
+  const hasCheckoutUrl =
+    text.includes("sandbox.paypal.com") ||
+    contentLower.includes("paypal.com/checkoutnow") ||
+    contentLower.includes("paypal.com/checkout")
+
+  const hasExplicitCapture =
+    contentLower.includes("captured successfully") ||
+    contentLower.includes("payment has been captured") ||
+    contentLower.includes("successfully paid") ||
+    contentLower.includes("purchase complete") ||
+    (contentLower.includes("amount captured") && !hasCheckoutUrl)
+
+  // STRICT RULE:
+  // It is ONLY a receipt if payment has been confirmed/captured AND has NO pending checkout link!
+  // Otherwise, it is an unpaid Invoice!
+  const isReceipt = hasExplicitCapture && !hasCheckoutUrl
+  const kind: "invoice" | "receipt" = isReceipt ? "receipt" : "invoice"
+
   // 1. Headline
   let headline = ""
-  const headlineMatch = text.match(/^(?:.*?(?:payment\s+(?:has\s+been\s+)?captured\s+successfully|order\s+confirmed|payment\s+complete)[^\n]*)/i)
-  if (headlineMatch) {
-    headline = headlineMatch[0].replace(/[#*_]/g, "").trim()
+  if (isReceipt) {
+    const headlineMatch = text.match(/^(?:.*?(?:payment\s+(?:has\s+been\s+)?captured\s+successfully|order\s+confirmed|payment\s+complete)[^\n]*)/i)
+    if (headlineMatch) {
+      headline = headlineMatch[0].replace(/[#*_]/g, "").trim()
+    }
+  } else {
+    const headlineMatch = text.match(/^(?:.*?(?:here\s+are\s+your\s+order\s+details|order\s+summary|order\s+prepared)[^\n]*)/i)
+    if (headlineMatch) {
+      headline = headlineMatch[0].replace(/[#*_]/g, "").trim()
+    }
   }
 
   // 2. Items
@@ -675,23 +743,26 @@ export function parseReceiptFromText(text: string): ParsedReceipt | null {
   // 3. Total Amount
   const totalAmount =
     orderTotalMatch?.[1] ||
-    text.match(/Amount\s+captured:\s*(\$[\d,]+(?:\.\d{2})?(?:\s*[A-Z]{3})?)/i)?.[1] ||
+    (isReceipt ? text.match(/Amount\s+captured:\s*(\$[\d,]+(?:\.\d{2})?(?:\s*[A-Z]{3})?)/i)?.[1] : null) ||
     unitPriceMatch?.[1] ||
     "$0.00"
 
-  // 4. Payment Details
-  const statusMatch = text.match(/Status:\s*([A-Za-z]+)/i)
-  const capMatch = text.match(/Amount\s+captured:\s*(\$[\d,]+(?:\.\d{2})?(?:\s*[A-Z]{3})?)/i)
-  const feeMatch = text.match(/(?:PayPal\s+fee|Fee):\s*(\$[\d,]+(?:\.\d{2})?(?:\s*[-—]\s*[A-Z]{3})?)/i)
-  const netMatch = text.match(/Net\s+amount(?:\s+received)?:\s*(\$[\d,]+(?:\.\d{2})?(?:\s*[-—]\s*[A-Z]{3})?)/i)
-  const protMatch = text.match(/Seller\s+protection:\s*([^•\n]+)/i)
+  // 4. Payment Details (ONLY for Receipt!)
+  let paymentDetails: ParsedReceipt["paymentDetails"] = { status: isReceipt ? "Completed" : "Payment Required" }
+  if (isReceipt) {
+    const statusMatch = text.match(/Status:\s*([A-Za-z]+)/i)
+    const capMatch = text.match(/Amount\s+captured:\s*(\$[\d,]+(?:\.\d{2})?(?:\s*[A-Z]{3})?)/i)
+    const feeMatch = text.match(/(?:PayPal\s+fee|Fee):\s*(\$[\d,]+(?:\.\d{2})?(?:\s*[-—]\s*[A-Z]{3})?)/i)
+    const netMatch = text.match(/Net\s+amount(?:\s+received)?:\s*(\$[\d,]+(?:\.\d{2})?(?:\s*[-—]\s*[A-Z]{3})?)/i)
+    const protMatch = text.match(/Seller\s+protection:\s*([^•\n]+)/i)
 
-  const paymentDetails = {
-    amountCaptured: capMatch ? capMatch[1] : totalAmount,
-    fee: feeMatch ? feeMatch[1] : undefined,
-    netAmount: netMatch ? netMatch[1] : undefined,
-    status: statusMatch ? statusMatch[1] : "Completed",
-    protection: protMatch ? protMatch[1].trim() : undefined,
+    paymentDetails = {
+      amountCaptured: capMatch ? capMatch[1] : totalAmount,
+      fee: feeMatch ? feeMatch[1] : undefined,
+      netAmount: netMatch ? netMatch[1] : undefined,
+      status: statusMatch ? statusMatch[1] : "Completed",
+      protection: protMatch ? protMatch[1].trim() : undefined,
+    }
   }
 
   // 5. Shipping
@@ -723,8 +794,9 @@ export function parseReceiptFromText(text: string): ParsedReceipt | null {
   }
 
   return {
-    headline: headline || "Your payment has been captured successfully.",
-    status: paymentDetails.status,
+    kind,
+    headline: headline || (isReceipt ? "Your payment has been captured successfully." : "Order summary"),
+    status: isReceipt ? paymentDetails.status : "Pending Payment",
     totalAmount,
     items,
     paymentDetails,
