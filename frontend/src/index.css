@@ -383,7 +383,7 @@ button:disabled { cursor: wait; opacity: .72; }
   cursor: not-allowed;
 }
 .messages {
-  width: min(740px, calc(100% - 48px));
+  width: min(800px, calc(100% - 48px));
   margin: 0 auto;
   padding: 24px 0 20px;
   display: flex;
@@ -417,28 +417,44 @@ button:disabled { cursor: wait; opacity: .72; }
 .date-divider span { padding: 0 10px; position: relative; top: -8px; color: #a1a7a3; background: #fbfbf8; font: 400 8px "DM Mono"; }
 .agent-message-row { display: flex; align-items: flex-start; gap: 10px; animation: messageIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .mini-avatar { width: 26px; height: 26px; margin-top: 4px; flex: 0 0 auto; }
-.message { max-width: 620px; padding: 14px 16px; border-radius: 4px 14px 14px 14px; font-size: 12px; line-height: 1.65; }
+.message {
+  max-width: 900px;
+  padding: 14px 16px;
+  border-radius: 4px 14px 14px 14px;
+  font-size: 12px;
+  line-height: 1.65;
+  height: auto !important;
+  min-height: auto;
+  overflow: visible !important;
+}
 .message p { margin: 0; }
 .thinking-message { display: flex; align-items: center; gap: 4px; color: #6c7771; }
 .thinking-message span { width: 4px; height: 4px; border-radius: 50%; background: var(--penny-honey); animation: thinking 1s ease-in-out infinite; }
 .thinking-message span:nth-child(2) { animation-delay: .14s; }
 .thinking-message span:nth-child(3) { margin-right: 4px; animation-delay: .28s; }
 @keyframes thinking { 0%, 60%, 100% { transform: translateY(0); opacity: .45; } 30% { transform: translateY(-3px); opacity: 1; } }
-.agent-message { border: 1px solid #e1e4dd; background: #f5f6f1; color: #35413c; }
+.agent-message {
+  border: 1px solid #e1e4dd;
+  background: #f5f6f1;
+  color: #35413c;
+  height: auto !important;
+  min-height: auto;
+  overflow: visible !important;
+}
 .agent-message .muted { margin-top: 5px; color: #84908a; font-size: 10px; }
 .agent-message-row.has-products-row,
 .agent-message-row:has(.penny-carousel-wrapper),
 .agent-message-row:has(.penny-products-container) {
   width: 100%;
   max-width: 100%;
-  overflow-x: hidden;
 }
 .agent-message.has-products-card,
 .agent-message:has(.penny-carousel-wrapper),
 .agent-message:has(.penny-products-container) {
   max-width: 100%;
   width: 100%;
-  overflow-x: hidden;
+  height: auto !important;
+  overflow: visible !important;
 }
 .user-message { align-self: flex-end; border-radius: 14px 4px 14px 14px; color: #fff; background: var(--penny-green); animation: messageIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both; }
 @keyframes messageIn {
