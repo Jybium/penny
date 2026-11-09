@@ -1,5 +1,6 @@
 import { useState, type ReactNode, type FormEvent } from "react";
 import type { AuthUser } from "./AuthModal";
+import { pennyLogo, paypalLogo } from "./assets";
 
 type Props = {
   user: AuthUser | null;
@@ -146,7 +147,11 @@ export default function LandingPage({
           <div className="landing-demo">
             <header>
               <span className="demo-agent">
-                <Sparkles />
+                <img
+                  src={pennyLogo}
+                  alt="Penny Logo"
+                  className="penny-logo-mark"
+                />
               </span>
               <div>
                 <strong>Your commerce agent</strong>
@@ -161,8 +166,12 @@ export default function LandingPage({
             </header>
             <div className="landing-demo-body">
               <div className="demo-welcome">
-                <span>
-                  <Sparkles />
+                <span className="demo-welcome-avatar">
+                  <img
+                    src={pennyLogo}
+                    alt="Penny Logo"
+                    className="penny-logo-mark"
+                  />
                 </span>
                 <strong>What should Penny find?</strong>
                 <p>
@@ -215,6 +224,65 @@ export default function LandingPage({
                   <Arrow />
                 </button>
               </form>
+
+              {/* Visual Curated Discovery Strip */}
+              <div className="hero-product-showcase">
+                <span className="hero-showcase-label">
+                  POPULAR AGENT SEARCHES
+                </span>
+                <div className="hero-product-pills">
+                  <button
+                    className="hero-product-pill"
+                    onClick={() =>
+                      onEnter(
+                        "Find wireless noise cancelling headphones under $150",
+                      )
+                    }
+                    type="button"
+                  >
+                    <img
+                      alt="Sony Headphones"
+                      src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=120&q=80"
+                    />
+                    <div>
+                      <strong>Sony WH-1000XM5</strong>
+                      <small>$148 &bull; 4.8 ★</small>
+                    </div>
+                  </button>
+                  <button
+                    className="hero-product-pill"
+                    onClick={() =>
+                      onEnter("Ergonomic mechanical keyboard for typing")
+                    }
+                    type="button"
+                  >
+                    <img
+                      alt="Mechanical Keyboard"
+                      src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=120&q=80"
+                    />
+                    <div>
+                      <strong>Keychron K2</strong>
+                      <small>$89 &bull; 4.9 ★</small>
+                    </div>
+                  </button>
+                  <button
+                    className="hero-product-pill"
+                    onClick={() =>
+                      onEnter("Running shoes with high arch support")
+                    }
+                    type="button"
+                  >
+                    <img
+                      alt="Running Shoes"
+                      src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=120&q=80"
+                    />
+                    <div>
+                      <strong>Nike Pegasus 40</strong>
+                      <small>$124 &bull; 4.7 ★</small>
+                    </div>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -287,6 +355,16 @@ export default function LandingPage({
         </div>
         <div className="landing-how-grid">
           <article>
+            <div className="landing-how-img-wrap">
+              <img
+                alt="Shopper querying commerce assistant"
+                loading="lazy"
+                src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80"
+              />
+              <span className="landing-how-badge">
+                01 &bull; Natural Intent
+              </span>
+            </div>
             <b>01</b>
             <i>
               <Person />
@@ -298,6 +376,16 @@ export default function LandingPage({
             </p>
           </article>
           <article>
+            <div className="landing-how-img-wrap">
+              <img
+                alt="Live merchant search and product comparison"
+                loading="lazy"
+                src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80"
+              />
+              <span className="landing-how-badge">
+                02 &bull; Agent Synthesis
+              </span>
+            </div>
             <b>02</b>
             <i>
               <Sparkles />
@@ -309,6 +397,16 @@ export default function LandingPage({
             </p>
           </article>
           <article>
+            <div className="landing-how-img-wrap">
+              <img
+                alt="Instant secure PayPal checkout"
+                loading="lazy"
+                src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=600&q=80"
+              />
+              <span className="landing-how-badge">
+                03 &bull; Guarded Settlement
+              </span>
+            </div>
             <b>03</b>
             <i>
               <Check />
@@ -343,13 +441,18 @@ export default function LandingPage({
               <Shield /> Full transparency on reasoning and merchant pricing
             </li>
             <li>
-              <Card /> PayPal Sandbox protection on all test transactions
+              <img
+                src={paypalLogo}
+                alt="PayPal"
+                style={{ height: 14, width: "auto", objectFit: "contain" }}
+              />
+              PayPal Sandbox protection on all test transactions
             </li>
           </ul>
         </div>
 
         {/* Live Synchronized Control Panel */}
-        <div className="control-panel">
+        <div className="control-panel rounded-lg">
           <header>
             <span>
               <Shield /> Penny mode
@@ -359,12 +462,8 @@ export default function LandingPage({
             </i>
           </header>
           <div
+            className={`control-mode-option ${mode === "shop-with-me" ? "is-selected" : ""}`}
             onClick={() => onModeChange("shop-with-me")}
-            style={{
-              cursor: "pointer",
-              background: mode === "shop-with-me" ? "#eef6f1" : "transparent",
-              transition: "background 0.15s ease",
-            }}
           >
             <span>
               <strong>Shop with me (Default)</strong>
@@ -373,15 +472,13 @@ export default function LandingPage({
                 checkout.
               </small>
             </span>
-            <b>{mode === "shop-with-me" ? "SELECTED" : "CLICK TO SELECT"}</b>
+            <b className="whitespace-nowrap ml-3">
+              {mode === "shop-with-me" ? "SELECTED" : "CLICK TO SELECT"}
+            </b>
           </div>
           <div
+            className={`control-mode-option ${mode === "buy-for-me" ? "is-selected" : ""}`}
             onClick={() => onModeChange("buy-for-me")}
-            style={{
-              cursor: "pointer",
-              background: mode === "buy-for-me" ? "#eef6f1" : "transparent",
-              transition: "background 0.15s ease",
-            }}
           >
             <span>
               <strong>Buy for me (Autonomous)</strong>
@@ -390,7 +487,9 @@ export default function LandingPage({
                 token.
               </small>
             </span>
-            <b>{mode === "buy-for-me" ? "SELECTED" : "CLICK TO SELECT"}</b>
+            <b className="whitespace-nowrap ml-3">
+              {mode === "buy-for-me" ? "SELECTED" : "CLICK TO SELECT"}
+            </b>
           </div>
         </div>
       </section>
@@ -464,8 +563,7 @@ export default function LandingPage({
               <Check />
               <span>
                 <strong>Live Order Tracking &amp; History</strong>
-                Penny streams real-time updates via SSE and records completed
-                orders
+                Penny streams real-time updates and records completed orders
               </span>
             </li>
           </ul>
@@ -474,7 +572,149 @@ export default function LandingPage({
             <Arrow />
           </button>
         </div>
+
+        {/* Live Autonomous Protection Dashboard Filler */}
+        <div className="autonomy-dashboard">
+          <header>
+            <div>
+              <span className="automation-pulse" />
+              <img
+                src={paypalLogo}
+                alt="PayPal"
+                className="landing-paypal-badge-img"
+              />
+              <span>
+                <strong>Autonomous Checkout Engine</strong>
+              </span>
+            </div>
+          </header>
+
+          <div className="automation-limit">
+            <span>
+              <small>SPENDING GUARDRAIL</small>
+              <strong>$250</strong>
+              <em>/ order cap</em>
+            </span>
+            <div style={{ textAlign: "right" }}>
+              <span
+                style={{
+                  fontSize: "9px",
+                  fontWeight: 700,
+                  color: "#1f5f3e",
+                  background: "#d9f0e1",
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  display: "inline-block",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                ● AUTO-CAPTURE READY
+              </span>
+            </div>
+          </div>
+
+          <div className="automation-rules">
+            <div>
+              <em>01</em>
+              <span>
+                <strong>Explicit Price Ceiling</strong>
+                <small>Orders above cap require manual confirmation</small>
+              </span>
+              <b>ENFORCED</b>
+            </div>
+            <div>
+              <em>02</em>
+              <span>
+                <strong>Non-Custodial Token</strong>
+                <small>Penny never stores your raw card credentials</small>
+              </span>
+              <b>VERIFIED</b>
+            </div>
+            <div>
+              <em>03</em>
+              <span>
+                <strong>Instant Revocation</strong>
+                <small>Disconnect vault token anytime in one click</small>
+              </span>
+              <b>ACTIVE</b>
+            </div>
+          </div>
+
+          <footer>
+            <div className="automation-check">
+              <Check />
+            </div>
+            <span>
+              <strong>Guaranteed User Control</strong>
+              <small>
+                Penny acts strictly within your pre-authorized limits
+              </small>
+            </span>
+          </footer>
+        </div>
       </section>
+
+      {/* Landing Footer */}
+      <footer className="landing-footer-main">
+        <div className="landing-footer-top">
+          <div className="footer-brand-col">
+            <button
+              className="wordmark footer-wordmark"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              type="button"
+            >
+              <span className="wordmark-icon">
+                <img
+                  alt="Penny Logo"
+                  className="penny-logo-mark"
+                  src={pennyLogo}
+                />
+              </span>
+              <span>Penny</span>
+            </button>
+            <p className="footer-tagline">
+              Agentic commerce with human judgment. Multimodal search, live
+              merchant verification, and non-custodial PayPal order settlement.
+            </p>
+          </div>
+
+          <div className="footer-links-col">
+            <strong>Architecture</strong>
+            <a href="#how">Intent to Purchase</a>
+            <a href="#control">Your Control &amp; Consent</a>
+            <a href="#autonomy">Autonomous Modes</a>
+            <button
+              className="footer-link-btn"
+              onClick={onOpenDemo}
+              type="button"
+            >
+              Interactive Architecture Demo &rarr;
+            </button>
+          </div>
+
+          <div className="footer-cta-col">
+            <strong>Start Shopping</strong>
+            <p>
+              Experience seamless conversational commerce powered by live
+              catalog search and PayPal.
+            </p>
+          </div>
+        </div>
+
+        <div className="landing-footer-bottom">
+          <p>
+            &copy; {new Date().getFullYear()} Penny. Agentic Commerce Platform.
+          </p>
+
+          <button
+            className="footer-back-to-top"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            type="button"
+          >
+            Back to top &uarr;
+          </button>
+        </div>
+      </footer>
     </main>
   );
 }

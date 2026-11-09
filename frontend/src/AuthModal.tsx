@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react"
+import { pennyLogo } from "./assets"
 
 export type AuthMode = "signin" | "signup"
 
@@ -83,15 +84,7 @@ export default function AuthModal({
       >
         <div className="auth-aside">
           <span className="auth-mark">
-            <svg fill="none" height="20" viewBox="0 0 24 24" width="20">
-              <path
-                d="m12 3 1.2 3.3L16.5 8l-3.3 1.2L12 12.5l-1.2-3.3L7.5 8l3.3-1.7L12 3ZM18 14l.7 1.7 1.8.8-1.8.7L18 19l-.7-1.8-1.8-.7 1.8-.8L18 14Z"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.8"
-              />
-            </svg>
+            <img src={pennyLogo} alt="Penny Logo" className="penny-logo-mark" />
           </span>
           <p>PENNY</p>
           <h2>Shopping decisions, made with an agent you can trust.</h2>

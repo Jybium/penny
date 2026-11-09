@@ -18,6 +18,7 @@ import CancelPage from "./pages/CancelPage";
 import AutonomyPage from "./pages/AutonomyPage";
 import OrdersModal from "./OrdersModal";
 import { formatPennyMessage } from "./utils/formatMarkdown";
+import { pennyLogo, paypalLogo } from "./assets";
 
 export type View =
   | "landing"
@@ -46,6 +47,7 @@ type IconName =
   | "settings"
   | "shield"
   | "sparkles"
+  | "trash"
   | "user"
   | "x";
 
@@ -135,6 +137,12 @@ function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
         <path d="m18 13 .8 2.2L21 16l-2.2.8L18 19l-.8-2.2L15 16l2.2-.8L18 13Z" />
       </>
     ),
+    trash: (
+      <>
+        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        <path d="M10 11v6M14 11v6" />
+      </>
+    ),
     user: (
       <>
         <circle cx="12" cy="8" r="4" />
@@ -165,12 +173,23 @@ function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
 }
 
 function viewFromPath(pathname: string): View {
-  if (pathname === "/chat") return "chat";
-  if (pathname === "/review") return "review";
-  if (pathname === "/checkout") return "payment";
-  if (pathname === "/order/success") return "success";
-  if (pathname === "/checkout/cancel") return "cancel";
-  if (pathname === "/autonomy") return "autonomy";
+  const clean = pathname.replace(/\/+$/, "").toLowerCase() || "/";
+  if (clean === "/chat") return "chat";
+  if (clean === "/review") return "review";
+  if (clean === "/checkout" || clean === "/payment") return "payment";
+  if (
+    clean === "/order/success" ||
+    clean === "/orders/success" ||
+    clean === "/order" ||
+    clean === "/orders" ||
+    clean.startsWith("/order/success") ||
+    clean.startsWith("/orders/success") ||
+    clean.startsWith("/order") ||
+    clean.startsWith("/orders")
+  )
+    return "success";
+  if (clean === "/checkout/cancel" || clean === "/payment/cancel") return "cancel";
+  if (clean === "/autonomy" || clean.startsWith("/autonomy")) return "autonomy";
   return "landing";
 }
 
@@ -178,6 +197,32 @@ const suggestions = [
   "Find me wireless noise cancelling headphones under $150",
   "Help me compare top running shoes for marathons",
   "I need an ergonomic mechanical keyboard for typing",
+];
+
+const visualSuggestions = [
+  {
+    title: "Noise Cancelling Headphones",
+    query: "Find me wireless noise cancelling headphones under $150",
+    image:
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=240&q=80",
+    badge: "Under $150",
+  },
+  {
+    title: "Marathon Running Shoes",
+    query:
+      "Help me compare top running shoes for marathons with high arch support",
+    image:
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=240&q=80",
+    badge: "High Cushion",
+  },
+  {
+    title: "Ergonomic Mechanical Keyboard",
+    query:
+      "I need an ergonomic mechanical keyboard for typing with quiet switches",
+    image:
+      "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=240&q=80",
+    badge: "Tactile",
+  },
 ];
 
 function Header({
@@ -216,7 +261,7 @@ function Header({
           type="button"
         >
           <span className="wordmark-icon">
-            <Icon name="sparkles" size={16} />
+            <img src={pennyLogo} alt="Penny Logo" className="penny-logo-mark" />
           </span>
           Penny
         </button>
@@ -248,39 +293,35 @@ function Header({
           <>
             {view === "landing" && (
               <button
-                className="customize-button"
+                className="header-chat-cta"
                 onClick={() => goTo("chat")}
-                style={{
-                  background: "var(--penny-green)",
-                  color: "#ffffff",
-                  borderColor: "var(--penny-green)",
-                  fontWeight: 700,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}
                 title="Go to Penny Conversation"
                 type="button"
               >
-                Go to Chat <Icon name="arrow" size={13} />
+                <span>Go to Chat</span>
+                <Icon name="arrow" size={12} />
               </button>
             )}
 
             <button
-              className="customize-button"
+              className="header-icon-action"
               onClick={onOpenOrders}
               title="View Your Orders"
               type="button"
             >
-              <Icon name="bag" size={14} /> Orders
+              <Icon name="bag" size={14} />
+              <span className="header-action-text">Orders</span>
             </button>
+
             <button
               aria-label="Customize shopping preferences"
-              className="customize-button"
+              className="header-icon-action"
               onClick={onCustomize}
+              title="Shopping Preferences"
               type="button"
             >
-              <Icon name="settings" size={15} /> Preferences
+              <Icon name="settings" size={14} />
+              <span className="header-action-text">Preferences</span>
             </button>
 
             <div style={{ position: "relative" }}>
@@ -299,55 +340,54 @@ function Header({
               </button>
 
               {profileMenuOpen && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "100%",
-                    right: 0,
-                    marginTop: 8,
-                    background: "#ffffff",
-                    border: "1px solid #d4ddd5",
-                    borderRadius: 8,
-                    padding: "8px 0",
-                    boxShadow: "0 10px 24px rgba(0,0,0,0.12)",
-                    minWidth: 160,
-                    zIndex: 100,
-                  }}
-                >
-                  <div
-                    style={{
-                      padding: "6px 14px",
-                      borderBottom: "1px solid #edf2ee",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 11,
-                        fontWeight: "bold",
-                        color: "#192b21",
-                      }}
-                    >
+                <div className="header-profile-dropdown">
+                  <div className="profile-dropdown-user">
+                    <div className="profile-dropdown-name">
                       {user.firstName} {user.lastName}
                     </div>
-                    <div style={{ fontSize: 9, color: "#76867d" }}>
-                      {user.email}
-                    </div>
+                    <div className="profile-dropdown-email">{user.email}</div>
                   </div>
+
+                  <div className="profile-dropdown-mobile-links">
+                    <button
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        onOpenOrders();
+                      }}
+                      className="profile-dropdown-item"
+                      type="button"
+                    >
+                      <Icon name="bag" size={13} /> Orders
+                    </button>
+                    <button
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        onCustomize();
+                      }}
+                      className="profile-dropdown-item"
+                      type="button"
+                    >
+                      <Icon name="settings" size={13} /> Preferences
+                    </button>
+                    <button
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        onOpenDemo();
+                      }}
+                      className="profile-dropdown-item"
+                      type="button"
+                    >
+                      <Icon name="sparkles" size={13} /> How Penny Works Demo
+                    </button>
+                  </div>
+
                   <button
                     onClick={() => {
                       setProfileMenuOpen(false);
                       onSignOut();
                     }}
-                    style={{
-                      width: "100%",
-                      textAlign: "left",
-                      padding: "8px 14px",
-                      background: "none",
-                      border: "none",
-                      fontSize: 11,
-                      color: "#b03a2e",
-                      cursor: "pointer",
-                    }}
+                    className="profile-dropdown-signout"
+                    type="button"
                   >
                     Sign out
                   </button>
@@ -358,32 +398,144 @@ function Header({
         ) : (
           <>
             <button
-              className="customize-button"
+              className="header-demo-mini-btn"
+              onClick={onOpenDemo}
+              title="How Penny Works"
+              type="button"
+            >
+              <Icon name="sparkles" size={12} />
+              <span>Demo</span>
+            </button>
+            <button
+              className="header-signin-btn"
               onClick={onSignIn}
-              style={{ background: "#ffffff" }}
               type="button"
             >
               Sign in
             </button>
             <button
-              className="landing-nav-cta"
+              className="header-signup-btn"
               onClick={onSignUp}
-              style={{
-                background: "var(--penny-honey)",
-                color: "#2c2719",
-                border: "none",
-                fontWeight: 700,
-                fontSize: 10,
-              }}
               type="button"
             >
-              Get started <Icon name="arrow" size={12} />
+              Get started <Icon name="arrow" size={11} />
             </button>
           </>
         )}
       </div>
     </header>
   );
+}
+
+function parsePendingOrderFromReply(
+  reply: string,
+  approvalUrl: string,
+  mode: "shop-with-me" | "buy-for-me",
+) {
+  // 1. Try to extract total price from message
+  let parsedTotal: number | null = null;
+  const totalMatch =
+    reply.match(
+      /(?:total(?:\s+price)?|amount|subtotal)[:\s]*\$?\s*([0-9]+(?:\.[0-9]{1,2})?)/i,
+    ) ||
+    reply.match(/(?:price)[:\s]*\$?\s*([0-9]+(?:\.[0-9]{1,2})?)/i) ||
+    reply.match(/\$\s*([0-9]+(?:\.[0-9]{1,2})?)/i);
+
+  if (totalMatch) {
+    const val = parseFloat(totalMatch[1]);
+    if (!isNaN(val) && val > 0) {
+      parsedTotal = val;
+    }
+  }
+
+  // 2. Try to extract line items from bullet points
+  const items: Array<{
+    description: string;
+    quantity: number;
+    unitPrice: number;
+  }> = [];
+  const lines = reply.split("\n");
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("-") || trimmed.startsWith("*")) {
+      if (
+        !trimmed.toLowerCase().includes("http") &&
+        !trimmed.toLowerCase().includes("paypal") &&
+        !trimmed.toLowerCase().includes("status:")
+      ) {
+        const descMatch =
+          trimmed.match(/(?:description|item)[:\s]*([^,\n]+)/i) ||
+          trimmed.match(/^[-*]\s*(\*\*)?([^*\n,]+)/);
+        const qtyMatch = trimmed.match(/quantity[:\s]*(\d+)/i);
+        const priceMatch =
+          trimmed.match(
+            /(?:unit\s*price|price)[:\s]*\$?\s*([0-9]+(?:\.[0-9]{1,2})?)/i,
+          ) || trimmed.match(/\$\s*([0-9]+(?:\.[0-9]{1,2})?)/);
+
+        if (descMatch) {
+          const desc = descMatch[1]
+            ? descMatch[1].replace(/^\*+|\*+$/g, "").trim()
+            : "";
+          if (
+            desc &&
+            !desc.toLowerCase().startsWith("total") &&
+            !desc.toLowerCase().startsWith("order summary") &&
+            desc.length > 2
+          ) {
+            const qty = qtyMatch ? parseInt(qtyMatch[1], 10) : 1;
+            const price = priceMatch
+              ? parseFloat(priceMatch[1])
+              : parsedTotal || 0;
+            items.push({
+              description: desc,
+              quantity: isNaN(qty) ? 1 : qty,
+              unitPrice: isNaN(price) ? parsedTotal || 0 : price,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  // Fallback if no items extracted: look for bolded product titles or product mentions
+  if (items.length === 0) {
+    const boldMatches = [...reply.matchAll(/\*\*([^*]+)\*\*/g)];
+    const candidate = boldMatches.find(
+      (m) =>
+        !m[1].toLowerCase().includes("total") &&
+        !m[1].toLowerCase().includes("order") &&
+        !m[1].toLowerCase().includes("summary") &&
+        !m[1].toLowerCase().includes("paypal") &&
+        m[1].trim().length > 2,
+    );
+    const title = candidate ? candidate[1].trim() : "Penny Verified Item";
+    items.push({
+      description: title,
+      quantity: 1,
+      unitPrice: parsedTotal || 0,
+    });
+  }
+
+  const finalTotal =
+    parsedTotal ??
+    (items.reduce((sum, it) => sum + it.unitPrice * it.quantity, 0) || 0);
+
+  const tokenMatch = approvalUrl.match(/token=([a-zA-Z0-9_-]+)/);
+  const orderId = tokenMatch
+    ? `PAYPAL-${tokenMatch[1].slice(-8).toUpperCase()}`
+    : `ORD-${Math.floor(100000 + Math.random() * 900000)}`;
+
+  return {
+    orderId,
+    paypalApprovalUrl: approvalUrl,
+    totalPrice: finalTotal,
+    currency: "USD",
+    items: items.map((it) => ({
+      ...it,
+      unitPrice: it.unitPrice || finalTotal,
+    })),
+    mode,
+  };
 }
 
 function ChatView({
@@ -394,6 +546,8 @@ function ChatView({
   onNotify,
   token,
   presetQuery,
+  user,
+  onOpenOrders,
 }: {
   goTo: (view: View) => void;
   guardrails: Guardrails;
@@ -402,11 +556,14 @@ function ChatView({
   onNotify: (message: string, tone?: ToastItem["tone"]) => void;
   token: string;
   presetQuery?: string;
+  user?: AuthUser | null;
+  onOpenOrders?: () => void;
 }) {
   const [text, setText] = useState(presetQuery || "");
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
@@ -417,12 +574,145 @@ function ChatView({
     },
   ]);
   const [sending, setSending] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(Boolean(token));
 
   useEffect(() => {
     if (presetQuery) {
       setText(presetQuery);
     }
   }, [presetQuery]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages, sending, loadingHistory]);
+
+  // Fetch persisted messages from GET /messages/own
+  useEffect(() => {
+    if (!token) {
+      setLoadingHistory(false);
+      return;
+    }
+    let active = true;
+    setLoadingHistory(true);
+
+    api
+      .getMessages(token)
+      .then((history) => {
+        if (!active || !Array.isArray(history) || history.length === 0) return;
+
+        // Sort chronologically ascending
+        const sorted = [...history].sort(
+          (a, b) =>
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+        );
+
+        const mapped: ChatMessage[] = sorted.map((item) => {
+          const isUser = user?.id
+            ? item.sender === user.id
+            : item.sender !== "penny" &&
+              !item.sender.toLowerCase().includes("assistant") &&
+              !item.sender.toLowerCase().includes("agent");
+          return {
+            id: item.id || `msg-${Date.now()}-${Math.random()}`,
+            role: isUser ? "user" : "penny",
+            content: item.message,
+          };
+        });
+
+        if (mapped.length > 0) {
+          setChatMessages(mapped);
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not load message history:", err);
+      })
+      .finally(() => {
+        if (active) setLoadingHistory(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [token, user?.id]);
+
+  // Inject any pending interaction (e.g. from Order Success "Continue with Penny" capture)
+  useEffect(() => {
+    if (!loadingHistory) {
+      const raw = sessionStorage.getItem("penny_pending_chat_injection");
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed?.userMessage && parsed?.pennyReply) {
+            setChatMessages((prev) => {
+              if (
+                prev.some(
+                  (m) =>
+                    m.role === "penny" &&
+                    m.content.trim() === parsed.pennyReply.trim(),
+                )
+              ) {
+                return prev;
+              }
+              return [
+                ...prev,
+                {
+                  id: `user-injected-${Date.now()}`,
+                  role: "user",
+                  content: parsed.userMessage,
+                },
+                {
+                  id: `penny-injected-${Date.now() + 1}`,
+                  role: "penny",
+                  content: parsed.pennyReply,
+                },
+              ];
+            });
+          }
+        } catch {
+          // ignore
+        } finally {
+          sessionStorage.removeItem("penny_pending_chat_injection");
+        }
+      }
+    }
+  }, [loadingHistory]);
+
+  async function handleClearHistory() {
+    if (!token) {
+      setChatMessages([
+        {
+          id: "intro-penny",
+          role: "penny",
+          content:
+            "What are you looking for today?\nShare your budget, must-haves, or attach a product photo. I’ll search real merchant catalogs, compare options, and prepare your order.",
+        },
+      ]);
+      onNotify("Conversation reset.", "info");
+      return;
+    }
+
+    setClearing(true);
+    try {
+      await api.deleteMessages(token);
+      setChatMessages([
+        {
+          id: "intro-penny",
+          role: "penny",
+          content:
+            "What are you looking for today?\nShare your budget, must-haves, or attach a product photo. I’ll search real merchant catalogs, compare options, and prepare your order.",
+        },
+      ]);
+      onNotify("All conversation history has been cleared.", "success");
+    } catch {
+      onNotify(
+        "Could not clear conversation history. Please try again.",
+        "error",
+      );
+    } finally {
+      setClearing(false);
+    }
+  }
 
   // Subscribe to GET /agent/sse-stream to populate chat with streamed messages & order events
   useEffect(() => {
@@ -569,22 +859,14 @@ function ChatView({
         /https?:\/\/[^\s)]*sandbox\.paypal\.com[^\s)]*/i,
       );
       if (paypalMatch) {
-        const pending = {
-          paypalApprovalUrl: paypalMatch[0],
-          totalPrice: 129.0,
-          currency: "USD",
-          items: [
-            {
-              description: "Penny Curated Order",
-              quantity: 1,
-              unitPrice: 129.0,
-            },
-          ],
-          mode: guardrails.mode,
-        };
+        const pending = parsePendingOrderFromReply(
+          pennyText,
+          paypalMatch[0],
+          guardrails.mode,
+        );
         sessionStorage.setItem("penny_pending_order", JSON.stringify(pending));
         onNotify(
-          "PayPal order generated! You can now proceed to checkout.",
+          `PayPal order prepared ($${pending.totalPrice.toFixed(2)})! You can now proceed to checkout.`,
           "info",
         );
       }
@@ -659,22 +941,93 @@ function ChatView({
         <div className="conversation-head">
           <div>
             <span className="agent-avatar">
-              <Icon name="sparkles" size={17} />
+              <img src={pennyLogo} alt="Penny" className="penny-avatar-img" />
             </span>
-            <div>
-              <strong>Commerce agent</strong>
-              <small>
-                Multimodal Search &bull; LangGraph &bull; PayPal Ready
-              </small>
-            </div>
           </div>
-          <span className="live-dot">Online</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span
+              className={sending ? "live-dot live-dot-researching" : "live-dot"}
+            >
+              {sending ? "Penny Researching..." : "Online"}
+            </span>
+            {chatMessages.length > 1 && (
+              <button
+                className="clear-chat-btn"
+                disabled={clearing}
+                onClick={handleClearHistory}
+                title="Clear conversation history"
+                type="button"
+              >
+                <Icon name="trash" size={12} />
+                <span>{clearing ? "Clearing..." : "Clear history"}</span>
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="messages">
           <div className="date-divider">
             <span>Today</span>
           </div>
+
+          {loadingHistory && (
+            <div
+              className="chat-skeleton-container"
+              aria-label="Loading messages..."
+            >
+              <div className="chat-skeleton-badge">
+                <span
+                  className="button-spinner"
+                  style={{ width: 12, height: 12, borderWidth: 1.5 }}
+                />
+                <span>Syncing conversation history...</span>
+              </div>
+              <div className="chat-skeleton-row">
+                <div className="skeleton-avatar" />
+                <div
+                  className="skeleton-bubble skeleton-bubble-agent"
+                  style={{ width: "70%", height: 54 }}
+                />
+              </div>
+              <div className="chat-skeleton-row chat-skeleton-user">
+                <div
+                  className="skeleton-bubble skeleton-bubble-user"
+                  style={{ width: "48%", height: 38 }}
+                />
+              </div>
+              <div className="chat-skeleton-row">
+                <div className="skeleton-avatar" />
+                <div
+                  className="skeleton-bubble skeleton-bubble-agent"
+                  style={{ width: "82%", height: 68 }}
+                />
+              </div>
+            </div>
+          )}
+
+          {chatMessages.length <= 1 && (
+            <div className="chat-visual-discovery">
+              <span className="chat-discovery-label">
+                POPULAR VISUAL SEARCHES
+              </span>
+              <div className="chat-visual-tiles">
+                {visualSuggestions.map((item) => (
+                  <button
+                    className="chat-visual-tile"
+                    key={item.title}
+                    onClick={() => setText(item.query)}
+                    type="button"
+                  >
+                    <img alt={item.title} src={item.image} />
+                    <div className="chat-tile-text">
+                      <span className="chat-tile-badge">{item.badge}</span>
+                      <strong>{item.title}</strong>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="suggestion-row">
             {suggestions.map((suggestion) => (
@@ -686,25 +1039,61 @@ function ChatView({
 
           {chatMessages.map((msg) => {
             const isUser = msg.role === "user";
-            const hasPayPalLink =
+            const contentLower = msg.content.toLowerCase();
+
+            // Detect if this message confirms order settlement, capture, or completed payment
+            const isOrderSettled =
               !isUser &&
-              (msg.content.includes("sandbox.paypal.com") ||
-                msg.content.toLowerCase().includes("paypal"));
+              (contentLower.includes("captured") ||
+                contentLower.includes("payment complete") ||
+                contentLower.includes("payment received") ||
+                contentLower.includes("order settled") ||
+                contentLower.includes("order confirmed") ||
+                contentLower.includes("order placed") ||
+                contentLower.includes("successfully paid") ||
+                contentLower.includes("purchase complete") ||
+                contentLower.includes("payment success") ||
+                contentLower.includes("transaction id"));
+
+            // Only show checkout button if it's genuinely a pending checkout, has an explicit checkout URL, and is NOT captured
+            const hasCheckoutUrl =
+              msg.content.includes("sandbox.paypal.com") ||
+              contentLower.includes("paypal.com/checkoutnow") ||
+              contentLower.includes("paypal.com/checkout");
+
+            const hasCheckoutPrompt =
+              !isUser && !isOrderSettled && hasCheckoutUrl;
+
+            const hasProducts =
+              !isUser &&
+              /^(?:(\d+)\.|\-|\*)\s+\*\*([^*]+)\*\*/m.test(msg.content);
 
             return (
               <div
                 className={
-                  isUser ? "message user-message" : "agent-message-row"
+                  isUser
+                    ? "message user-message"
+                    : `agent-message-row${hasProducts ? " has-products-row" : ""}`
                 }
                 key={msg.id}
               >
                 {!isUser && (
                   <span className="mini-avatar">
-                    <Icon name="sparkles" size={13} />
+                    <img
+                      src={pennyLogo}
+                      alt="Penny"
+                      className="penny-avatar-img"
+                    />
                   </span>
                 )}
 
-                <div className={isUser ? "" : "message agent-message"}>
+                <div
+                  className={
+                    isUser
+                      ? ""
+                      : `message agent-message${hasProducts ? " has-products-card" : ""}`
+                  }
+                >
                   {msg.imageUrl && (
                     <div
                       style={{
@@ -721,7 +1110,7 @@ function ChatView({
                         style={{
                           display: "block",
                           width: "100%",
-                          height: "auto",
+                          height: "400px",
                         }}
                       />
                       {msg.fileName && (
@@ -747,7 +1136,7 @@ function ChatView({
                     formatPennyMessage(msg.content)
                   )}
 
-                  {hasPayPalLink && (
+                  {hasCheckoutPrompt && (
                     <div
                       style={{
                         marginTop: 12,
@@ -759,13 +1148,59 @@ function ChatView({
                         className="primary-action"
                         onClick={() => goTo("payment")}
                         style={{
-                          padding: "8px 12px",
+                          padding: "8px 14px",
                           width: "auto",
                           display: "inline-flex",
+                          alignItems: "center",
                           gap: 8,
                         }}
                       >
+                        <div className="bg-white p-1 rounded-full">
+                          <img
+                            alt="PayPal"
+                            src={paypalLogo}
+                            style={{
+                              height: 16,
+                              width: "auto",
+                              objectFit: "contain",
+                            }}
+                          />
+                        </div>
                         Proceed to Checkout <Icon name="arrow" size={14} />
+                      </button>
+                    </div>
+                  )}
+
+                  {isOrderSettled && (
+                    <div
+                      style={{
+                        marginTop: 12,
+                        borderTop: "1px solid #dcdfd8",
+                        paddingTop: 10,
+                        display: "flex",
+                        gap: 8,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <button
+                        className="primary-action"
+                        onClick={() => {
+                          if (onOpenOrders) {
+                            onOpenOrders();
+                          } else {
+                            goTo("success");
+                          }
+                        }}
+                        style={{
+                          padding: "8px 14px",
+                          width: "auto",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <Icon name="check" size={14} />
+                        View Order &amp; Receipt
                       </button>
                     </div>
                   )}
@@ -779,80 +1214,112 @@ function ChatView({
               <span className="mini-avatar">
                 <Icon name="sparkles" size={13} />
               </span>
-              <div className="message agent-message thinking-message">
-                <span />
-                <span />
-                <span />
-                Penny is researching
+              <div className="message agent-message thinking-card">
+                <div className="thinking-header">
+                  <div className="thinking-dots">
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                  <strong>Penny is researching verified merchants...</strong>
+                </div>
+                <p className="thinking-subtext">
+                  Comparing prices, real-time inventory, and PayPal checkout
+                  routes.
+                </p>
+                <div className="thinking-shimmer-bar" />
               </div>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
 
-        <form className="composer" onSubmit={sendMessage}>
-          {file && (
-            <div className="file-chip">
-              <Icon name="sparkles" size={12} />
-              <span>{file.name}</span>
-              <button
-                aria-label="Remove attachment"
-                onClick={handleRemoveFile}
-                type="button"
-              >
-                <Icon name="x" size={12} />
-              </button>
-            </div>
-          )}
-
-          <input
-            aria-label="Message your commerce agent"
-            onChange={(event) => setText(event.target.value)}
-            placeholder={
-              file
-                ? "Add specifics (budget, color, sizing) or press Enter to search photo..."
-                : "Ask Penny to search, compare, or attach a photo..."
-            }
-            value={text}
-          />
-
-          <label
-            className="file-button"
-            title="Attach a product photo or screenshot (JPEG, PNG, WEBP)"
-          >
-            <input
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleFileChange}
-              ref={fileInputRef}
-              type="file"
-            />
-            <Icon name="plus" size={16} />
-          </label>
-
-          <button
-            aria-label="Send message"
-            className="send-button"
-            disabled={sending || (!text.trim() && !file)}
-            type="submit"
-          >
-            {sending ? (
-              <span className="button-spinner" />
-            ) : (
-              <Icon name="send" size={17} />
+        <div className="composer-wrapper">
+          <form className="composer" onSubmit={sendMessage}>
+            {file && (
+              <div className="file-chip">
+                <Icon name="sparkles" size={12} />
+                <span>{file.name}</span>
+                <button
+                  aria-label="Remove attachment"
+                  onClick={handleRemoveFile}
+                  type="button"
+                >
+                  <Icon name="x" size={12} />
+                </button>
+              </div>
             )}
-          </button>
-          <p>
-            <Icon name="shield" size={12} />{" "}
-            {guardrails.mode === "shop-with-me"
-              ? "Shop with me: you complete checkout"
-              : "Buy for me: Penny completes checkout"}
-          </p>
-        </form>
+
+            <input
+              aria-label="Message your commerce agent"
+              onChange={(event) => setText(event.target.value)}
+              placeholder={
+                file
+                  ? "Add specifics (budget, color, sizing) or press Enter to search photo..."
+                  : "Ask Penny to search, compare, or attach a photo..."
+              }
+              value={text}
+            />
+
+            <label
+              className="file-button"
+              title="Attach a product photo or screenshot (JPEG, PNG, WEBP)"
+            >
+              <input
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleFileChange}
+                ref={fileInputRef}
+                type="file"
+              />
+              <Icon name="plus" size={16} />
+            </label>
+
+            <button
+              aria-label="Send message"
+              className="send-button"
+              disabled={sending || (!text.trim() && !file)}
+              type="submit"
+            >
+              {sending ? (
+                <span className="button-spinner" />
+              ) : (
+                <Icon name="send" size={17} />
+              )}
+            </button>
+            <p>
+              <Icon name="shield" size={12} />{" "}
+              {guardrails.mode === "shop-with-me"
+                ? "Shop with me: you complete checkout"
+                : "Buy for me: Penny completes checkout"}
+            </p>
+          </form>
+        </div>
       </section>
     </main>
   );
 }
 
 function ReviewView({ goTo }: { goTo: (view: View) => void }) {
+  const pendingOrder = (() => {
+    try {
+      const saved = sessionStorage.getItem("penny_pending_order");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const itemTitle =
+    pendingOrder?.items?.[0]?.description ||
+    "Smart Noise-Cancelling Headphones (Penny Recommendation)";
+  const displayTotal =
+    pendingOrder?.totalPrice !== undefined && pendingOrder.totalPrice > 0
+      ? `$${pendingOrder.totalPrice.toFixed(2)} USD`
+      : "$129.00 USD";
+  const displaySubtotal =
+    pendingOrder?.totalPrice !== undefined && pendingOrder.totalPrice > 0
+      ? `$${pendingOrder.totalPrice.toFixed(2)}`
+      : "$129.00";
   return (
     <main className="review-page page-enter">
       <button className="back-button" onClick={() => goTo("chat")}>
@@ -897,8 +1364,8 @@ function ReviewView({ goTo }: { goTo: (view: View) => void }) {
               </div>
             </div>
             <div className="decision-info">
-              <span className="brand-name">AUDIO PRO</span>
-              <h2>Noise-Cancelling Over-Ear Headphones</h2>
+              <span className="brand-name">PENNY VERIFIED</span>
+              <h2>{itemTitle}</h2>
               <p className="product-meta">
                 Model NC-800 &bull; 40hr Battery &bull; Multipoint Bluetooth
               </p>
@@ -914,8 +1381,21 @@ function ReviewView({ goTo }: { goTo: (view: View) => void }) {
                 </p>
               </div>
               <div className="merchant-line">
-                <span>Verified PayPal Sandbox Merchant</span>
-                <strong>$129.00 USD</strong>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <img
+                    alt="PayPal"
+                    src={paypalLogo}
+                    style={{ height: 14, width: "auto", objectFit: "contain" }}
+                  />
+                  Verified PayPal Sandbox Merchant
+                </span>
+                <strong>{displayTotal}</strong>
               </div>
             </div>
           </article>
@@ -926,7 +1406,7 @@ function ReviewView({ goTo }: { goTo: (view: View) => void }) {
           <div className="summary-lines">
             <div>
               <span>Subtotal</span>
-              <strong>$129.00</strong>
+              <strong>{displaySubtotal}</strong>
             </div>
             <div>
               <span>Estimated Shipping</span>
@@ -938,7 +1418,7 @@ function ReviewView({ goTo }: { goTo: (view: View) => void }) {
             </div>
             <div className="summary-total">
               <strong>Total</strong>
-              <strong>$129.00 USD</strong>
+              <strong>{displayTotal}</strong>
             </div>
           </div>
 
@@ -979,24 +1459,59 @@ export default function App() {
   const [authMode, setAuthMode] = useState<AuthMode>("signup");
   const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(() => {
-    const saved = sessionStorage.getItem("penny_user");
-    if (!saved) return null;
     try {
+      const saved =
+        localStorage.getItem("penny_user") ||
+        sessionStorage.getItem("penny_user");
+      if (!saved) return null;
       return JSON.parse(saved) as AuthUser;
     } catch {
       return null;
     }
   });
-  const [token, setToken] = useState(
-    () => sessionStorage.getItem("penny_access_token") || "",
-  );
+  const [token, setToken] = useState(() => {
+    try {
+      return (
+        localStorage.getItem("penny_access_token") ||
+        sessionStorage.getItem("penny_access_token") ||
+        ""
+      );
+    } catch {
+      return "";
+    }
+  });
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const [hasVaultToken, setHasVaultToken] = useState(false);
   const [guardrails, setGuardrails] = useState<Guardrails>(() => ({
     mode:
-      sessionStorage.getItem("penny_mode") === "buy-for-me"
+      (localStorage.getItem("penny_mode") ||
+        sessionStorage.getItem("penny_mode")) === "buy-for-me"
         ? "buy-for-me"
         : "shop-with-me",
   }));
+
+  // Cross-tab auth state synchronization
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "penny_access_token" || e.key === "penny_user") {
+        try {
+          const freshToken =
+            localStorage.getItem("penny_access_token") ||
+            sessionStorage.getItem("penny_access_token") ||
+            "";
+          const freshUserRaw =
+            localStorage.getItem("penny_user") ||
+            sessionStorage.getItem("penny_user");
+          setToken(freshToken);
+          setUser(freshUserRaw ? (JSON.parse(freshUserRaw) as AuthUser) : null);
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const pageTitle = useMemo(() => {
     if (view === "landing") return "Penny — Agentic commerce";
@@ -1013,12 +1528,123 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [pageTitle]);
 
-  // Subscribe to real-time agent SSE stream for live order telemetry
+  // Check backend vault token on auth state change to enforce strict permissions
+  useEffect(() => {
+    if (!token) {
+      setHasVaultToken(false);
+      setGuardrails({ mode: "shop-with-me" });
+      localStorage.setItem("penny_mode", "shop-with-me");
+      sessionStorage.setItem("penny_mode", "shop-with-me");
+      return;
+    }
+
+    let active = true;
+    api
+      .getVault(token)
+      .then((vault) => {
+        if (!active) return;
+        if (vault) {
+          setHasVaultToken(true);
+          const savedMode =
+            localStorage.getItem("penny_mode") ||
+            sessionStorage.getItem("penny_mode");
+          const mode =
+            savedMode === "buy-for-me" ? "buy-for-me" : "shop-with-me";
+          setGuardrails({ mode });
+        } else {
+          setHasVaultToken(false);
+          // Without a vault token, strictly enforce Shop with me mode
+          setGuardrails({ mode: "shop-with-me" });
+          localStorage.setItem("penny_mode", "shop-with-me");
+          sessionStorage.setItem("penny_mode", "shop-with-me");
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setHasVaultToken(false);
+          setGuardrails({ mode: "shop-with-me" });
+          localStorage.setItem("penny_mode", "shop-with-me");
+          sessionStorage.setItem("penny_mode", "shop-with-me");
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [token]);
+
+  // Handle return redirect from PayPal Vault authorization (e.g. ?approved=true)
   useEffect(() => {
     if (!token) return;
-    const unsubscribe = api.subscribeSSE((data) => {
+
+    const params = new URLSearchParams(window.location.search);
+    const isApproved =
+      params.get("approved") === "true" ||
+      params.get("approval_token_id") !== null;
+
+    const setupTokenId =
+      params.get("approval_token_id") ||
+      params.get("token") ||
+      localStorage.getItem("penny_vault_setup_token_id") ||
+      sessionStorage.getItem("penny_vault_setup_token_id");
+
+    if (isApproved && setupTokenId) {
+      api
+        .exchangeVaultSetupToken(setupTokenId, token)
+        .then(() => {
+          setHasVaultToken(true);
+          setGuardrails({ mode: "buy-for-me" });
+          localStorage.setItem("penny_mode", "buy-for-me");
+          sessionStorage.setItem("penny_mode", "buy-for-me");
+          localStorage.removeItem("penny_vault_setup_token_id");
+          sessionStorage.removeItem("penny_vault_setup_token_id");
+          notify(
+            "PayPal Vault authorized! Switched to 'Buy for me' mode.",
+            "success",
+          );
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname,
+          );
+        })
+        .catch((err) => {
+          console.warn("Could not exchange vault setup token on return:", err);
+          notify("Failed to complete PayPal Vault authorization.", "error");
+        });
+    }
+  }, [token]);
+
+  // Subscribe to real-time agent SSE stream for live order & vault telemetry
+  useEffect(() => {
+    if (!token) return;
+    const unsubscribe = api.subscribeSSE(async (data) => {
       if (data.order_id) {
         notify(`Order update: ${data.order_id}`, "info");
+      }
+
+      // Vault setup approval token event from SSE
+      const incomingSetupToken =
+        data.setup_token ||
+        data.vault_setup_token_id ||
+        data.approval_token_id ||
+        (data.event === "vault_approved" &&
+          (data.token || sessionStorage.getItem("penny_vault_setup_token_id")));
+
+      if (incomingSetupToken) {
+        try {
+          await api.exchangeVaultSetupToken(incomingSetupToken, token);
+          setHasVaultToken(true);
+          setGuardrails({ mode: "buy-for-me" });
+          sessionStorage.setItem("penny_mode", "buy-for-me");
+          sessionStorage.removeItem("penny_vault_setup_token_id");
+          notify(
+            "PayPal Vault approved via live stream! 'Buy for me' mode activated.",
+            "success",
+          );
+        } catch (err) {
+          console.warn("Could not exchange vault setup token from SSE:", err);
+        }
       }
     });
     return () => {
@@ -1053,22 +1679,94 @@ export default function App() {
   }
 
   function handleSignOut() {
-    sessionStorage.removeItem("penny_access_token");
-    sessionStorage.removeItem("penny_user");
-    sessionStorage.removeItem("penny_vault_setup_token_id");
+    try {
+      localStorage.removeItem("penny_access_token");
+      localStorage.removeItem("penny_user");
+      localStorage.removeItem("penny_vault_setup_token_id");
+      sessionStorage.removeItem("penny_access_token");
+      sessionStorage.removeItem("penny_user");
+      sessionStorage.removeItem("penny_vault_setup_token_id");
+    } catch (e) {
+      console.warn("Storage clear error:", e);
+    }
     setToken("");
     setUser(null);
     notify("You have signed out.", "info");
     goTo("landing");
   }
 
-  function handleModeChange(nextMode: "shop-with-me" | "buy-for-me") {
-    setGuardrails({ mode: nextMode });
-    sessionStorage.setItem("penny_mode", nextMode);
-    notify(
-      `${nextMode === "shop-with-me" ? "Shop with me" : "Buy for me"} mode active.`,
-      "info",
-    );
+  async function handleModeChange(nextMode: "shop-with-me" | "buy-for-me") {
+    if (nextMode === "buy-for-me") {
+      // If user already has a valid vault token, simply switch mode
+      if (hasVaultToken) {
+        setGuardrails({ mode: "buy-for-me" });
+        localStorage.setItem("penny_mode", "buy-for-me");
+        sessionStorage.setItem("penny_mode", "buy-for-me");
+        notify("Buy for me mode active with verified PayPal vault.", "success");
+        return;
+      }
+
+      // No vault token: require authentication first
+      if (!token) {
+        notify(
+          "Please sign in first to authorize PayPal Vault payments.",
+          "error",
+        );
+        openAuth("signin");
+        return;
+      }
+
+      // Trigger PayPal setup token endpoint and redirect
+      try {
+        notify("Initiating PayPal Vault authorization...", "info");
+        const res = await api.createVaultSetupToken(token);
+        const link = res.paypal_response?.payer_vault_setup_approval_link;
+        const setupId = res.paypal_response?.vault_setup_token_id;
+
+        if (!link || !setupId) {
+          throw new Error(
+            "Could not retrieve PayPal Vault setup approval link",
+          );
+        }
+
+        localStorage.setItem("penny_vault_setup_token_id", setupId);
+        sessionStorage.setItem("penny_vault_setup_token_id", setupId);
+
+        // Redirect to PayPal approval page
+        window.location.href = link;
+      } catch (err: unknown) {
+        notify(
+          err instanceof Error
+            ? err.message
+            : "Failed to initiate PayPal Vault authorization.",
+          "error",
+        );
+      }
+    } else {
+      // User switches back to "Shop for me" mode -> delete the sensitive vault token from the backend
+      setGuardrails({ mode: "shop-with-me" });
+      localStorage.setItem("penny_mode", "shop-with-me");
+      sessionStorage.setItem("penny_mode", "shop-with-me");
+      localStorage.removeItem("penny_vault_setup_token_id");
+      sessionStorage.removeItem("penny_vault_setup_token_id");
+
+      if (token && hasVaultToken) {
+        try {
+          await api.deleteVault(token);
+          setHasVaultToken(false);
+          notify(
+            "PayPal vault token deleted securely. Switched back to Shop for me mode.",
+            "success",
+          );
+        } catch (err) {
+          console.warn("Could not delete vault token:", err);
+          notify("Switched back to Shop for me mode.", "info");
+        }
+      } else {
+        setHasVaultToken(false);
+        notify("Shop with me mode active.", "info");
+      }
+    }
   }
 
   function notify(message: string, tone: ToastItem["tone"] = "success") {
@@ -1099,8 +1797,17 @@ export default function App() {
       gender: response.user.gender,
       role: response.user.role,
     };
-    sessionStorage.setItem("penny_access_token", response.access_token);
-    sessionStorage.setItem("penny_user", JSON.stringify(nextUser));
+    try {
+      localStorage.setItem("penny_access_token", response.access_token);
+      localStorage.setItem("penny_user", JSON.stringify(nextUser));
+      sessionStorage.setItem("penny_access_token", response.access_token);
+      sessionStorage.setItem("penny_user", JSON.stringify(nextUser));
+    } catch (e) {
+      console.warn("Storage write error:", e);
+    }
+    setToken(response.access_token);
+    setUser(nextUser);
+    setAuthOpen(false);
     setToken(response.access_token);
     setUser(nextUser);
     setAuthOpen(false);
@@ -1147,8 +1854,10 @@ export default function App() {
           onCustomize={() => setPreferencesOpen(true)}
           onNotify={notify}
           onOpenDemo={() => setDemoOpen(true)}
+          onOpenOrders={() => setOrdersOpen(true)}
           presetQuery={demoPresetQuery}
           token={token}
+          user={user}
         />
       )}
 
@@ -1158,7 +1867,13 @@ export default function App() {
         <PaymentPage onNavigate={goTo} onNotify={notify} token={token} />
       )}
 
-      {view === "success" && <SuccessPage onNavigate={goTo} token={token} />}
+      {view === "success" && (
+        <SuccessPage
+          onNavigate={goTo}
+          onOpenOrders={() => setOrdersOpen(true)}
+          token={token}
+        />
+      )}
 
       {view === "cancel" && <CancelPage onNavigate={goTo} />}
 
@@ -1183,16 +1898,11 @@ export default function App() {
       />
 
       <GuardrailModal
+        hasVaultToken={hasVaultToken}
         onClose={() => setPreferencesOpen(false)}
         onSave={(settings) => {
-          setGuardrails(settings);
-          sessionStorage.setItem("penny_mode", settings.mode);
           setPreferencesOpen(false);
-          notify(
-            `${
-              settings.mode === "shop-with-me" ? "Shop with me" : "Buy for me"
-            } mode saved.`,
-          );
+          handleModeChange(settings.mode);
         }}
         open={preferencesOpen}
         settings={guardrails}

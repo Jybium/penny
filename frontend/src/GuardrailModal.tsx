@@ -7,6 +7,7 @@ export type GuardrailSettings = {
 type Props = {
   open: boolean
   settings: GuardrailSettings
+  hasVaultToken?: boolean
   onClose: () => void
   onSave: (settings: GuardrailSettings) => void
 }
@@ -14,6 +15,7 @@ type Props = {
 export default function GuardrailModal({
   open,
   settings,
+  hasVaultToken = false,
   onClose,
   onSave,
 }: Props) {
@@ -81,7 +83,7 @@ export default function GuardrailModal({
               <i>{draft.mode === "buy-for-me" && <span />}</i>
               <b>Buy for me</b>
               <small>Penny completes checkout with your saved PayPal.</small>
-              <em>AUTONOMOUS</em>
+              <em>{hasVaultToken ? "AUTONOMOUS (VAULT READY)" : "PAYPAL APPROVAL REQUIRED"}</em>
             </button>
           </div>
         </div>
@@ -97,14 +99,23 @@ export default function GuardrailModal({
             />
           </svg>
           <p>
-            Buy for me requires a saved PayPal payment method. Penny will ask you
-            to connect one when needed.
+            {draft.mode === "buy-for-me" && !hasVaultToken
+              ? "Switching to Buy for me requires authorizing a PayPal Vault setup token. You will be redirected to PayPal to complete authorization."
+              : draft.mode === "shop-with-me" && hasVaultToken
+                ? "Switching to Shop for me will securely delete your saved PayPal vault token."
+                : "Shop for me mode lets you review and manually approve every order on the PayPal checkout screen."}
           </p>
         </div>
 
         <footer className="preferences-footer">
           <button onClick={onClose}>Cancel</button>
-          <button onClick={() => onSave(draft)}>Save Penny mode</button>
+          <button onClick={() => onSave(draft)}>
+            {draft.mode === "buy-for-me" && !hasVaultToken
+              ? "Authorize on PayPal"
+              : draft.mode === "shop-with-me" && hasVaultToken
+                ? "Delete Vault & Switch"
+                : "Save Penny mode"}
+          </button>
         </footer>
       </section>
     </div>

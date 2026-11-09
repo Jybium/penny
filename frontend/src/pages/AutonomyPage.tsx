@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import { api, VaultTokenResponse } from "../api";
+import { paypalLogo } from "../assets";
 
 type Props = {
   token: string;
@@ -18,14 +19,18 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
 
   const [approvalLink, setApprovalLink] = useState<string | null>(null);
   const [setupTokenId, setSetupTokenId] = useState<string>(
-    () => sessionStorage.getItem("penny_vault_setup_token_id") || "",
+    () =>
+      localStorage.getItem("penny_vault_setup_token_id") ||
+      sessionStorage.getItem("penny_vault_setup_token_id") ||
+      "",
   );
 
   const [activeMode, setActiveMode] = useState<"shop-with-me" | "buy-for-me">(
     () => {
-      return sessionStorage.getItem("penny_mode") === "buy-for-me"
-        ? "buy-for-me"
-        : "shop-with-me";
+      const mode =
+        localStorage.getItem("penny_mode") ||
+        sessionStorage.getItem("penny_mode");
+      return mode === "buy-for-me" ? "buy-for-me" : "shop-with-me";
     },
   );
 
@@ -46,9 +51,11 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
         setVaultToken(data);
         if (data) {
           setActiveMode("buy-for-me");
+          localStorage.setItem("penny_mode", "buy-for-me");
           sessionStorage.setItem("penny_mode", "buy-for-me");
         } else {
           setActiveMode("shop-with-me");
+          localStorage.setItem("penny_mode", "shop-with-me");
           sessionStorage.setItem("penny_mode", "shop-with-me");
         }
       })
@@ -57,14 +64,18 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
         if (active) setLoading(false);
       });
 
-    // If user approved on PayPal and returned with ?approved=true
-    const isApprovedParam = searchParams.get("approved") === "true";
-    const savedTokenId = sessionStorage.getItem("penny_vault_setup_token_id");
-    if (isApprovedParam && savedTokenId && !vaultToken) {
-      onNotify(
-        "Detected PayPal approval return. Ready to complete activation.",
-        "info",
-      );
+    // If user approved on PayPal and returned with ?approved=true or approval_token_id
+    const isApprovedParam =
+      searchParams.get("approved") === "true" ||
+      searchParams.get("approval_token_id") !== null;
+    const tokenToExchange =
+      searchParams.get("approval_token_id") ||
+      searchParams.get("token") ||
+      localStorage.getItem("penny_vault_setup_token_id") ||
+      sessionStorage.getItem("penny_vault_setup_token_id");
+
+    if (isApprovedParam && tokenToExchange && !vaultToken) {
+      handleExchangeToken(tokenToExchange);
     }
 
     return () => {
@@ -91,14 +102,11 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
       if (link && id) {
         setApprovalLink(link);
         setSetupTokenId(id);
+        localStorage.setItem("penny_vault_setup_token_id", id);
         sessionStorage.setItem("penny_vault_setup_token_id", id);
 
-        // Open PayPal page for user to approve faster payments
-        window.open(link, "_blank", "noopener,noreferrer");
-        onNotify(
-          "PayPal approval window opened. Once approved, click 'Complete Activation' below.",
-          "info",
-        );
+        // Redirect to PayPal approval page
+        window.location.href = link;
       } else {
         onNotify(
           "Could not retrieve PayPal vault setup link from API.",
@@ -118,9 +126,11 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
   }
 
   // Step 2: Pass setup_token_id to POST /vault/setup-token-exchange in request body
-  async function handleExchangeToken() {
+  async function handleExchangeToken(explicitToken?: string) {
     const tokenToExchange =
+      explicitToken ||
       setupTokenId.trim() ||
+      localStorage.getItem("penny_vault_setup_token_id") ||
       sessionStorage.getItem("penny_vault_setup_token_id");
     if (!tokenToExchange) {
       onNotify(
@@ -140,7 +150,9 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
 
       // Switch mode to buy-for-me
       setActiveMode("buy-for-me");
+      localStorage.setItem("penny_mode", "buy-for-me");
       sessionStorage.setItem("penny_mode", "buy-for-me");
+      localStorage.removeItem("penny_vault_setup_token_id");
       sessionStorage.removeItem("penny_vault_setup_token_id");
       setApprovalLink(null);
       setSetupTokenId("");
@@ -178,7 +190,9 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
 
       // Switch mode back to shop-with-me (Shop for me)
       setActiveMode("shop-with-me");
+      localStorage.setItem("penny_mode", "shop-with-me");
       sessionStorage.setItem("penny_mode", "shop-with-me");
+      localStorage.removeItem("penny_vault_setup_token_id");
       sessionStorage.removeItem("penny_vault_setup_token_id");
       setApprovalLink(null);
       setSetupTokenId("");
@@ -293,9 +307,6 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                   <span className="automation-pulse" />
                   <span>
                     <strong>Buy for me Mode: Active</strong>
-                    <small>
-                      PayPal Vault payment token is connected and active
-                    </small>
                   </span>
                 </div>
                 <b>TOKENIZED</b>
@@ -305,7 +316,7 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                 <span>
                   <small>AUTONOMOUS SETTLEMENT STATUS</small>
                   <strong>Active</strong>
-                  <em>Penny will settle orders autonomously</em>
+                  {/* <em>Penny will settle orders autonomously</em> */}
                 </span>
                 <span style={{ fontSize: "10px", color: "var(--penny-green)" }}>
                   Verified &bull; Non-Custodial
@@ -359,10 +370,6 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                   </span>
                   <span>
                     <strong>Switch back to Shop for me</strong>
-                    <small>
-                      Delete the vault token to require manual checkout on
-                      PayPal
-                    </small>
                   </span>
                 </div>
 
@@ -407,7 +414,11 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                     fontWeight: "bold",
                   }}
                 >
-                  P
+                  <img
+                    src={paypalLogo}
+                    alt="PayPal"
+                    className="paypal-btn-img"
+                  />
                 </span>
                 <div>
                   <h3 style={{ margin: 0, fontSize: 16 }}>
@@ -453,15 +464,28 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                   onClick={handleStartSetup}
                   style={{ marginTop: 8 }}
                 >
-                  <span>P</span>{" "}
-                  {setupLoading
-                    ? "Generating Vault Setup Token..."
-                    : "Setup Buy for me (Generate Setup Token)"}
+                  <img
+                    src={paypalLogo}
+                    alt="PayPal"
+                    className="paypal-btn-img"
+                  />
+                  <span>
+                    {setupLoading
+                      ? "Generating Vault Setup Token..."
+                      : "Setup Buy for me (Generate Setup Token)"}
+                  </span>
                 </button>
               ) : (
                 <div style={{ display: "grid", gap: 14, marginTop: 14 }}>
                   {/* Step A: PayPal Approval Window */}
-                  <div style={{ padding: 16, borderRadius: 6, border: "1px solid #d9e2db", background: "#f8faf8" }}>
+                  <div
+                    style={{
+                      padding: 16,
+                      borderRadius: 6,
+                      border: "1px solid #d9e2db",
+                      background: "#f8faf8",
+                    }}
+                  >
                     <p style={{ margin: 0, fontWeight: 700, color: "#365c49" }}>
                       Step 1: Approve Faster Payment on PayPal
                     </p>
@@ -493,7 +517,14 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                   </div>
 
                   {/* Step B: Exchange Setup Token */}
-                  <div style={{ padding: 16, borderRadius: 6, border: "1px solid #d9e2db", background: "#f8faf8" }}>
+                  <div
+                    style={{
+                      padding: 16,
+                      borderRadius: 6,
+                      border: "1px solid #d9e2db",
+                      background: "#f8faf8",
+                    }}
+                  >
                     <p style={{ margin: 0, fontWeight: 700, color: "#365c49" }}>
                       Step 2: Complete Setup Token Exchange
                     </p>
@@ -543,7 +574,7 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
                     <button
                       className="primary-action"
                       disabled={exchangeLoading}
-                      onClick={handleExchangeToken}
+                      onClick={() => handleExchangeToken()}
                     >
                       {exchangeLoading
                         ? "Exchanging Setup Token with Penny API..."
