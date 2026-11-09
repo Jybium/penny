@@ -137,6 +137,9 @@ source env/bin/activate
 uvicorn main:app --reload
 ```
 
+## Authentication Method
+API requests are protected, so user must authenticate with "username" and "password" fields using the form-urlencoded request body type.
+
 ## API documentation
 
 Once the server is running, interactive API docs are available at:
