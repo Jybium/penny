@@ -130,6 +130,10 @@ PAYPAL_BUSINESS_SANDBOX_SECRET_KEY=xxxxxxxx
  
 ```bash
 docker compose up -d
+
+cd api
+python -m venv env
+source env/bin/activate
 uvicorn main:app --reload
 ```
 
