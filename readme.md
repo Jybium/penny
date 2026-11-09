@@ -129,7 +129,7 @@ PAYPAL_BUSINESS_SANDBOX_SECRET_KEY=xxxxxxxx
 ### Run
  
 ```bash
-docker compose up
+docker compose up -d
 uvicorn main:app --reload
 ```
 
