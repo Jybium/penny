@@ -40,7 +40,9 @@ export default function SuccessPage({
   const [activeOrder, setActiveOrder] = useState<ApiOrder | null>(null);
   const [storedOrder, setStoredOrder] = useState<StoredOrder | null>(() => {
     const saved =
+      localStorage.getItem("penny_last_settled_order") ||
       sessionStorage.getItem("penny_last_settled_order") ||
+      localStorage.getItem("penny_pending_order") ||
       sessionStorage.getItem("penny_pending_order");
     if (saved) {
       try {
@@ -58,7 +60,10 @@ export default function SuccessPage({
 
   async function handleContinueWithPenny() {
     const activeToken =
-      token || sessionStorage.getItem("penny_access_token") || "";
+      token ||
+      localStorage.getItem("penny_access_token") ||
+      sessionStorage.getItem("penny_access_token") ||
+      "";
 
     if (!activeToken) {
       onNavigate("chat");
@@ -93,21 +98,34 @@ export default function SuccessPage({
 
   // Fetch real order from backend
   useEffect(() => {
-    sessionStorage.removeItem("penny_pending_order");
-    if (!token) return;
+    try {
+      localStorage.removeItem("penny_pending_order");
+      sessionStorage.removeItem("penny_pending_order");
+    } catch {
+      // ignore
+    }
+
+    const activeToken =
+      token ||
+      localStorage.getItem("penny_access_token") ||
+      sessionStorage.getItem("penny_access_token") ||
+      "";
+
+    if (!activeToken) return;
     let active = true;
     setLoading(true);
 
     const lookupId =
       rawQueryOrderId ||
       storedOrder?.orderId ||
+      localStorage.getItem("penny_last_order_id") ||
       sessionStorage.getItem("penny_last_order_id");
 
     async function fetchRealOrder() {
       // 1. If lookupId is available, try getting the specific order
       if (lookupId && !lookupId.startsWith("ORD-")) {
         try {
-          const direct = await api.getOrder(lookupId, token);
+          const direct = await api.getOrder(lookupId, activeToken);
           if (active && direct) {
             setActiveOrder(direct);
             setLoading(false);
@@ -120,7 +138,7 @@ export default function SuccessPage({
 
       // 2. Query list of user's orders to find matched or latest
       try {
-        const orderList = await api.getOrders(token);
+        const orderList = await api.getOrders(activeToken);
         if (!active || !Array.isArray(orderList) || orderList.length === 0) {
           setLoading(false);
           return;
@@ -136,7 +154,7 @@ export default function SuccessPage({
         if (matched) {
           // Fetch full order details including line items
           try {
-            const fullOrder = await api.getOrder(matched.id, token);
+            const fullOrder = await api.getOrder(matched.id, activeToken);
             if (active) setActiveOrder(fullOrder || matched);
           } catch {
             if (active) setActiveOrder(matched);
@@ -161,6 +179,7 @@ export default function SuccessPage({
     activeOrder?.paypal_order_id ||
     activeOrder?.id ||
     storedOrder?.orderId ||
+    localStorage.getItem("penny_last_order_id") ||
     sessionStorage.getItem("penny_last_order_id") ||
     "ORD-849201";
 
@@ -170,6 +189,7 @@ export default function SuccessPage({
   const isAutonomous =
     activeOrder?.is_autonomous ??
     (storedOrder?.mode === "buy-for-me" ||
+      localStorage.getItem("penny_mode") === "buy-for-me" ||
       sessionStorage.getItem("penny_mode") === "buy-for-me");
 
   const effectiveDate = activeOrder?.created_at

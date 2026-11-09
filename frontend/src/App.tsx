@@ -176,14 +176,19 @@ function viewFromPath(pathname: string): View {
   const clean = pathname.replace(/\/+$/, "").toLowerCase() || "/";
   if (clean === "/chat") return "chat";
   if (clean === "/review") return "review";
-  if (clean === "/checkout") return "payment";
+  if (clean === "/checkout" || clean === "/payment") return "payment";
   if (
     clean === "/order/success" ||
     clean === "/orders/success" ||
-    clean.startsWith("/order/success")
+    clean === "/order" ||
+    clean === "/orders" ||
+    clean.startsWith("/order/success") ||
+    clean.startsWith("/orders/success") ||
+    clean.startsWith("/order") ||
+    clean.startsWith("/orders")
   )
     return "success";
-  if (clean === "/checkout/cancel") return "cancel";
+  if (clean === "/checkout/cancel" || clean === "/payment/cancel") return "cancel";
   if (clean === "/autonomy" || clean.startsWith("/autonomy")) return "autonomy";
   return "landing";
 }
@@ -1454,25 +1459,59 @@ export default function App() {
   const [authMode, setAuthMode] = useState<AuthMode>("signup");
   const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(() => {
-    const saved = sessionStorage.getItem("penny_user");
-    if (!saved) return null;
     try {
+      const saved =
+        localStorage.getItem("penny_user") ||
+        sessionStorage.getItem("penny_user");
+      if (!saved) return null;
       return JSON.parse(saved) as AuthUser;
     } catch {
       return null;
     }
   });
-  const [token, setToken] = useState(
-    () => sessionStorage.getItem("penny_access_token") || "",
-  );
+  const [token, setToken] = useState(() => {
+    try {
+      return (
+        localStorage.getItem("penny_access_token") ||
+        sessionStorage.getItem("penny_access_token") ||
+        ""
+      );
+    } catch {
+      return "";
+    }
+  });
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [hasVaultToken, setHasVaultToken] = useState(false);
   const [guardrails, setGuardrails] = useState<Guardrails>(() => ({
     mode:
-      sessionStorage.getItem("penny_mode") === "buy-for-me"
+      (localStorage.getItem("penny_mode") ||
+        sessionStorage.getItem("penny_mode")) === "buy-for-me"
         ? "buy-for-me"
         : "shop-with-me",
   }));
+
+  // Cross-tab auth state synchronization
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "penny_access_token" || e.key === "penny_user") {
+        try {
+          const freshToken =
+            localStorage.getItem("penny_access_token") ||
+            sessionStorage.getItem("penny_access_token") ||
+            "";
+          const freshUserRaw =
+            localStorage.getItem("penny_user") ||
+            sessionStorage.getItem("penny_user");
+          setToken(freshToken);
+          setUser(freshUserRaw ? (JSON.parse(freshUserRaw) as AuthUser) : null);
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const pageTitle = useMemo(() => {
     if (view === "landing") return "Penny — Agentic commerce";
@@ -1494,6 +1533,7 @@ export default function App() {
     if (!token) {
       setHasVaultToken(false);
       setGuardrails({ mode: "shop-with-me" });
+      localStorage.setItem("penny_mode", "shop-with-me");
       sessionStorage.setItem("penny_mode", "shop-with-me");
       return;
     }
@@ -1505,7 +1545,9 @@ export default function App() {
         if (!active) return;
         if (vault) {
           setHasVaultToken(true);
-          const savedMode = sessionStorage.getItem("penny_mode");
+          const savedMode =
+            localStorage.getItem("penny_mode") ||
+            sessionStorage.getItem("penny_mode");
           const mode =
             savedMode === "buy-for-me" ? "buy-for-me" : "shop-with-me";
           setGuardrails({ mode });
@@ -1513,6 +1555,7 @@ export default function App() {
           setHasVaultToken(false);
           // Without a vault token, strictly enforce Shop with me mode
           setGuardrails({ mode: "shop-with-me" });
+          localStorage.setItem("penny_mode", "shop-with-me");
           sessionStorage.setItem("penny_mode", "shop-with-me");
         }
       })
@@ -1520,6 +1563,7 @@ export default function App() {
         if (active) {
           setHasVaultToken(false);
           setGuardrails({ mode: "shop-with-me" });
+          localStorage.setItem("penny_mode", "shop-with-me");
           sessionStorage.setItem("penny_mode", "shop-with-me");
         }
       });
@@ -1541,6 +1585,7 @@ export default function App() {
     const setupTokenId =
       params.get("approval_token_id") ||
       params.get("token") ||
+      localStorage.getItem("penny_vault_setup_token_id") ||
       sessionStorage.getItem("penny_vault_setup_token_id");
 
     if (isApproved && setupTokenId) {
@@ -1549,7 +1594,9 @@ export default function App() {
         .then(() => {
           setHasVaultToken(true);
           setGuardrails({ mode: "buy-for-me" });
+          localStorage.setItem("penny_mode", "buy-for-me");
           sessionStorage.setItem("penny_mode", "buy-for-me");
+          localStorage.removeItem("penny_vault_setup_token_id");
           sessionStorage.removeItem("penny_vault_setup_token_id");
           notify(
             "PayPal Vault authorized! Switched to 'Buy for me' mode.",
@@ -1632,9 +1679,16 @@ export default function App() {
   }
 
   function handleSignOut() {
-    sessionStorage.removeItem("penny_access_token");
-    sessionStorage.removeItem("penny_user");
-    sessionStorage.removeItem("penny_vault_setup_token_id");
+    try {
+      localStorage.removeItem("penny_access_token");
+      localStorage.removeItem("penny_user");
+      localStorage.removeItem("penny_vault_setup_token_id");
+      sessionStorage.removeItem("penny_access_token");
+      sessionStorage.removeItem("penny_user");
+      sessionStorage.removeItem("penny_vault_setup_token_id");
+    } catch (e) {
+      console.warn("Storage clear error:", e);
+    }
     setToken("");
     setUser(null);
     notify("You have signed out.", "info");
@@ -1646,6 +1700,7 @@ export default function App() {
       // If user already has a valid vault token, simply switch mode
       if (hasVaultToken) {
         setGuardrails({ mode: "buy-for-me" });
+        localStorage.setItem("penny_mode", "buy-for-me");
         sessionStorage.setItem("penny_mode", "buy-for-me");
         notify("Buy for me mode active with verified PayPal vault.", "success");
         return;
@@ -1674,6 +1729,7 @@ export default function App() {
           );
         }
 
+        localStorage.setItem("penny_vault_setup_token_id", setupId);
         sessionStorage.setItem("penny_vault_setup_token_id", setupId);
 
         // Redirect to PayPal approval page
@@ -1689,7 +1745,9 @@ export default function App() {
     } else {
       // User switches back to "Shop for me" mode -> delete the sensitive vault token from the backend
       setGuardrails({ mode: "shop-with-me" });
+      localStorage.setItem("penny_mode", "shop-with-me");
       sessionStorage.setItem("penny_mode", "shop-with-me");
+      localStorage.removeItem("penny_vault_setup_token_id");
       sessionStorage.removeItem("penny_vault_setup_token_id");
 
       if (token && hasVaultToken) {
@@ -1739,8 +1797,17 @@ export default function App() {
       gender: response.user.gender,
       role: response.user.role,
     };
-    sessionStorage.setItem("penny_access_token", response.access_token);
-    sessionStorage.setItem("penny_user", JSON.stringify(nextUser));
+    try {
+      localStorage.setItem("penny_access_token", response.access_token);
+      localStorage.setItem("penny_user", JSON.stringify(nextUser));
+      sessionStorage.setItem("penny_access_token", response.access_token);
+      sessionStorage.setItem("penny_user", JSON.stringify(nextUser));
+    } catch (e) {
+      console.warn("Storage write error:", e);
+    }
+    setToken(response.access_token);
+    setUser(nextUser);
+    setAuthOpen(false);
     setToken(response.access_token);
     setUser(nextUser);
     setAuthOpen(false);

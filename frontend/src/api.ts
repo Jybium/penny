@@ -119,7 +119,14 @@ async function request<T>(
   token?: string,
 ): Promise<T> {
   const headers = new Headers(init.headers);
-  if (token) headers.set("Authorization", `Bearer ${token}`);
+  const activeToken =
+    token ||
+    (typeof window !== "undefined"
+      ? localStorage.getItem("penny_access_token") ||
+        sessionStorage.getItem("penny_access_token") ||
+        undefined
+      : undefined);
+  if (activeToken) headers.set("Authorization", `Bearer ${activeToken}`);
   if (
     init.body &&
     !(init.body instanceof URLSearchParams) &&

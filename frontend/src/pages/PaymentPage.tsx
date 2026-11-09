@@ -123,10 +123,12 @@ export default function PaymentPage({
   const [checkingVault, setCheckingVault] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Fallback order state from sessionStorage or API
+  // Fallback order state from storage or API
   const [order, setOrder] = useState<PendingOrder>(() => {
     if (pendingOrder) return pendingOrder;
-    const saved = sessionStorage.getItem("penny_pending_order");
+    const saved =
+      localStorage.getItem("penny_pending_order") ||
+      sessionStorage.getItem("penny_pending_order");
     if (saved) {
       try {
         return JSON.parse(saved) as PendingOrder;
@@ -148,7 +150,8 @@ export default function PaymentPage({
         },
       ],
       mode:
-        (sessionStorage.getItem("penny_mode") as
+        ((localStorage.getItem("penny_mode") ||
+          sessionStorage.getItem("penny_mode")) as
           | "shop-with-me"
           | "buy-for-me") || "shop-with-me",
     };
@@ -219,14 +222,22 @@ export default function PaymentPage({
   }, [token, onNotify]);
 
   function handlePayPalClick() {
-    sessionStorage.setItem("penny_last_settled_order", JSON.stringify(order));
-    sessionStorage.removeItem("penny_pending_order");
-    if (order.orderId) {
-      sessionStorage.setItem("penny_last_order_id", order.orderId);
+    try {
+      const serialized = JSON.stringify(order);
+      localStorage.setItem("penny_last_settled_order", serialized);
+      sessionStorage.setItem("penny_last_settled_order", serialized);
+      localStorage.removeItem("penny_pending_order");
+      sessionStorage.removeItem("penny_pending_order");
+      if (order.orderId) {
+        localStorage.setItem("penny_last_order_id", order.orderId);
+        sessionStorage.setItem("penny_last_order_id", order.orderId);
+      }
+    } catch (e) {
+      console.warn("Storage error in handlePayPalClick:", e);
     }
+
     if (order.paypalApprovalUrl) {
-      window.open(order.paypalApprovalUrl, "_blank", "noopener,noreferrer");
-      onNotify("Opened PayPal checkout in a new window.");
+      window.location.href = order.paypalApprovalUrl;
     } else {
       onNotify("No PayPal link provided. Continuing to confirmation.", "info");
       onNavigate("success");
@@ -238,8 +249,15 @@ export default function PaymentPage({
     try {
       // User has vault payment token, Penny executes autonomous capture
       await new Promise((res) => setTimeout(res, 1200));
-      sessionStorage.setItem("penny_last_settled_order", JSON.stringify(order));
+      const serialized = JSON.stringify(order);
+      localStorage.setItem("penny_last_settled_order", serialized);
+      sessionStorage.setItem("penny_last_settled_order", serialized);
+      localStorage.removeItem("penny_pending_order");
       sessionStorage.removeItem("penny_pending_order");
+      localStorage.setItem(
+        "penny_last_order_id",
+        order.orderId || "AUTONOMOUS-PAYMENT",
+      );
       sessionStorage.setItem(
         "penny_last_order_id",
         order.orderId || "AUTONOMOUS-PAYMENT",

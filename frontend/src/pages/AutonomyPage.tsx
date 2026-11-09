@@ -19,14 +19,18 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
 
   const [approvalLink, setApprovalLink] = useState<string | null>(null);
   const [setupTokenId, setSetupTokenId] = useState<string>(
-    () => sessionStorage.getItem("penny_vault_setup_token_id") || "",
+    () =>
+      localStorage.getItem("penny_vault_setup_token_id") ||
+      sessionStorage.getItem("penny_vault_setup_token_id") ||
+      "",
   );
 
   const [activeMode, setActiveMode] = useState<"shop-with-me" | "buy-for-me">(
     () => {
-      return sessionStorage.getItem("penny_mode") === "buy-for-me"
-        ? "buy-for-me"
-        : "shop-with-me";
+      const mode =
+        localStorage.getItem("penny_mode") ||
+        sessionStorage.getItem("penny_mode");
+      return mode === "buy-for-me" ? "buy-for-me" : "shop-with-me";
     },
   );
 
@@ -47,9 +51,11 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
         setVaultToken(data);
         if (data) {
           setActiveMode("buy-for-me");
+          localStorage.setItem("penny_mode", "buy-for-me");
           sessionStorage.setItem("penny_mode", "buy-for-me");
         } else {
           setActiveMode("shop-with-me");
+          localStorage.setItem("penny_mode", "shop-with-me");
           sessionStorage.setItem("penny_mode", "shop-with-me");
         }
       })
@@ -65,6 +71,7 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
     const tokenToExchange =
       searchParams.get("approval_token_id") ||
       searchParams.get("token") ||
+      localStorage.getItem("penny_vault_setup_token_id") ||
       sessionStorage.getItem("penny_vault_setup_token_id");
 
     if (isApprovedParam && tokenToExchange && !vaultToken) {
@@ -95,6 +102,7 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
       if (link && id) {
         setApprovalLink(link);
         setSetupTokenId(id);
+        localStorage.setItem("penny_vault_setup_token_id", id);
         sessionStorage.setItem("penny_vault_setup_token_id", id);
 
         // Redirect to PayPal approval page
@@ -122,6 +130,7 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
     const tokenToExchange =
       explicitToken ||
       setupTokenId.trim() ||
+      localStorage.getItem("penny_vault_setup_token_id") ||
       sessionStorage.getItem("penny_vault_setup_token_id");
     if (!tokenToExchange) {
       onNotify(
@@ -141,7 +150,9 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
 
       // Switch mode to buy-for-me
       setActiveMode("buy-for-me");
+      localStorage.setItem("penny_mode", "buy-for-me");
       sessionStorage.setItem("penny_mode", "buy-for-me");
+      localStorage.removeItem("penny_vault_setup_token_id");
       sessionStorage.removeItem("penny_vault_setup_token_id");
       setApprovalLink(null);
       setSetupTokenId("");
@@ -179,7 +190,9 @@ export default function AutonomyPage({ token, onNavigate, onNotify }: Props) {
 
       // Switch mode back to shop-with-me (Shop for me)
       setActiveMode("shop-with-me");
+      localStorage.setItem("penny_mode", "shop-with-me");
       sessionStorage.setItem("penny_mode", "shop-with-me");
+      localStorage.removeItem("penny_vault_setup_token_id");
       sessionStorage.removeItem("penny_vault_setup_token_id");
       setApprovalLink(null);
       setSetupTokenId("");
